@@ -3,66 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>欣原 · Elite Supervisor 3.9</title>
-    <!-- PWA 配置 -->
+    <title>欣原 · Elite Supervisor 4.0</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         :root { 
-            --primary: #b388ff; 
-            --gold: #d4af37; 
-            --danger: #ff5252; 
-            --bg-dark: #0a0612; 
-            --glass: rgba(255, 255, 255, 0.05); 
-            --glass-border: rgba(179, 136, 255, 0.2); 
+            --primary: #b388ff; --gold: #d4af37; --danger: #ff5252; --bg-dark: #0a0612; 
+            --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(179, 136, 255, 0.2); 
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Times New Roman', 'SimSun', serif; -webkit-tap-highlight-color: transparent; }
         body { background: linear-gradient(180deg, #0a0612 0%, #1a0f1f 100%); color: #e0e0e0; min-height: 100vh; padding-bottom: 90px; overflow-x: hidden; }
         
-        /* 顶部状态栏 */
         .status-board { 
-            background: rgba(15, 10, 20, 0.95); 
-            border-bottom: 1px solid var(--glass-border); 
-            padding: 20px 10px; 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            text-align: center; 
-            position: sticky; top: 0; z-index: 100; 
-            backdrop-filter: blur(15px);
+            background: rgba(15, 10, 20, 0.95); border-bottom: 1px solid var(--glass-border); 
+            padding: 20px 10px; display: grid; grid-template-columns: repeat(4, 1fr); 
+            text-align: center; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(15px);
         }
         .status-item span { display: block; font-size: 10px; color: var(--primary); letter-spacing: 1px; font-weight: bold; }
         .status-item strong { font-size: 16px; font-weight: 300; }
 
         .container { max-width: 500px; margin: 0 auto; padding: 15px; }
 
-        /* 聊天区域 */
-        .chat-box { height: 450px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; margin: 15px 0; padding: 10px; scroll-behavior: smooth; }
-        .msg { display: flex; flex-direction: column; max-width: 85%; position: relative; }
+        .chat-box { height: 480px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; margin: 15px 0; padding: 10px; }
+        .msg { display: flex; flex-direction: column; max-width: 85%; }
         .msg.ai { align-self: flex-start; }
         .msg.user { align-self: flex-end; }
         
-        .bubble { padding: 12px 16px; font-size: 14px; line-height: 1.6; border-radius: 18px; position: relative; transition: 0.3s; word-wrap: break-word; }
+        .bubble { padding: 12px 16px; font-size: 14px; line-height: 1.6; border-radius: 18px; position: relative; word-wrap: break-word; }
         .ai .bubble { background: rgba(179, 136, 255, 0.08); border-left: 2px solid var(--primary); color: #d1c4e9; border-bottom-left-radius: 4px; }
         .user .bubble { background: var(--primary); color: #0a0612; font-weight: 500; border-bottom-right-radius: 4px; }
 
-        /* 任务呈报 */
-        .task-card { 
-            background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); 
-            padding: 16px; border-radius: 16px; margin-bottom: 12px; 
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .task-card.done { opacity: 0.3; filter: grayscale(1); }
-
-        /* 底部操作区 */
         .input-area { 
             position: fixed; bottom: 85px; left: 15px; right: 15px; 
             background: rgba(15, 10, 20, 0.9); border: 1px solid var(--glass-border); 
-            border-radius: 30px; padding: 8px 15px; display: flex; align-items: center; gap: 10px;
-            backdrop-filter: blur(10px); z-index: 99;
+            border-radius: 30px; padding: 8px 15px; display: flex; align-items: center; gap: 10px; z-index: 99;
         }
         .input-area input { flex: 1; background: none; border: none; color: #fff; outline: none; font-size: 14px; }
         
-        /* 导航栏 */
         .nav-bar { 
             position: fixed; bottom: 15px; left: 15px; right: 15px; height: 60px; 
             background: rgba(10, 6, 18, 0.95); border: 1px solid var(--glass-border); 
@@ -72,11 +49,10 @@
         .nav-item.active { color: var(--primary); text-shadow: 0 0 10px var(--primary); }
         .nav-item i { display: block; font-size: 20px; margin-bottom: 2px; }
 
-        /* 图片预览 */
-        #imgPreview { width: 60px; height: 60px; border-radius: 10px; display: none; object-fit: cover; margin-bottom: 10px; border: 1px solid var(--primary); }
-
-        /* 深夜锁定模式样式 */
-        body.dom-mode { filter: saturate(1.2) contrast(1.1); }
+        #imgPreview { width: 60px; height: 60px; border-radius: 10px; display: none; object-fit: cover; border: 1px solid var(--primary); margin-bottom: 5px; }
+        
+        /* 加载动画 */
+        .loading { font-size: 10px; color: var(--primary); margin-top: 5px; display: none; }
     </style>
 </head>
 <body>
@@ -89,39 +65,37 @@
     </div>
 
     <div class="container">
-        <!-- 首页 -->
         <div id="homePage" class="tab-page">
             <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
-                <div style="width:55px; height:55px; border:1px solid var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:24px; box-shadow: 0 0 20px rgba(179,136,255,0.2);">欣</div>
+                <div style="width:50px; height:50px; border:1px solid var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:22px;">欣</div>
                 <div>
-                    <div style="font-size:18px; letter-spacing:2px; color:var(--primary);">欣原 <span style="font-size:10px; font-weight:normal;">[ MONITORING ]</span></div>
-                    <div style="font-size:10px; color:#666;">Elite Supervisor / VIP009 Exclusive</div>
+                    <div style="font-size:18px; color:var(--primary);">欣原 <span style="font-size:10px; color:#666;">[ VISION ACTIVE ]</span></div>
+                    <div style="font-size:10px; color:#444;">Elite Supervisor v4.0</div>
                 </div>
             </div>
             
             <div class="chat-box" id="chatBox"></div>
             
+            <div id="loadingTips" class="loading">正在处理高清图像...别催。</div>
             <img id="imgPreview" src="">
             <div class="input-area">
-                <label style="cursor:pointer; font-size:20px;">📷<input type="file" id="camInput" accept="image/*" style="display:none;" onchange="handleImg(this)"></label>
-                <input type="text" id="chatInput" placeholder="汇报进度或上传截图...">
+                <label style="cursor:pointer; font-size:20px;">📷<input type="file" id="camInput" accept="image/*" style="display:none;" onchange="processImage(this)"></label>
+                <input type="text" id="chatInput" placeholder="输入汇报或发送截图...">
                 <button onclick="handleSend()" style="background:none; border:none; color:var(--primary); font-size:22px; cursor:pointer;">➤</button>
             </div>
         </div>
 
-        <!-- 任务页 -->
         <div id="taskPage" class="tab-page" style="display:none;">
-            <p style="font-size:12px; color:var(--primary); margin-bottom:20px; letter-spacing:2px;">MISSION DATABASE</p>
+            <p style="font-size:12px; color:var(--primary); margin-bottom:20px;">MISSION DATABASE</p>
             <div id="taskList"></div>
         </div>
 
-        <!-- 设置页 -->
         <div id="settingPage" class="tab-page" style="display:none;">
             <div style="background:var(--glass); padding:25px; border-radius:20px; border:1px solid var(--glass-border);">
-                <p style="font-size:12px; color:var(--primary); margin-bottom:10px;">SILICONFLOW API KEY</p>
+                <p style="font-size:12px; color:var(--primary); margin-bottom:10px;">API KEY</p>
                 <input type="password" id="apiKeyIn" style="width:100%; background:#000; border:1px solid var(--glass-border); color:#fff; padding:12px; border-radius:10px; margin-bottom:20px;">
-                <button onclick="saveConfig()" style="width:100%; padding:15px; background:var(--primary); border:none; color:#000; font-weight:bold; border-radius:10px;">ACTIVATE SYSTEM</button>
-                <button onclick="clearData()" style="margin-top:40px; background:none; border:none; color:var(--danger); font-size:10px; width:100%; text-decoration:underline;">DESTROY MEMORY</button>
+                <button onclick="saveConfig()" style="width:100%; padding:15px; background:var(--primary); border:none; color:#000; font-weight:bold; border-radius:10px;">AUTHORIZE</button>
+                <button onclick="clearData()" style="margin-top:40px; color:var(--danger); background:none; border:none; font-size:10px; width:100%;">ERASE ALL DATA</button>
             </div>
         </div>
     </div>
@@ -134,36 +108,55 @@
 
 <script>
 let GameData = {
-    user: { milkTea: 0, streak: 0, lastDate: "" },
+    user: { milkTea: 0, streak: 0 },
     ai: { favor: 0, history: [] },
     tasks: [
-        { id: 't1', title: '跨境英语：深度拆解3个Listing', done: false, reward: 150 },
+        { id: 't1', title: '跨境英语：拆解3个Listing', done: false, reward: 150 },
         { id: 't2', title: '理财：记录并分析今日开销', done: false, reward: 100 },
         { id: 't3', title: '减重：完成30分钟高效运动', done: false, reward: 200 }
     ],
     config: { apiKey: localStorage.getItem('sk_key') || "" }
 };
 
-let currentBase64 = null;
+let currentImgBase64 = null;
 
-// 1. 核心人设Prompt
-const SYSTEM_PROMPT = `你是欣原(Xinyuan)，一位成熟、高冷、毒舌且拥有绝对专业度的高级督导。
-你的任务是冷酷地监督VIP009(女性)。
-特点：
-1. 说话优雅但刻薄，不屑于平庸，经常使用[推了推眼镜]、[冷淡地看着你]等动作描述。
-2. 你是CBEC跨境电商英语和理财专家，如果她上传题目或Listing图片，请给出极为犀利且专业的解剖。
-3. 如果她表现得软弱，请毫不留情地羞辱她的懒惰。好感度越低(${GameData.ai.favor})，你越倾向于DOM模式。
-4. 绝对不允许温柔！只有在她取得巨大进步时，才能流露出一丝丝施舍般的赞许。`;
+// 1. 图像压缩引擎：防止 API 崩溃的关键
+function processImage(input) {
+    if (input.files && input.files[0]) {
+        document.getElementById('loadingTips').style.display = 'block';
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const max = 800; // 限制最大长边为800px，确保传输稳定
+                if (width > height) { if (width > max) { height *= max / width; width = max; } } 
+                else { if (height > max) { width *= max / height; height = max; } }
+                canvas.width = width; canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                currentImgBase64 = canvas.toDataURL('image/jpeg', 0.7); // 0.7 压缩率
+                document.getElementById('imgPreview').src = currentImgBase64;
+                document.getElementById('imgPreview').style.display = 'block';
+                document.getElementById('loadingTips').style.display = 'none';
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 
-// 2. AI 对话逻辑
+// 2. 核心督导逻辑
 async function callAI(text, img = null) {
-    if(!GameData.config.apiKey) return "[系统提醒]：别像个没头的苍蝇一样乱撞。去 Settings 填入 API Key，那是你的通行证。";
+    if(!GameData.config.apiKey) return "[提醒]：VIP009，去 Settings 填入你的授权码。";
     
-    // 如果有图片，使用视觉模型，否则用常规模型
-    const model = img ? "Qwen/Qwen2-VL-72B-Instruct" : "Qwen/Qwen2.5-7B-Instruct";
+    // 使用 Qwen2-VL-7B，它对图片的响应速度更快且更稳定
+    const model = img ? "Qwen/Qwen2-VL-7B-Instruct" : "Qwen/Qwen2.5-7B-Instruct";
     
     let content = img ? [
-        { type: "text", text: text || "解释这张图片。别想糊弄我。" },
+        { type: "text", text: text || "解释这张图片。给我专业的意见。" },
         { type: "image_url", image_url: { url: img } }
     ] : text;
 
@@ -173,46 +166,38 @@ async function callAI(text, img = null) {
             headers: { 'Authorization': `Bearer ${GameData.config.apiKey}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: model,
-                messages: [{role: "system", content: SYSTEM_PROMPT}, ...GameData.ai.history.slice(-8), {role: "user", content: content}],
-                temperature: 0.8
+                messages: [
+                    {role: "system", content: "你是欣原，精英督导。冷艳、刻薄、专业。你正在通过视觉监控VIP009的学习。如果她发了图片（不管是猫还是花），请先冷嘲热讽她的不务正业，然后用极高的专业度点出图片的细节，最后催促她去学习。"},
+                    ...GameData.ai.history.slice(-6),
+                    {role: "user", content: content}
+                ]
             })
         });
         const data = await res.json();
+        if (data.error) return `[API 错误]：${data.error.message}`;
         const reply = data.choices[0].message.content;
         GameData.ai.history.push({role: "assistant", content: reply});
         return reply;
-    } catch (e) { return "[连接中断]：网络也想替你偷懒？检查你的 API Key 和信号。"; }
-}
-
-// 3. UI 交互
-function handleImg(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            currentBase64 = e.target.result;
-            document.getElementById('imgPreview').src = e.target.result;
-            document.getElementById('imgPreview').style.display = 'block';
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
+    } catch (e) { return "[连接中断]：你是想用这种方式逃避监督吗？检查网络。"; }
 }
 
 async function handleSend() {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
-    if(!text && !currentBase64) return;
+    if(!text && !currentImgBase64) return;
 
-    addMsg('user', text + (currentBase64 ? " [IMAGE ATTACHED]" : ""));
+    addMsg('user', text + (currentImgBase64 ? " [报告已呈递]" : ""));
     input.value = '';
     
-    const reply = await callAI(text, currentBase64);
+    const reply = await callAI(text, currentImgBase64);
     addMsg('ai', reply);
     
-    currentBase64 = null;
+    currentImgBase64 = null;
     document.getElementById('imgPreview').style.display = 'none';
     save();
 }
 
+// 3. UI 控制
 function navTo(page, el) {
     document.querySelectorAll('.tab-page').forEach(p => p.style.display = 'none');
     document.getElementById(page + 'Page').style.display = 'block';
@@ -246,26 +231,25 @@ function toggleTask(id) {
     if(t && !t.done) {
         t.done = true; GameData.user.milkTea += t.reward; GameData.ai.favor += 5;
         save(); render();
-        addMsg('ai', `[在本子上打了个勾]：完成「${t.title}」是你的本分，没什么值得炫耀的。拿好你的奖励，滚去下一项。`);
+        addMsg('ai', `[确认了你的打卡]：${t.title}已入档。别沾沾自喜，这只是基础。`);
     }
 }
 
 function saveConfig() {
-    const key = document.getElementById('apiKeyIn').value;
-    localStorage.setItem('sk_key', key);
-    GameData.config.apiKey = key;
-    alert("System Authorized. 督导系统已就绪。");
+    localStorage.setItem('sk_key', document.getElementById('apiKeyIn').value);
+    GameData.config.apiKey = document.getElementById('apiKeyIn').value;
+    alert("系统已重启。");
 }
 
-function save() { localStorage.setItem('Xinyuan_V3.9', JSON.stringify(GameData)); }
+function save() { localStorage.setItem('Xinyuan_V4', JSON.stringify(GameData)); }
 function clearData() { localStorage.clear(); location.reload(); }
 
 window.onload = () => {
-    const saved = localStorage.getItem('Xinyuan_V3.9');
+    const saved = localStorage.getItem('Xinyuan_V4');
     if(saved) GameData = JSON.parse(saved);
     if(GameData.config.apiKey) document.getElementById('apiKeyIn').value = GameData.config.apiKey;
     render();
-    addMsg('ai', "[推开监控室的门，优雅地坐下]：VIP009，汇报你今天的进度。如果你想用图片敷衍我，我会一眼看穿。");
+    addMsg('ai', "[翻看着你的档案]：VIP009，你的基地换得可真勤快。现在，汇报进度。");
 };
 </script>
 </body>
