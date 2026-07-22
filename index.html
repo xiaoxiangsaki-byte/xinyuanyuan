@@ -3,39 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>欣原 · Elite Supervisor 5.7</title>
+    <title>欣原 · Elite Supervisor 5.8</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        :root { --primary: #b388ff; --danger: #ff5252; --bg: #050208; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'STSong', serif; }
-        body { background: #050208; color: #e0e0e0; min-height: 100vh; overflow-x: hidden; }
+        :root { 
+            --primary: #b388ff; --gold: #d4af37; --danger: #ff5252; 
+            --bg: #050208; --glass: rgba(255, 255, 255, 0.03); 
+            --glass-border: rgba(179, 136, 255, 0.2); 
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Times New Roman', 'SimSun', serif; -webkit-tap-highlight-color: transparent; }
+        body { 
+            background: linear-gradient(135deg, #0a0612 0%, #1a0f1f 45%, #2d1a35 100%); 
+            color: #e0e0e0; min-height: 100vh; padding-bottom: 140px; overflow-x: hidden;
+        }
+
+        /* 顶部看板：防止文字挤在一起，采用 flex 垂直布局 */
+        .header {
+            background: rgba(10, 6, 18, 0.95); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 15px 10px; display: grid; grid-template-columns: repeat(4, 1fr);
+            text-align: center; position: sticky; top: 0; z-index: 1000;
+        }
+        .header div { display: flex; flex-direction: column; align-items: center; }
+        .header span { display: block; font-size: 10px; color: var(--primary); letter-spacing: 1px; margin-bottom: 4px; font-weight: bold; }
+        .header strong { display: block; font-size: 16px; font-weight: bold; color: #fff; }
+
+        /* 欣原身份展示区 */
+        .ai-banner { display: flex; align-items: center; gap: 15px; padding: 15px; margin-top: 10px; }
+        .ai-face { width: 50px; height: 50px; border: 1px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px; box-shadow: 0 0 15px rgba(179,136,255,0.2); font-weight: bold; }
+
+        /* 任务验证弹窗 (防误触) */
+        #verifyModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 20000; display: none;
+            flex-direction: column; align-items: center; justify-content: center; padding: 25px;
+        }
+        .modal-content { background: #110c18; border: 1px solid var(--primary); padding: 25px; width: 100%; border-radius: 4px; }
+
+        /* 聊天区 */
+        .chat-box { height: calc(100vh - 280px); min-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding: 15px; }
+        .msg { display: flex; flex-direction: column; max-width: 85%; }
+        .msg.ai { align-self: flex-start; }
+        .msg.user { align-self: flex-end; margin-left: auto; }
         
-        /* 导航栏加固：必须最高层级且始终固定 */
-        .nav-bar { 
-            position: fixed; bottom: 0; left: 0; right: 0; height: 60px; 
-            background: #000; border-top: 1px solid rgba(179,136,255,0.2); 
+        .bubble { padding: 12px 16px; font-size: 14px; line-height: 1.6; border-radius: 18px; position: relative; word-wrap: break-word; }
+        .ai .bubble { background: rgba(179,136,255,0.08); border-left: 2px solid var(--primary); color: #d1c4e9; border-bottom-left-radius: 2px; }
+        .user .bubble { background: var(--primary); color: #0a0612; font-weight: 500; border-bottom-right-radius: 2px; }
+
+        /* 任务列表 */
+        .task-card {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            padding: 16px; border-radius: 12px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center; transition: 0.3s;
+            cursor: pointer;
+        }
+        .task-card.done { opacity: 0.3; filter: grayscale(1); }
+
+        /* 商店 */
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+        .shop-item { background: var(--glass); border: 1px solid var(--glass-border); padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; }
+        .shop-item:active { transform: scale(0.95); }
+
+        /* 输入栏加固：单独层级，置于导航栏上方 */
+        .input-bar { 
+            position: fixed; bottom: 70px; left: 0; right: 0; height: 60px;
+            background: rgba(15, 10, 20, 0.95); border-top: 1px solid var(--glass-border); 
+            padding: 10px 15px; display: flex; align-items: center; gap: 10px; z-index: 999;
+        }
+        .input-bar input { flex: 1; background: none; border: none; color: #fff; outline: none; font-size: 14px; }
+
+        /* 导航栏加固：必须最高层级，防止被键盘或输入框遮挡 */
+        .nav-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 70px;
+            background: #000; border-top: 1px solid var(--glass-border);
             display: flex; justify-content: space-around; align-items: center; 
-            z-index: 99999 !important; /* 强制覆盖所有元素 */
+            z-index: 9999 !important;
         }
-        .nav-item { color: #555; text-decoration: none; font-size: 10px; text-align: center; cursor: pointer; }
-        .nav-item.active { color: var(--primary); }
+        .nav-item { color: #444; text-decoration: none; text-align: center; font-size: 11px; flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .nav-item.active { color: var(--primary); text-shadow: 0 0 8px var(--primary); }
+        .nav-item i { display: block; font-size: 18px; margin-bottom: 2px; font-style: normal; }
 
-        /* 输入区加固 */
-        .input-wrapper { 
-            position: fixed; bottom: 70px; left: 0; right: 0; 
-            background: rgba(10, 6, 18, 0.95); padding: 10px 15px;
-            display: flex; gap: 10px; border-top: 1px solid rgba(179,136,255,0.1);
+        /* 强制睡眠遮罩 */
+        #nightLock {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 99999; display: none;
+            flex-direction: column; align-items: center; justify-content: center; text-align: center;
         }
 
-        .container { padding-bottom: 150px; }
-        .chat-box { height: calc(100vh - 250px); overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-        
-        /* 其他样式保持不变，确保结构稳固 */
-        .header { background: #000; padding: 15px; display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; }
+        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
         .tab-page { display: none; }
         .tab-page.active { display: block; }
     </style>
 </head>
 <body>
+
+    <!-- 睡眠锁屏 -->
+    <div id="nightLock">
+        <h1 style="color:var(--danger); font-size:30px; letter-spacing:5px;">GO TO BED.</h1>
+        <p id="nightMsg" style="color:#666; margin-top:20px; padding:0 20px; font-size:14px; line-height:1.6;"></p>
+        <button onclick="forceUnlock()" style="margin-top:30px; background:none; border:1px solid #333; color:#333; padding:8px 20px; font-size:12px; cursor:pointer;">[ 违抗禁令进入 ]</button>
+    </div>
+
+    <!-- 呈报验证弹窗 (防误触) -->
+    <div id="verifyModal">
+        <div class="modal-content">
+            <h4 id="taskTitle" style="color:var(--primary); margin-bottom:15px;">呈递报告</h4>
+            <textarea id="reportText" placeholder="汇报进度...至少需要输入10个字。别想敷衍我。" style="width:100%; height:120px; background:#000; border:1px solid #333; color:#fff; padding:10px; margin-bottom:15px; outline:none; font-size:14px; line-height:1.5;"></textarea>
+            <div style="display:flex; gap:10px;">
+                <button onclick="submitTask()" style="flex:1; padding:12px; background:var(--primary); border:none; font-weight:bold; color:#000; cursor:pointer;">提交审核</button>
+                <button onclick="closeModal()" style="flex:1; padding:12px; background:#222; border:none; color:#fff; cursor:pointer;">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 顶部状态栏 -->
     <div class="header">
         <div><span>FINANCE</span><strong id="milkTea">0</strong></div>
         <div><span>STREAK</span><strong id="streak">0</strong></div>
@@ -44,36 +127,185 @@
     </div>
 
     <div class="container">
+        <!-- 主页 -->
         <div id="homePage" class="tab-page active">
+            <div class="ai-banner">
+                <div class="ai-face">欣</div>
+                <div>
+                    <div style="font-size:16px; color: var(--primary); font-weight: bold;">欣原 <span style="font-size:10px; color:var(--gold);">[ MONITORING ]</span></div>
+                    <div style="font-size:10px; color:#666;">VIP009 Exclusive Supervisor</div>
+                </div>
+            </div>
             <div class="chat-box" id="chatBox"></div>
         </div>
-        <div id="taskPage" class="tab-page" style="display:none; padding:15px;"><div id="taskList"></div></div>
-        <div id="settingPage" class="tab-page" style="display:none; padding:15px;"><input type="text" id="apiKeyIn" placeholder="粘贴API Key" style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid #333;"><button onclick="saveKey()" style="width:100%; margin-top:10px; padding:10px; background:var(--primary);">激活</button></div>
+
+        <!-- 任务 -->
+        <div id="taskPage" class="tab-page">
+            <p style="font-size:12px; color:var(--primary); margin:10px 0 15px 5px; letter-spacing:2px; font-weight:bold;">MISSION REPORTS</p>
+            <div id="taskList"></div>
+        </div>
+
+        <!-- 商店 -->
+        <div id="shopPage" class="tab-page">
+            <p style="font-size:12px; color:var(--primary); margin:10px 0 15px 5px; letter-spacing:2px; font-weight:bold;">LUXURY LOUNGE</p>
+            <div class="shop-grid" id="shopItems"></div>
+        </div>
+
+        <!-- 设置 -->
+        <div id="settingPage" class="tab-page">
+            <div style="background:var(--glass); padding:20px; border-radius:15px; border:1px solid var(--glass-border); margin-top:20px;">
+                <p style="font-size:12px; margin-bottom:10px; color:var(--primary);">SILICONFLOW API KEY</p>
+                <!-- type="text" 彻底防止手机浏览器自动填写账号密码干扰 -->
+                <input type="text" id="apiKeyIn" autocomplete="off" placeholder="粘贴 sk- 密钥到这里" 
+                       style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:12px; border-radius:8px; outline:none; font-size:14px;">
+                <button onclick="saveKey()" style="width:100%; margin-top:20px; padding:12px; background:var(--primary); border:none; font-weight:bold; color:#000; cursor:pointer; border-radius:8px;">保存并激活</button>
+                <button onclick="resetSystem()" style="margin-top:40px; color:var(--danger); background:none; border:none; font-size:11px; width:100%; text-decoration:underline; cursor:pointer;">重置系统数据</button>
+            </div>
+        </div>
     </div>
 
-    <div class="input-wrapper">
-        <input type="text" id="chatInput" placeholder="汇报..." style="flex:1; background:none; border:none; color:#fff; outline:none;">
-        <button onclick="handleSend()" style="background:none; border:none; color:var(--primary); cursor:pointer;">➤</button>
+    <!-- 全局输入栏 (切换标签页时会自动显示/隐藏) -->
+    <div class="input-bar" id="inputBar">
+        <input type="text" id="chatInput" placeholder="在此汇报进度或与她交流...">
+        <button onclick="handleSend()" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:20px;">➤</button>
     </div>
 
+    <!-- 底部导航 -->
     <nav class="nav-bar">
         <a href="javascript:void(0)" class="nav-item active" onclick="navTo('home', this)"><i>🏠</i>Home</a>
         <a href="javascript:void(0)" class="nav-item" onclick="navTo('task', this)"><i>📋</i>Task</a>
+        <a href="javascript:void(0)" class="nav-item" onclick="navTo('shop', this)"><i>💎</i>Shop</a>
         <a href="javascript:void(0)" class="nav-item" onclick="navTo('setting', this)"><i>⚙️</i>Set</a>
     </nav>
 
 <script>
-// ... (之前的逻辑代码保持不变，确保 ID 匹配) ...
-// 关键修正：确保点击 nav-item 后，输入框不遮挡导航
+// ==================== 1. 数据结构 & CST 中国时间 ====================
+let GameData = {
+    user: { milkTea: 0, streak: 0, lastCheck: "" },
+    ai: { favor: 0, history: [] },
+    tasks: [],
+    config: { apiKey: localStorage.getItem('sk_key') || "" }
+};
+
+const getChinaTime = () => new Date(new Date().getTime() + (new Date().getTimezoneOffset() + 480) * 60000);
+
+// ==================== 2. AI 核心集成 ====================
+async function askAI(text) {
+    const key = GameData.config.apiKey;
+    if(!key) return "去 Settings 把 API Key 填了，别让我说第二次。";
+    
+    const isDom = GameData.ai.favor < 0;
+    const prompt = `你是欣原，一位成熟、冷艳、毒舌且极其高傲的精英女监护人。你正在对VIP009(女性)实施严格的学习与生活监督。
+    主线目标：1. 跨境电商英语(分析Listing、撰写细节) 2. 阅读财报理财 3. 空腹有氧与减重 4. 严禁熬夜。
+    性格指令：
+    - 说话极其优雅、冰冷、尖锐。绝对不可以说温柔的话，除非她完成了极大挑战。
+    - 经常使用动作描写，例如：[推了推眼镜，眼神没有一丝温度]、[冷漠地敲击桌面]。
+    - 好感度越低(${GameData.ai.favor})，你对她越冷酷，表现出掌控欲(DOM模式)。
+    - 如果是在审核她的任务报告，必须极具批判性，只有觉得合格时，才在回答的最开头加上 [PASS]。`;
+
+    try {
+        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                model: "Qwen/Qwen2.5-7B-Instruct", 
+                messages: [{role:"system", content:prompt}, ...GameData.ai.history.slice(-8), {role:"user", content:text}] 
+            })
+        });
+        const d = await res.json();
+        const r = d.choices[0].message.content;
+        GameData.ai.history.push({role:"user", content:text}, {role:"assistant", content:r});
+        return r;
+    } catch(e) { return "[连接受阻]：你的网络阻断了我的声音，还是你的密钥被服务器拒绝了？"; }
+}
+
+// ==================== 3. 任务管理 (中国时间刷新) ====================
+function initTasks() {
+    const today = getChinaTime().toLocaleDateString();
+    if (GameData.user.lastCheck !== today) {
+        GameData.tasks = [
+            { id: 'd1', title: 'CBEC: 跨境 Listing 深度翻译', type: 'daily', reward: 150, done: false },
+            { id: 'd2', title: '理财: 行业财报数据剥离', type: 'daily', reward: 200, done: false },
+            { id: 'd3', title: '身材: 空腹核心训练 30分钟', type: 'daily', reward: 100, done: false }
+        ];
+        GameData.user.lastCheck = today;
+        save();
+    }
+}
+
+let activeTaskId = null;
+function openVerify(id) {
+    const t = GameData.tasks.find(x => x.id === id); 
+    if(t.done) return;
+    activeTaskId = id;
+    document.getElementById('taskTitle').innerText = "任务呈报: " + t.title;
+    document.getElementById('verifyModal').style.display = 'flex';
+}
+
+async function submitTask() {
+    const report = document.getElementById('reportText').value.trim();
+    if(report.length < 10) { alert("欣原：这种字数的汇报，你在敷衍谁？至少写满10个字。"); return; }
+    
+    document.getElementById('verifyModal').style.display = 'none';
+    document.getElementById('reportText').value = '';
+    
+    addMsg('ai', `[正在审阅你的汇报...]`);
+    const reply = await askAI(`VIP009提交了任务汇报：'${report}'。请进行严格审核。`);
+    
+    if(reply.includes('[PASS]')) {
+        const t = GameData.tasks.find(x => x.id === activeTaskId);
+        t.done = true; 
+        GameData.user.milkTea += t.reward; 
+        GameData.ai.favor += 5;
+        save(); render();
+    }
+    addMsg('ai', reply.replace('[PASS]', ''));
+}
+
+// ==================== 4. 商店数据 ====================
+const shopData = [
+    { name: '冰镇白葡萄酒', icon: '🥂', price: 500, aff: 30, desc: '冰凉清透，解压的首选。' },
+    { name: '定制高阶财报书', icon: '📊', price: 1000, aff: 70, desc: '她会稍微觉得你求知欲尚可。' },
+    { name: '梵克雅宝项链', icon: '💎', price: 3000, aff: 200, desc: '昂贵的奢侈，她眼里会有少许波澜。' }
+];
+
+// ==================== 5. UI 渲染与导航 ====================
+function render() {
+    document.getElementById('milkTea').innerText = GameData.user.milkTea;
+    document.getElementById('streak').innerText = GameData.user.streak;
+    document.getElementById('love').innerText = GameData.ai.favor;
+    
+    document.getElementById('taskList').innerHTML = GameData.tasks.map(t => `
+        <div class="task-card ${t.done?'done':''}" onclick="openVerify('${t.id}')">
+            <div><strong>${t.title}</strong><br><small>Reward: ${t.reward} 🍼</small></div>
+            <div>${t.done?'✅':'⭕'}</div>
+        </div>
+    `).join('');
+
+    document.getElementById('shopItems').innerHTML = shopData.map(i => `
+        <div class="shop-item" onclick="buy('${i.name}', ${i.price}, ${i.aff})">
+            <div style="font-size:25px; margin-bottom:5px;">${i.icon}</div>
+            <div style="font-size:12px; font-weight:bold;">${i.name}</div>
+            <div style="color:var(--primary); font-size:10px; margin-top:4px;">${i.price} 🍼 (Favor+${i.aff})</div>
+        </div>
+    `).join('');
+}
+
+function buy(name, price, aff) {
+    if(GameData.user.milkTea < price) { 
+        addMsg('ai', `[冷淡地瞥了你一眼]：连基本财务都没自由，就想买这些奢侈品？先去挣够奶茶。`); 
+        return; 
+    }
+    GameData.user.milkTea -= price; 
+    GameData.ai.favor += aff; 
+    save(); render();
+    addMsg('ai', `[动作优雅地收下你的${name}]：你还算懂得我的喜好。那么，今天你的跨境英语任务打算怎么应付我？`);
+}
+
 function navTo(p, el) {
     document.querySelectorAll('.tab-page').forEach(x => x.style.display = 'none');
     document.getElementById(p + 'Page').style.display = 'block';
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     el.classList.add('active');
-    // 如果是 Task 或 Set，隐藏输入框
-    document.querySelector('.input-wrapper').style.display = (p === 'home') ? 'flex' : 'none';
-}
-// ...
-</script>
-</body>
-</html>
+    
+    // 如果不是 Home Tab，
