@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIP009 · 欣原监督系统 6.0</title>
+    <title>VIP009 · 欣原监督系统 6.1</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -47,6 +47,7 @@
             z-index: 0;
         }
         
+        /* 像素装饰元素 - 暗黑冷艳风 */
         .pixel-decoration {
             position: fixed;
             pointer-events: none;
@@ -109,7 +110,7 @@
             padding: 10px 20px;
             background: linear-gradient(135deg, rgba(197, 163, 255, 0.2), rgba(156, 100, 255, 0.1));
             border-radius: 25px;
-            font-size: 18px;
+            font-size: 15px;
             font-weight: bold;
             border: 1px solid rgba(197, 163, 255, 0.3);
             box-shadow: 0 5px 15px rgba(197, 163, 255, 0.15);
@@ -223,31 +224,6 @@
             color: var(--text-secondary); 
             margin-top: 4px; 
             opacity: 0.6; 
-        }
-        
-        .quick-replies { 
-            display: flex; 
-            gap: 8px; 
-            padding: 10px 15px; 
-            flex-wrap: wrap; 
-            background: rgba(0,0,0,0.1);
-        }
-        
-        .quick-reply-btn {
-            padding: 6px 14px;
-            background: rgba(197, 163, 255, 0.1);
-            border: 1px solid rgba(197, 163, 255, 0.25);
-            border-radius: 15px;
-            color: var(--text-primary);
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .quick-reply-btn:hover, .quick-reply-btn:active {
-            background: linear-gradient(135deg, rgba(197, 163, 255, 0.25), rgba(156, 100, 255, 0.15));
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(197, 163, 255, 0.2);
         }
         
         .chat-input-area {
@@ -491,7 +467,6 @@
             to { transform: translateX(0); opacity: 1; } 
         }
         
-        /* 强制覆盖模态框让它有完美的高阶感 */
         .modal {
             display: none;
             position: fixed;
@@ -612,7 +587,8 @@
                     <div class="stat-item"><div class="stat-label">心情</div><div class="stat-value" id="moodStat">100</div></div>
                     <div class="stat-item"><div class="stat-label">专注</div><div class="stat-value" id="focusStat">100</div></div>
                 </div>
-                <div class="currency"><span>🍼</span><span id="milkTeaAmount">0</span></div>
+                <!-- 货币改为：小奶糕 🍰 -->
+                <div class="currency"><span style="font-size: 20px;">🍰</span><span id="milkTeaAmount">0</span></div>
             </div>
         </div>
         
@@ -653,21 +629,15 @@
             
             <div class="chat-messages" id="chatMessages"></div>
             
-            <div class="quick-replies">
-                <button class="quick-reply-btn" onclick="quickReply('开始任务')">⚡ 开始任务</button>
-                <button class="quick-reply-btn" onclick="quickReply('今天表现怎么样？')">📊 今日总结</button>
-                <button class="quick-reply-btn" onclick="quickReply('我完成了！')">✅ 完成了</button>
-                <button class="quick-reply-btn" onclick="quickReply('再给我点时间')">⏰ 延时</button>
-            </div>
+            <!-- 移除了原有的 quick-replies 快捷消息区域 -->
             
             <div class="chat-input-area">
-                <input type="text" class="chat-input" id="chatInput" placeholder="输入消息...按Enter发送">
+                <input type="text" class="chat-input" id="chatInput" placeholder="输入消息...按Enter或键盘发送键发送">
                 <button class="send-btn" onclick="sendMessage()">▶</button>
-                <button class="btn btn-secondary btn-small" onclick="toggleVoice()" id="voiceBtn">🔊</button>
             </div>
         </div>
         
-        <!-- Tab导航 -->
+        <!-- Tab导航 (显式传递 this 解决点击穿透失效问题) -->
         <div class="tabs">
             <div class="tab active" onclick="switchTab('tasks', this)">📋 任务中心</div>
             <div class="tab" onclick="switchTab('shop', this)">🛍️ 礼物商店</div>
@@ -707,12 +677,6 @@
                 <div class="setting-item">
                     <div class="setting-label">🔑 硅基流动 API Key</div>
                     <input type="text" class="setting-input" id="apiKeyInput" placeholder="输入API密钥" autocomplete="off">
-                </div>
-                <div class="setting-item">
-                    <div class="setting-label">🔊 语音播放</div>
-                    <button class="btn btn-small" onclick="toggleVoiceSetting()">
-                        <span id="voiceSettingText">已开启</span>
-                    </button>
                 </div>
                 <div class="setting-item">
                     <div class="setting-label">📢 AI主动推送</div>
@@ -770,7 +734,6 @@
             },
             settings: {
                 apiKey: '',
-                voiceEnabled: true,
                 autoPushEnabled: true
             }
         };
@@ -838,7 +801,6 @@
         // ==================== 任务系统 (更新为主线：跨境英语、财商、身材管理) ====================
         const TaskSystem = {
             generateDailyTasks() {
-                // 动态无重复随机获取
                 const cbecTask = shuffleAndPick(CBEC_POOL, 1)[0];
                 const finTask = shuffleAndPick(FINANCE_POOL, 1)[0];
                 const bodyTask = shuffleAndPick(BODY_POOL, 1)[0];
@@ -982,7 +944,6 @@
                         const cleanReply = reply.replace('[PASS]', '').trim();
                         addAIMessage(cleanReply);
                         
-                        // 审核通过：增加进度
                         let taskList;
                         if (taskId.startsWith('d')) taskList = GameData.tasks.daily;
                         else if (taskId.startsWith('m')) taskList = GameData.tasks.mainQuests;
@@ -994,14 +955,14 @@
                             if (task.progress >= task.maxProgress && !task.completed) {
                                 task.completed = true;
                                 GameData.user.currency.milkTea += task.reward;
-                                showNotification(`✅ 欣原审核通过！完成任务获得 ${task.reward} 🍼`);
+                                showNotification(`✅ 欣原审核通过！完成任务获得 ${task.reward} 🍰`);
                                 RelationshipSystem.changeAffection(5);
                             }
                         }
                     } else {
                         addAIMessage(reply);
                         showNotification(`❌ 审核未通过！好感度下降并被拒。`);
-                        RelationshipSystem.changeAffection(-3); // 打回重罚
+                        RelationshipSystem.changeAffection(-3);
                     }
                 } catch (e) {
                     hideTypingIndicator();
@@ -1013,7 +974,6 @@
             },
             
             updateTaskProgress(taskId, newProgress) {
-                // 废除手动一键加进度，全部走 triggerVerify
                 this.triggerVerify(taskId);
             },
             
@@ -1025,7 +985,6 @@
                     if (!task.completed && !task.expired && now > task.deadline) {
                         task.expired = true;
                         hasExpired = true;
-                        // 任务过期，欣原生气罚好感
                         RelationshipSystem.changeAffection(-10);
                     }
                 });
@@ -1040,7 +999,7 @@
         // ==================== 关系系统 ====================
         const RelationshipSystem = {
             changeAffection(amount) {
-                GameData.ai.affection = Math.max(-100, Math.min(100, GameData.ai.affection + amount)); // 支持负好感DOM掌控模式
+                GameData.ai.affection = Math.max(-100, Math.min(100, GameData.ai.affection + amount));
                 this.updateMood();
                 updateUI();
                 saveData();
@@ -1093,8 +1052,8 @@
                 if (!item) return;
                 
                 if (GameData.user.currency.milkTea < item.price) {
-                    showNotification('❌ 奶茶不足！');
-                    addAIMessage('[冷淡地瞥了你一眼]：财务还没自由，就想买这些奢侈品来打发我？先去赚够奶茶，VIP009。');
+                    showNotification('❌ 小奶糕不足！');
+                    addAIMessage('[冷淡地瞥了你一眼]：财务还没自由，就想买这些奢侈品来打发我？先去赚够小奶糕，VIP009。');
                     return;
                 }
                 
@@ -1106,7 +1065,7 @@
                 const responses = [
                     `[微微一怔，眼波流转]：${item.name}？VIP009，你倒是挺懂得试探我的喜好。`,
                     `[接过你的${item.name}，指尖轻轻触碰]：谢谢。这一次你很用心，VIP009。`,
-                    `[推了推眼镜，冷漠地摩挲着${item.name}]：你花这么多奶茶，是在试图买下我的仁慈么？VIP009。`,
+                    `[推了推眼镜，冷漠地摩挲着${item.name}]：你花这么多小奶糕，是在试图买下我的仁慈么？VIP009。`,
                     `[挑了挑眉，优雅地收下]：既然你坚持，那我就收下了，VIP009。`
                 ];
                 addAIMessage(responses[Math.floor(Math.random() * responses.length)]);
@@ -1136,10 +1095,6 @@
                     hideTypingIndicator();
                     addAIMessage(response);
                     
-                    if (TTSSystem.enabled) {
-                        TTSSystem.speak(response);
-                    }
-                    
                     RelationshipSystem.changeAffection(1);
                 } catch (error) {
                     hideTypingIndicator();
@@ -1155,11 +1110,9 @@
                     return '你还没配置API Key呢！去设置里配置一下吧~';
                 }
 
-                // 提取用户当前的未完成每日与主线任务作为实时监控输入，保证她绝对吃透实时情况
                 const activeDailyList = GameData.tasks.daily.filter(t => !t.completed).map(t => t.title).join('、') || '暂无（均已完成或未刷新）';
                 const activeMainList = GameData.tasks.mainQuests.filter(t => !t.completed).map(t => t.title).join('、') || '暂无';
                 
-                // 深度锁定 VIP009，防止名字出现交错混淆的高质量御姐Prompt
                 const systemPrompt = `你是欣原，一个成熟、高冷、毒舌且极具专业度的高级女监护人。你正在全方位严密监管受督者 VIP009。
 【超级关键】受督者的唯一代号和名称只有：VIP009！禁止在任何时刻将她称呼为 "VIP19"、"VIP09" 或其他任何名字。如称呼错误，说明你是不合格的监护人！
 
@@ -1201,30 +1154,7 @@ VIP009 当前的实时待办任务有：
             sendSystemMessage(message) {
                 setTimeout(() => {
                     addAIMessage(message);
-                    if (TTSSystem.enabled) {
-                        TTSSystem.speak(message);
-                    }
                 }, 1000);
-            }
-        };
-
-        // ==================== TTS语音系统 ====================
-        const TTSSystem = {
-            enabled: true,
-            
-            speak(text) {
-                if (!this.enabled || !('speechSynthesis' in window)) return;
-                
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'zh-CN';
-                utterance.rate = 1.1;
-                utterance.pitch = 1.2;
-                
-                const voices = speechSynthesis.getVoices();
-                const femaleVoice = voices.find(v => v.lang.includes('zh') && v.name.includes('Female'));
-                if (femaleVoice) utterance.voice = femaleVoice;
-                
-                speechSynthesis.speak(utterance);
             }
         };
 
@@ -1253,10 +1183,6 @@ VIP009 当前的实时待办任务有：
                         const randomMessage = messages[Math.floor(Math.random() * messages.length)];
                         addAIMessage(randomMessage);
                         
-                        if (TTSSystem.enabled) {
-                            TTSSystem.speak(randomMessage);
-                        }
-                        
                         if (Notification.permission === "granted") {
                             new Notification("欣原提醒你", {
                                 body: randomMessage,
@@ -1280,7 +1206,7 @@ VIP009 当前的实时待办任务有：
             document.getElementById('milkTeaAmount').textContent = GameData.user.currency.milkTea;
             document.getElementById('streakDays').textContent = GameData.user.records.streak;
             document.getElementById('affectionValue').textContent = GameData.ai.affection;
-            document.getElementById('affectionMiniFill').style.width = Math.max(0, GameData.ai.affection) + '%'; // 负好感显示为0或不溢出
+            document.getElementById('affectionMiniFill').style.width = Math.max(0, GameData.ai.affection) + '%';
             document.getElementById('currentTime').textContent = TimeSystem.formatTime(TimeSystem.getChinaTime());
             
             updateTasks();
@@ -1297,7 +1223,7 @@ VIP009 当前的实时待办任务有：
                     <div class="task-item ${statusClass}">
                         <div class="task-header">
                             <div class="task-title">${task.title}</div>
-                            <div class="task-reward">+${task.reward}🍼</div>
+                            <div class="task-reward">+${task.reward}🍰</div>
                         </div>
                         <div style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">${task.desc}</div>
                         <div class="task-progress">
@@ -1325,7 +1251,7 @@ VIP009 当前的实时待办任务有：
                     <div class="task-item ${statusClass}">
                         <div class="task-header">
                             <div class="task-title">${task.title}</div>
-                            <div class="task-reward">+${task.reward}🍼</div>
+                            <div class="task-reward">+${task.reward}🍰</div>
                         </div>
                         <div style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">${task.description}</div>
                         <div class="task-progress">
@@ -1354,7 +1280,7 @@ VIP009 当前的实时待办任务有：
                     <div class="task-item ${statusClass}">
                         <div class="task-header">
                             <div class="task-title">${task.title}</div>
-                            <div class="task-reward">+${task.reward}🍼</div>
+                            <div class="task-reward">+${task.reward}🍰</div>
                         </div>
                         <div style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">${task.description}</div>
                         <div class="task-progress">
@@ -1381,7 +1307,7 @@ VIP009 当前的实时待办任务有：
                     <div class="shop-item-icon">${item.icon}</div>
                     <div class="shop-item-name">${item.name}</div>
                     <div style="font-size: 11px; color: var(--text-secondary); margin: 5px 0;">${item.desc}</div>
-                    <div class="shop-item-price">${item.price}🍼</div>
+                    <div class="shop-item-price">${item.price}🍰</div>
                     <div style="font-size: 11px; color: var(--primary); margin-top: 5px;">好感+${item.affection}</div>
                 </div>
             `).join('');
@@ -1410,7 +1336,6 @@ VIP009 当前的实时待办任务有：
             
             const html = `
                 <div class="message-bubble ai" id="${messageId}">
-                    <!-- 软化微光高拟真SVG头像 -->
                     <svg class="ai-avatar-img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width: 45px; height: 45px; border-radius: 50%; border: 1.5px solid var(--accent); box-shadow: 0 0 10px rgba(197, 163, 255, 0.4);">
                         <defs>
                             <radialGradient id="grad_msg" cx="50%" cy="50%" r="50%">
@@ -1487,14 +1412,12 @@ VIP009 当前的实时待办任务有：
             
             const chatTask = GameData.tasks.daily.find(t => t.id === 'd4');
             if (chatTask && !chatTask.completed) {
-                // 和欣原聊天的每日进度只算正常的互动
                 taskProgressUp('d4');
             }
             
             AISystem.sendMessage(message);
         }
 
-        // 内部非呈报类进度简单叠加(只针对特殊任务，如聊天数)
         function taskProgressUp(taskId) {
             const task = GameData.tasks.daily.find(t => t.id === taskId);
             if (!task || task.completed) return;
@@ -1502,7 +1425,7 @@ VIP009 当前的实时待办任务有：
             if (task.progress >= task.maxProgress) {
                 task.completed = true;
                 GameData.user.currency.milkTea += task.reward;
-                showNotification(`✅ 特殊任务完成！获得 ${task.reward} 🍼`);
+                showNotification(`✅ 特殊任务完成！获得 ${task.reward} 🍰`);
                 RelationshipSystem.changeAffection(2);
             }
             saveData();
@@ -1547,7 +1470,6 @@ VIP009 当前的实时待办任务有：
         function showModal(title, body) {
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalBody').innerHTML = body;
-            // 恢复标准底栏
             document.getElementById('modalFooter').innerHTML = `<button class="btn btn-small" onclick="closeModal()">关闭</button>`;
             document.getElementById('modal').classList.add('active');
         }
@@ -1573,20 +1495,6 @@ VIP009 当前的实时待办任务有：
         }
 
         // ==================== 设置相关 ====================
-        function toggleVoice() {
-            TTSSystem.enabled = !TTSSystem.enabled;
-            const btn = document.getElementById('voiceBtn');
-            btn.textContent = TTSSystem.enabled ? '🔊' : '🔇';
-            showNotification(TTSSystem.enabled ? '语音已开启' : '语音已关闭');
-        }
-
-        function toggleVoiceSetting() {
-            GameData.settings.voiceEnabled = !GameData.settings.voiceEnabled;
-            TTSSystem.enabled = GameData.settings.voiceEnabled;
-            document.getElementById('voiceSettingText').textContent = GameData.settings.voiceEnabled ? '已开启' : '已关闭';
-            saveData();
-        }
-
         function toggleAutoPush() {
             GameData.settings.autoPushEnabled = !GameData.settings.autoPushEnabled;
             document.getElementById('autoPushText').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
@@ -1693,8 +1601,6 @@ VIP009 当前的实时待办任务有：
             if (GameData.settings.apiKey) {
                 document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
             }
-            TTSSystem.enabled = GameData.settings.voiceEnabled;
-            document.getElementById('voiceSettingText').textContent = GameData.settings.voiceEnabled ? '已开启' : '已关闭';
             document.getElementById('autoPushText').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
             
             saveData();
