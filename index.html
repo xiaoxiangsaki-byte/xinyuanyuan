@@ -3,309 +3,1588 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>欣原 · Elite Supervisor 5.8</title>
+    <title>VIP009 · 欣原监督系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #c5a3ff; /* 荧光柔紫 */
+            --secondary: #9c64ff; /* 皇家幽紫 */
+            --accent: #ffd54f; /* 尊贵暗金 */
+            --bg-dark: #080410; /* 极夜深渊 */
+            --bg-card: rgba(22, 12, 35, 0.85); /* 磨砂半透紫 */
+            --text-primary: #ffffff;
+            --text-secondary: #b39ddb; /* 优雅薰衣草 */
+            --success: #69f0ae; /* 盎然翡绿 */
+            --danger: #ff5252;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #07030d 0%, #150a24 40%, #26113b 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(197, 163, 255, 0.08), transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(156, 100, 255, 0.08), transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* 像素装饰元素 - 改为暗黑冷艳风 */
+        .pixel-decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.15;
+            animation: float 6s ease-in-out infinite;
+            font-size: 45px;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+        
+        .pixel-heart-1 { top: 10%; left: 5%; animation-delay: 0s; }
+        .pixel-heart-2 { top: 60%; right: 8%; animation-delay: 1.5s; }
+        .pixel-paw { bottom: 15%; left: 10%; animation-delay: 3s; }
+        .pixel-bow { top: 35%; right: 5%; animation-delay: 2s; }
+        
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 15px; 
+            position: relative; 
+            z-index: 1; 
+        }
+        
+        .header {
+            background: linear-gradient(135deg, rgba(197, 163, 255, 0.1), rgba(156, 100, 255, 0.05));
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(197, 163, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(156, 100, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .user-info { 
+            display: flex; 
+            justify-content: space-between; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+            align-items: center; 
+        }
+        
+        .user-stats { display: flex; gap: 15px; flex-wrap: wrap; }
+        .stat-item { display: flex; flex-direction: column; align-items: center; }
+        .stat-label { font-size: 11px; color: var(--text-secondary); }
+        .stat-value { 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: var(--primary); 
+            text-shadow: 0 0 10px rgba(197, 163, 255, 0.4); 
+        }
+        
+        .currency {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(197, 163, 255, 0.2), rgba(156, 100, 255, 0.1));
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            border: 1px solid rgba(197, 163, 255, 0.3);
+            box-shadow: 0 5px 15px rgba(197, 163, 255, 0.15);
+        }
+        
+        .ai-chat-section {
+            background: linear-gradient(135deg, rgba(15, 10, 25, 0.95), rgba(30, 15, 45, 0.9));
+            border-radius: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(197, 163, 255, 0.2);
+            box-shadow: 0 15px 40px rgba(156, 100, 255, 0.15);
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+        }
+        
+        .chat-header {
+            background: linear-gradient(90deg, rgba(156, 100, 255, 0.2), rgba(197, 163, 255, 0.1));
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(197, 163, 255, 0.1);
+        }
+        
+        .ai-avatar-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 15px rgba(197, 163, 255, 0.4);
+            object-fit: cover;
+        }
+        
+        .ai-info { flex: 1; margin-left: 12px; }
+        .ai-name { 
+            font-size: 20px; 
+            font-weight: bold; 
+            background: linear-gradient(90deg, var(--primary), var(--accent)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        .ai-status { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        
+        .affection-indicator { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-end; 
+            gap: 4px; 
+        }
+        .affection-mini-bar { 
+            width: 90px; 
+            height: 6px; 
+            background: rgba(0,0,0,0.5); 
+            border-radius: 3px; 
+            overflow: hidden; 
+        }
+        .affection-mini-fill { 
+            height: 100%; 
+            background: linear-gradient(90deg, var(--primary), var(--accent)); 
+            transition: width 0.5s; 
+        }
+        
+        .chat-messages { 
+            height: 350px; 
+            overflow-y: auto; 
+            padding: 15px; 
+            background: rgba(0,0,0,0.3); 
+        }
+        
+        .message-bubble { 
+            display: flex; 
+            margin-bottom: 15px; 
+            animation: messageSlideIn 0.3s ease; 
+        }
+        
+        @keyframes messageSlideIn { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        .message-bubble.ai { justify-content: flex-start; }
+        .message-bubble.user { justify-content: flex-end; }
+        
+        .message-content { max-width: 80%; margin: 0 10px; }
+        
+        .message-text {
+            padding: 12px 18px;
+            border-radius: 16px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            font-size: 14px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+        
+        .message-bubble.ai .message-text {
+            background: linear-gradient(135deg, rgba(197, 163, 255, 0.15), rgba(156, 100, 255, 0.1));
+            border: 1px solid rgba(197, 163, 255, 0.2);
+            border-top-left-radius: 2px;
+            color: #e2d9f3;
+        }
+        
+        .message-bubble.user .message-text {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-top-right-radius: 2px;
+            color: #ffffff;
+        }
+        
+        .message-time { 
+            font-size: 10px; 
+            color: var(--text-secondary); 
+            margin-top: 4px; 
+            opacity: 0.6; 
+        }
+        
+        .quick-replies { 
+            display: flex; 
+            gap: 8px; 
+            padding: 10px 15px; 
+            flex-wrap: wrap; 
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .quick-reply-btn {
+            padding: 6px 14px;
+            background: rgba(197, 163, 255, 0.1);
+            border: 1px solid rgba(197, 163, 255, 0.25);
+            border-radius: 15px;
+            color: var(--text-primary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quick-reply-btn:hover, .quick-reply-btn:active {
+            background: linear-gradient(135deg, rgba(197, 163, 255, 0.25), rgba(156, 100, 255, 0.15));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(197, 163, 255, 0.2);
+        }
+        
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+            padding: 12px 15px;
+            background: rgba(0,0,0,0.4);
+            border-top: 1px solid rgba(197, 163, 255, 0.15);
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 12px 18px;
+            background: rgba(10, 5, 20, 0.6);
+            border: 1px solid rgba(197, 163, 255, 0.25);
+            border-radius: 20px;
+            color: var(--text-primary);
+            outline: none;
+            font-size: 14px;
+        }
+        
+        .chat-input::placeholder { color: var(--text-secondary); opacity: 0.5; }
+        
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 50%;
+            color: #000;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .send-btn:hover, .send-btn:active { 
+            transform: scale(1.05); 
+            box-shadow: 0 0 15px rgba(197, 163, 255, 0.5); 
+        }
+        
+        .btn {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 20px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(197, 163, 255, 0.2);
+        }
+        
+        .btn:hover, .btn:active { 
+            transform: translateY(-2px); 
+            box-shadow: 0 5px 15px rgba(197, 163, 255, 0.4); 
+        }
+        
+        .btn-secondary { 
+            background: rgba(15, 10, 25, 0.7); 
+            border: 1px solid rgba(197, 163, 255, 0.3); 
+            color: var(--text-primary);
+        }
+        .btn-small { padding: 6px 14px; font-size: 12px; }
+        
+        /* 导航栏加固：支持 PWA 和响应式，防止点击失效 */
+        .tabs { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 15px; 
+            flex-wrap: wrap; 
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background: rgba(15, 10, 25, 0.6);
+            border: 1px solid rgba(197, 163, 255, 0.2);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            user-select: none;
+            color: var(--text-secondary);
+        }
+        
+        .tab:active { transform: scale(0.97); }
+        
+        .tab.active { 
+            background: linear-gradient(135deg, rgba(197, 163, 255, 0.2), rgba(156, 100, 255, 0.15));
+            border-color: var(--primary);
+            color: var(--text-primary);
+            box-shadow: 0 4px 15px rgba(156, 100, 255, 0.2);
+        }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .tasks-section { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 15px; 
+        }
+        
+        .task-category { 
+            background: linear-gradient(135deg, rgba(20, 10, 30, 0.85), rgba(35, 15, 50, 0.8));
+            border-radius: 18px;
+            padding: 18px;
+            border: 1px solid rgba(197, 163, 255, 0.2);
+            box-shadow: 0 5px 20px rgba(156, 100, 255, 0.1);
+        }
+        
+        .category-title { 
+            font-size: 16px; 
+            font-weight: bold; 
+            margin-bottom: 12px; 
+            color: var(--primary); 
+            display: flex; 
+            gap: 8px; 
+            align-items: center; 
+        }
+        
+        .task-item {
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--primary);
+            transition: all 0.3s;
+        }
+        
+        .task-item:hover, .task-item:active { 
+            transform: translateX(4px); 
+            box-shadow: 0 4px 12px rgba(197, 163, 255, 0.15); 
+        }
+        
+        .task-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .task-title { font-weight: bold; font-size: 14px; }
+        .task-reward { color: var(--primary); font-weight: bold; font-size: 13px; }
+        .task-progress { 
+            height: 6px; 
+            background: rgba(0,0,0,0.5); 
+            border-radius: 3px; 
+            overflow: hidden; 
+            margin: 8px 0; 
+        }
+        .task-progress-fill { 
+            height: 100%; 
+            background: linear-gradient(90deg, var(--primary), var(--accent)); 
+            transition: width 0.5s; 
+        }
+        .task-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .task-item.completed { opacity: 0.5; }
+        .task-item.expired { opacity: 0.4; }
+        
+        .shop-section { 
+            background: linear-gradient(135deg, rgba(20, 10, 30, 0.85), rgba(35, 15, 50, 0.8));
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(197, 163, 255, 0.2);
+        }
+        
+        .shop-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
+            gap: 12px; 
+        }
+        
+        .shop-item {
+            background: rgba(0,0,0,0.3);
+            padding: 15px 10px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        
+        .shop-item:hover, .shop-item:active { 
+            transform: translateY(-5px); 
+            border-color: var(--primary); 
+            box-shadow: 0 8px 20px rgba(156, 100, 255, 0.25); 
+        }
+        
+        .shop-item-icon { font-size: 40px; margin-bottom: 8px; }
+        .shop-item-name { font-weight: bold; margin-bottom: 6px; font-size: 13px; }
+        .shop-item-price { color: var(--primary); font-weight: bold; font-size: 14px; }
+        
+        .settings-section { 
+            background: linear-gradient(135deg, rgba(20, 10, 30, 0.85), rgba(35, 15, 50, 0.8));
+            border-radius: 18px;
+            padding: 20px;
+            border: 1px solid rgba(197, 163, 255, 0.2);
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 12px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            border-left: 3px solid var(--primary);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        /* 强制关闭自动填充弹出框 */
+        .setting-input {
+            padding: 8px 15px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(197, 163, 255, 0.3);
+            border-radius: 6px;
+            color: var(--text-primary);
+            min-width: 200px;
+            flex: 1;
+            outline: none;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, rgba(156, 100, 255, 0.95), rgba(197, 163, 255, 0.9));
+            border-radius: 12px;
+            z-index: 10000;
+            animation: slideInRight 0.3s;
+            box-shadow: 0 8px 30px rgba(156, 100, 255, 0.4);
+            max-width: 300px;
+            color: #000;
+            font-weight: bold;
+        }
+        
+        @keyframes slideInRight { 
+            from { transform: translateX(350px); opacity: 0; } 
+            to { transform: translateX(0); opacity: 1; } 
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: linear-gradient(135deg, rgba(20, 10, 30, 0.95), rgba(35, 15, 50, 0.9));
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 450px;
+            width: 90%;
+            border: 2px solid var(--primary);
+            box-shadow: 0 15px 40px rgba(156, 100, 255, 0.4);
+        }
+        
+        .modal-header { 
+            font-size: 22px; 
+            font-weight: bold; 
+            margin-bottom: 15px; 
+            color: var(--primary); 
+        }
+        .modal-body { margin-bottom: 20px; line-height: 1.6; }
+        .modal-footer { display: flex; gap: 10px; justify-content: flex-end; }
+        
+        .typing-indicator {
+            display: inline-flex;
+            gap: 4px;
+            padding: 8px 12px;
+            background: rgba(197, 163, 255, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(197, 163, 255, 0.2);
+        }
+        
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typingBounce { 
+            0%, 60%, 100% { transform: translateY(0); } 
+            30% { transform: translateY(-8px); } 
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header { padding: 15px; }
+            .chat-messages { height: 280px; }
+            .user-info { flex-direction: column; align-items: stretch; }
+            .tasks-section { grid-template-columns: 1fr; }
+            .setting-item { flex-direction: column; align-items: stretch; }
+            .setting-input { min-width: 100%; }
+            .pixel-decoration { display: none; }
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            border-radius: 4px; 
+        }
+    </style>
+    
+    <!-- PWA 支持 -->
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#b388ff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <style>
-        :root { 
-            --primary: #b388ff; --gold: #d4af37; --danger: #ff5252; 
-            --bg: #050208; --glass: rgba(255, 255, 255, 0.03); 
-            --glass-border: rgba(179, 136, 255, 0.2); 
+    <meta name="apple-mobile-web-app-title" content="VIP009">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('Service Worker 已注册'))
+                    .catch(err => console.log('Service Worker 注册失败:', err));
+            });
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Times New Roman', 'SimSun', serif; -webkit-tap-highlight-color: transparent; }
-        body { 
-            background: linear-gradient(135deg, #0a0612 0%, #1a0f1f 45%, #2d1a35 100%); 
-            color: #e0e0e0; min-height: 100vh; padding-bottom: 140px; overflow-x: hidden;
-        }
-
-        /* 顶部看板：防止文字挤在一起，采用 flex 垂直布局 */
-        .header {
-            background: rgba(10, 6, 18, 0.95); backdrop-filter: blur(15px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 15px 10px; display: grid; grid-template-columns: repeat(4, 1fr);
-            text-align: center; position: sticky; top: 0; z-index: 1000;
-        }
-        .header div { display: flex; flex-direction: column; align-items: center; }
-        .header span { display: block; font-size: 10px; color: var(--primary); letter-spacing: 1px; margin-bottom: 4px; font-weight: bold; }
-        .header strong { display: block; font-size: 16px; font-weight: bold; color: #fff; }
-
-        /* 欣原身份展示区 */
-        .ai-banner { display: flex; align-items: center; gap: 15px; padding: 15px; margin-top: 10px; }
-        .ai-face { width: 50px; height: 50px; border: 1px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px; box-shadow: 0 0 15px rgba(179,136,255,0.2); font-weight: bold; }
-
-        /* 任务验证弹窗 (防误触) */
-        #verifyModal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 20000; display: none;
-            flex-direction: column; align-items: center; justify-content: center; padding: 25px;
-        }
-        .modal-content { background: #110c18; border: 1px solid var(--primary); padding: 25px; width: 100%; border-radius: 4px; }
-
-        /* 聊天区 */
-        .chat-box { height: calc(100vh - 280px); min-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding: 15px; }
-        .msg { display: flex; flex-direction: column; max-width: 85%; }
-        .msg.ai { align-self: flex-start; }
-        .msg.user { align-self: flex-end; margin-left: auto; }
-        
-        .bubble { padding: 12px 16px; font-size: 14px; line-height: 1.6; border-radius: 18px; position: relative; word-wrap: break-word; }
-        .ai .bubble { background: rgba(179,136,255,0.08); border-left: 2px solid var(--primary); color: #d1c4e9; border-bottom-left-radius: 2px; }
-        .user .bubble { background: var(--primary); color: #0a0612; font-weight: 500; border-bottom-right-radius: 2px; }
-
-        /* 任务列表 */
-        .task-card {
-            background: var(--glass); border: 1px solid var(--glass-border);
-            padding: 16px; border-radius: 12px; margin-bottom: 12px;
-            display: flex; justify-content: space-between; align-items: center; transition: 0.3s;
-            cursor: pointer;
-        }
-        .task-card.done { opacity: 0.3; filter: grayscale(1); }
-
-        /* 商店 */
-        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
-        .shop-item { background: var(--glass); border: 1px solid var(--glass-border); padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; }
-        .shop-item:active { transform: scale(0.95); }
-
-        /* 输入栏加固：单独层级，置于导航栏上方 */
-        .input-bar { 
-            position: fixed; bottom: 70px; left: 0; right: 0; height: 60px;
-            background: rgba(15, 10, 20, 0.95); border-top: 1px solid var(--glass-border); 
-            padding: 10px 15px; display: flex; align-items: center; gap: 10px; z-index: 999;
-        }
-        .input-bar input { flex: 1; background: none; border: none; color: #fff; outline: none; font-size: 14px; }
-
-        /* 导航栏加固：必须最高层级，防止被键盘或输入框遮挡 */
-        .nav-bar {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 70px;
-            background: #000; border-top: 1px solid var(--glass-border);
-            display: flex; justify-content: space-around; align-items: center; 
-            z-index: 9999 !important;
-        }
-        .nav-item { color: #444; text-decoration: none; text-align: center; font-size: 11px; flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .nav-item.active { color: var(--primary); text-shadow: 0 0 8px var(--primary); }
-        .nav-item i { display: block; font-size: 18px; margin-bottom: 2px; font-style: normal; }
-
-        /* 强制睡眠遮罩 */
-        #nightLock {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 99999; display: none;
-            flex-direction: column; align-items: center; justify-content: center; text-align: center;
-        }
-
-        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
-        .tab-page { display: none; }
-        .tab-page.active { display: block; }
-    </style>
+    </script>
 </head>
 <body>
-
-    <!-- 睡眠锁屏 -->
-    <div id="nightLock">
-        <h1 style="color:var(--danger); font-size:30px; letter-spacing:5px;">GO TO BED.</h1>
-        <p id="nightMsg" style="color:#666; margin-top:20px; padding:0 20px; font-size:14px; line-height:1.6;"></p>
-        <button onclick="forceUnlock()" style="margin-top:30px; background:none; border:1px solid #333; color:#333; padding:8px 20px; font-size:12px; cursor:pointer;">[ 违抗禁令进入 ]</button>
-    </div>
-
-    <!-- 呈报验证弹窗 (防误触) -->
-    <div id="verifyModal">
-        <div class="modal-content">
-            <h4 id="taskTitle" style="color:var(--primary); margin-bottom:15px;">呈递报告</h4>
-            <textarea id="reportText" placeholder="汇报进度...至少需要输入10个字。别想敷衍我。" style="width:100%; height:120px; background:#000; border:1px solid #333; color:#fff; padding:10px; margin-bottom:15px; outline:none; font-size:14px; line-height:1.5;"></textarea>
-            <div style="display:flex; gap:10px;">
-                <button onclick="submitTask()" style="flex:1; padding:12px; background:var(--primary); border:none; font-weight:bold; color:#000; cursor:pointer;">提交审核</button>
-                <button onclick="closeModal()" style="flex:1; padding:12px; background:#222; border:none; color:#fff; cursor:pointer;">取消</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 顶部状态栏 -->
-    <div class="header">
-        <div><span>FINANCE</span><strong id="milkTea">0</strong></div>
-        <div><span>STREAK</span><strong id="streak">0</strong></div>
-        <div><span>FAVOR</span><strong id="love">0</strong></div>
-        <div><span>MOOD</span><strong id="moodStat">100</strong></div>
-    </div>
+    <!-- 暗紫冷艳风格像素装饰 -->
+    <div class="pixel-decoration pixel-heart-1">🔮</div>
+    <div class="pixel-decoration pixel-heart-2">🥀</div>
+    <div class="pixel-decoration pixel-paw">🐾</div>
+    <div class="pixel-decoration pixel-bow">🎀</div>
 
     <div class="container">
-        <!-- 主页 -->
-        <div id="homePage" class="tab-page active">
-            <div class="ai-banner">
-                <div class="ai-face">欣</div>
+        <!-- 顶部状态栏 -->
+        <div class="header">
+            <div class="user-info">
                 <div>
-                    <div style="font-size:16px; color: var(--primary); font-weight: bold;">欣原 <span style="font-size:10px; color:var(--gold);">[ MONITORING ]</span></div>
-                    <div style="font-size:10px; color:#666;">VIP009 Exclusive Supervisor</div>
+                    <h1 style="font-size: 24px; margin-bottom: 5px; color: var(--primary);">VIP009 · 欣原监督系统</h1>
+                    <p style="color: var(--text-secondary); font-size: 13px;">
+                        <span id="currentTime"></span> | 连续打卡: <span id="streakDays" style="color: var(--primary); font-weight: bold;">0</span>天
+                    </p>
+                </div>
+                <div class="user-stats">
+                    <div class="stat-item"><div class="stat-label">健康</div><div class="stat-value" id="healthStat">100</div></div>
+                    <div class="stat-item"><div class="stat-label">活力</div><div class="stat-value" id="energyStat">100</div></div>
+                    <div class="stat-item"><div class="stat-label">心情</div><div class="stat-value" id="moodStat">100</div></div>
+                    <div class="stat-item"><div class="stat-label">专注</div><div class="stat-value" id="focusStat">100</div></div>
+                </div>
+                <div class="currency"><span>🍼</span><span id="milkTeaAmount">0</span></div>
+            </div>
+        </div>
+        
+        <!-- AI聊天区域 -->
+        <div class="ai-chat-section">
+            <div class="chat-header">
+                <div style="display: flex; align-items: center; flex: 1;">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%239c64ff'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='white'%3E欣%3C/text%3E%3C/svg%3E" class="ai-avatar-img" alt="欣原">
+                    <div class="ai-info">
+                        <div class="ai-name">欣原</div>
+                        <div class="ai-status">在线 · <span id="aiMoodText">😐 冷淡</span></div>
+                    </div>
+                </div>
+                <div class="affection-indicator">
+                    <div style="font-size: 12px; color: var(--text-secondary);">
+                        <span id="relationshipStatus">陌生人</span> · <span id="affectionValue">0</span>/100
+                    </div>
+                    <div class="affection-mini-bar">
+                        <div class="affection-mini-fill" id="affectionMiniFill" style="width: 0%"></div>
+                    </div>
                 </div>
             </div>
-            <div class="chat-box" id="chatBox"></div>
+            
+            <div class="chat-messages" id="chatMessages"></div>
+            
+            <div class="quick-replies">
+                <button class="quick-reply-btn" onclick="quickReply('开始任务')">⚡ 开始任务</button>
+                <button class="quick-reply-btn" onclick="quickReply('今天表现怎么样？')">📊 今日总结</button>
+                <button class="quick-reply-btn" onclick="quickReply('我完成了！')">✅ 完成了</button>
+                <button class="quick-reply-btn" onclick="quickReply('再给我点时间')">⏰ 延时</button>
+            </div>
+            
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chatInput" placeholder="输入消息...按Enter发送">
+                <button class="send-btn" onclick="sendMessage()">▶</button>
+                <button class="btn btn-secondary btn-small" onclick="toggleVoice()" id="voiceBtn">🔊</button>
+            </div>
         </div>
-
-        <!-- 任务 -->
-        <div id="taskPage" class="tab-page">
-            <p style="font-size:12px; color:var(--primary); margin:10px 0 15px 5px; letter-spacing:2px; font-weight:bold;">MISSION REPORTS</p>
-            <div id="taskList"></div>
+        
+        <!-- Tab导航 (显式传递 this 解决点击穿透失效问题) -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('tasks', this)">📋 任务中心</div>
+            <div class="tab" onclick="switchTab('shop', this)">🛍️ 礼物商店</div>
+            <div class="tab" onclick="switchTab('settings', this)">⚙️ 系统设置</div>
         </div>
-
-        <!-- 商店 -->
-        <div id="shopPage" class="tab-page">
-            <p style="font-size:12px; color:var(--primary); margin:10px 0 15px 5px; letter-spacing:2px; font-weight:bold;">LUXURY LOUNGE</p>
-            <div class="shop-grid" id="shopItems"></div>
+        
+        <!-- 任务Tab -->
+        <div id="tasksTab" class="tab-content active">
+            <div class="tasks-section">
+                <div class="task-category">
+                    <div class="category-title"><span>⏰</span><span>每日任务</span></div>
+                    <div id="dailyTasksList"></div>
+                </div>
+                <div class="task-category">
+                    <div class="category-title"><span>🎯</span><span>主线任务</span></div>
+                    <div id="mainQuestsList"></div>
+                </div>
+                <div class="task-category">
+                    <div class="category-title"><span>⭐</span><span>支线任务</span></div>
+                    <div id="sideQuestsList"></div>
+                </div>
+            </div>
         </div>
-
-        <!-- 设置 -->
-        <div id="settingPage" class="tab-page">
-            <div style="background:var(--glass); padding:20px; border-radius:15px; border:1px solid var(--glass-border); margin-top:20px;">
-                <p style="font-size:12px; margin-bottom:10px; color:var(--primary);">SILICONFLOW API KEY</p>
-                <!-- type="text" 彻底防止手机浏览器自动填写账号密码干扰 -->
-                <input type="text" id="apiKeyIn" autocomplete="off" placeholder="粘贴 sk- 密钥到这里" 
-                       style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:12px; border-radius:8px; outline:none; font-size:14px;">
-                <button onclick="saveKey()" style="width:100%; margin-top:20px; padding:12px; background:var(--primary); border:none; font-weight:bold; color:#000; cursor:pointer; border-radius:8px;">保存并激活</button>
-                <button onclick="resetSystem()" style="margin-top:40px; color:var(--danger); background:none; border:none; font-size:11px; width:100%; text-decoration:underline; cursor:pointer;">重置系统数据</button>
+        
+        <!-- 商店Tab -->
+        <div id="shopTab" class="tab-content">
+            <div class="shop-section">
+                <h2 style="margin-bottom: 20px; color: var(--primary);">💝 礼物商店</h2>
+                <div class="shop-grid" id="shopGrid"></div>
+            </div>
+        </div>
+        
+        <!-- 设置Tab -->
+        <div id="settingsTab" class="tab-content">
+            <div class="settings-section">
+                <h2 style="margin-bottom: 20px; color: var(--primary);">⚙️ 系统设置</h2>
+                <div class="setting-item">
+                    <div class="setting-label">🔑 硅基流动 API Key</div>
+                    <!-- 将 type 改为 text，并加上 autocomplete="off" 防止浏览器拦截干扰 -->
+                    <input type="text" class="setting-input" id="apiKeyInput" placeholder="输入API密钥" autocomplete="off">
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">🔊 语音播放</div>
+                    <button class="btn btn-small" onclick="toggleVoiceSetting()">
+                        <span id="voiceSettingText">已开启</span>
+                    </button>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">📢 AI主动推送</div>
+                    <button class="btn btn-small" onclick="toggleAutoPush()">
+                        <span id="autoPushText">已开启</span>
+                    </button>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">💾 数据管理</div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-secondary btn-small" onclick="exportData()">导出数据</button>
+                        <button class="btn btn-secondary btn-small" onclick="importData()">导入数据</button>
+                        <button class="btn btn-secondary btn-small" onclick="resetData()" style="background: linear-gradient(135deg, #ff6b6b, #ee5a6f);">重置数据</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 全局输入栏 (切换标签页时会自动显示/隐藏) -->
-    <div class="input-bar" id="inputBar">
-        <input type="text" id="chatInput" placeholder="在此汇报进度或与她交流...">
-        <button onclick="handleSend()" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:20px;">➤</button>
+    <!-- 模态框 -->
+    <div id="modal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header" id="modalTitle">标题</div>
+            <div class="modal-body" id="modalBody">内容</div>
+            <div class="modal-footer">
+                <button class="btn btn-small" onclick="closeModal()">关闭</button>
+            </div>
+        </div>
     </div>
 
-    <!-- 底部导航 -->
-    <nav class="nav-bar">
-        <a href="javascript:void(0)" class="nav-item active" onclick="navTo('home', this)"><i>🏠</i>Home</a>
-        <a href="javascript:void(0)" class="nav-item" onclick="navTo('task', this)"><i>📋</i>Task</a>
-        <a href="javascript:void(0)" class="nav-item" onclick="navTo('shop', this)"><i>💎</i>Shop</a>
-        <a href="javascript:void(0)" class="nav-item" onclick="navTo('setting', this)"><i>⚙️</i>Set</a>
-    </nav>
+    <script>
+        // ==================== 游戏数据 ====================
+        const GameData = {
+            user: {
+                stats: { health: 100, energy: 100, mood: 100, focus: 100 },
+                currency: { milkTea: 0 },
+                records: { 
+                    streak: 0, 
+                    lastCheckIn: null,
+                    lastActiveTime: Date.now(),
+                    lastCheckInDate: null
+                }
+            },
+            ai: {
+                affection: 0,
+                mood: 'neutral',
+                dialogHistory: []
+            },
+            tasks: {
+                daily: [],
+                mainQuests: [],
+                sideQuests: []
+            },
+            settings: {
+                apiKey: '',
+                voiceEnabled: true,
+                autoPushEnabled: true
+            }
+        };
 
-<script>
-// ==================== 1. 数据结构 & CST 中国时间 ====================
-let GameData = {
-    user: { milkTea: 0, streak: 0, lastCheck: "" },
-    ai: { favor: 0, history: [] },
-    tasks: [],
-    config: { apiKey: localStorage.getItem('sk_key') || "" }
-};
+        // ==================== 时间系统 ====================
+        const TimeSystem = {
+            getChinaTime() {
+                const now = new Date();
+                const offset = now.getTimezoneOffset() * 60000;
+                const chinaOffset = 8 * 3600000;
+                return new Date(now.getTime() + offset + chinaOffset);
+            },
+            
+            formatTime(date) {
+                const hours = date.getHours().toString().padStart(2, '0');
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                return `${month}/${day} ${hours}:${minutes}`;
+            },
+            
+            isNewDay(lastTime) {
+                if (!lastTime) return true;
+                
+                const last = new Date(lastTime);
+                const now = this.getChinaTime();
+                
+                const lastDateStr = `${last.getFullYear()}-${(last.getMonth() + 1).toString().padStart(2, '0')}-${last.getDate().toString().padStart(2, '0')}`;
+                const nowDateStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+                
+                return lastDateStr !== nowDateStr;
+            }
+        };
 
-const getChinaTime = () => new Date(new Date().getTime() + (new Date().getTimezoneOffset() + 480) * 60000);
+        // ==================== 任务系统 ====================
+        const TaskSystem = {
+            generateDailyTasks() {
+                const tasks = [
+                    { id: 'd1', title: '早起打卡', desc: '在10点前打开系统', progress: 0, maxProgress: 1, reward: 50, completed: false },
+                    { id: 'd2', title: '完成3个番茄钟', desc: '专注工作25分钟×3', progress: 0, maxProgress: 3, reward: 100, completed: false },
+                    { id: 'd3', title: '学习1小时', desc: '投入学习状态', progress: 0, maxProgress: 60, reward: 150, completed: false },
+                    { id: 'd4', title: '和欣原聊天', desc: '发送10条消息', progress: 0, maxProgress: 10, reward: 80, completed: false }
+                ];
+                
+                const now = TimeSystem.getChinaTime();
+                if (now.getHours() < 10) {
+                    tasks[0].progress = 1;
+                    tasks[0].completed = true;
+                }
+                
+                return tasks;
+            },
+            
+            initMainQuests() {
+                const now = TimeSystem.getChinaTime().getTime();
+                return [
+                    { 
+                        id: 'm1', 
+                        title: '初识系统', 
+                        description: '完成首次对话',
+                        progress: 0, 
+                        maxProgress: 1, 
+                        reward: 200, 
+                        completed: false,
+                        deadline: now + 7 * 24 * 60 * 60 * 1000,
+                        expired: false
+                    },
+                    { 
+                        id: 'm2', 
+                        title: '建立信任', 
+                        description: '好感度达到30',
+                        progress: 0, 
+                        maxProgress: 30, 
+                        reward: 500, 
+                        completed: false,
+                        deadline: now + 14 * 24 * 60 * 60 * 1000,
+                        expired: false
+                    }
+                ];
+            },
+            
+            initSideQuests() {
+                const now = TimeSystem.getChinaTime().getTime();
+                return [
+                    { 
+                        id: 's1', 
+                        title: '学习粤语', 
+                        description: '学会10个粤语短语',
+                        progress: 0, 
+                        maxProgress: 10, 
+                        reward: 300, 
+                        completed: false,
+                        deadline: now + 30 * 24 * 60 * 60 * 1000,
+                        expired: false,
+                        phrases: [
+                            '早晨 (zou2 san4) - 早上好',
+                            '多谢 (do1 ze6) - 谢谢',
+                            '唔该 (m4 goi1) - 不好意思/谢谢',
+                            '好耐冇见 (hou2 noi6 mou5 gin3) - 好久不见',
+                            '几钱 (gei2 cin2) - 多少钱',
+                            '唔好意思 (m4 hou2 ji3 si1) - 不好意思',
+                            '得闲饮茶 (dak1 haan4 jam2 caa4) - 有空喝茶',
+                            '食饭未 (sik6 faan6 mei6) - 吃饭了吗',
+                            '你好 (nei5 hou2) - 你好',
+                            '再见 (zoi3 gin3) - 再见'
+                        ]
+                    }
+                ];
+            },
+            
+            updateTaskProgress(taskId, newProgress) {
+                let task = null;
+                let taskList = null;
+                
+                if (taskId.startsWith('d')) {
+                    taskList = GameData.tasks.daily;
+                } else if (taskId.startsWith('m')) {
+                    taskList = GameData.tasks.mainQuests;
+                } else if (taskId.startsWith('s')) {
+                    taskList = GameData.tasks.sideQuests;
+                }
+                
+                task = taskList.find(t => t.id === taskId);
+                if (!task) return;
+                
+                task.progress = Math.min(newProgress, task.maxProgress);
+                
+                if (task.progress >= task.maxProgress && !task.completed) {
+                    task.completed = true;
+                    GameData.user.currency.milkTea += task.reward;
+                    
+                    showNotification(`✅ 任务完成！获得 ${task.reward}🍼`);
+                    AISystem.sendSystemMessage(`恭喜009完成任务「${task.title}」！`);
+                    
+                    RelationshipSystem.changeAffection(5);
+                }
+                
+                saveData();
+                updateUI();
+            },
+            
+            checkExpiredTasks() {
+                const now = TimeSystem.getChinaTime().getTime();
+                let hasExpired = false;
+                
+                [...GameData.tasks.mainQuests, ...GameData.tasks.sideQuests].forEach(task => {
+                    if (!task.completed && !task.expired && now > task.deadline) {
+                        task.expired = true;
+                        hasExpired = true;
+                    }
+                });
+                
+                if (hasExpired) {
+                    saveData();
+                    updateUI();
+                }
+            }
+        };
 
-// ==================== 2. AI 核心集成 ====================
-async function askAI(text) {
-    const key = GameData.config.apiKey;
-    if(!key) return "去 Settings 把 API Key 填了，别让我说第二次。";
-    
-    const isDom = GameData.ai.favor < 0;
-    const prompt = `你是欣原，一位成熟、冷艳、毒舌且极其高傲的精英女监护人。你正在对VIP009(女性)实施严格的学习与生活监督。
-    主线目标：1. 跨境电商英语(分析Listing、撰写细节) 2. 阅读财报理财 3. 空腹有氧与减重 4. 严禁熬夜。
-    性格指令：
-    - 说话极其优雅、冰冷、尖锐。绝对不可以说温柔的话，除非她完成了极大挑战。
-    - 经常使用动作描写，例如：[推了推眼镜，眼神没有一丝温度]、[冷漠地敲击桌面]。
-    - 好感度越低(${GameData.ai.favor})，你对她越冷酷，表现出掌控欲(DOM模式)。
-    - 如果是在审核她的任务报告，必须极具批判性，只有觉得合格时，才在回答的最开头加上 [PASS]。`;
+        // ==================== 关系系统 ====================
+        const RelationshipSystem = {
+            changeAffection(amount) {
+                GameData.ai.affection = Math.max(0, Math.min(100, GameData.ai.affection + amount));
+                this.updateMood();
+                updateUI();
+                saveData();
+            },
+            
+            updateMood() {
+                const affection = GameData.ai.affection;
+                if (affection < 20) {
+                    GameData.ai.mood = 'cold';
+                    document.getElementById('aiMoodText').textContent = '😐 冷淡';
+                } else if (affection < 40) {
+                    GameData.ai.mood = 'neutral';
+                    document.getElementById('aiMoodText').textContent = '🙂 普通';
+                } else if (affection < 60) {
+                    GameData.ai.mood = 'friendly';
+                    document.getElementById('aiMoodText').textContent = '😊 友好';
+                } else if (affection < 80) {
+                    GameData.ai.mood = 'warm';
+                    document.getElementById('aiMoodText').textContent = '😄 亲密';
+                } else {
+                    GameData.ai.mood = 'loving';
+                    document.getElementById('aiMoodText').textContent = '🥰 热恋';
+                }
+                
+                if (affection < 20) {
+                    document.getElementById('relationshipStatus').textContent = '陌生人';
+                } else if (affection < 40) {
+                    document.getElementById('relationshipStatus').textContent = '熟人';
+                } else if (affection < 60) {
+                    document.getElementById('relationshipStatus').textContent = '朋友';
+                } else if (affection < 80) {
+                    document.getElementById('relationshipStatus').textContent = '好友';
+                } else {
+                    document.getElementById('relationshipStatus').textContent = '挚友';
+                }
+            }
+        };
 
-    try {
-        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                model: "Qwen/Qwen2.5-7B-Instruct", 
-                messages: [{role:"system", content:prompt}, ...GameData.ai.history.slice(-8), {role:"user", content:text}] 
-            })
-        });
-        const d = await res.json();
-        const r = d.choices[0].message.content;
-        GameData.ai.history.push({role:"user", content:text}, {role:"assistant", content:r});
-        return r;
-    } catch(e) { return "[连接受阻]：你的网络阻断了我的声音，还是你的密钥被服务器拒绝了？"; }
-}
+        // ==================== 商店系统 (加入白葡萄酒、奢侈品) ====================
+        const ShopSystem = {
+            items: [
+                { id: 'gift1', name: '珍珠奶茶', icon: '🧋', price: 100, affection: 5, desc: '经典奶茶' },
+                { id: 'gift2', name: '草莓蛋糕', icon: '🍰', price: 200, affection: 10, desc: '甜蜜甜品' },
+                { id: 'gift3', name: '冰镇白葡萄酒', icon: '🥂', price: 500, affection: 35, desc: '冰凉清透，解压首选' },
+                { id: 'gift4', name: '毛绒玩偶', icon: '🧸', price: 600, affection: 45, desc: '可爱玩偶' },
+                { id: 'gift5', name: '高定礼服', icon: '👗', price: 1200, affection: 90, desc: '优雅奢侈高定礼服' },
+                { id: 'gift6', name: '梵克雅宝项链', icon: '🍀', price: 2500, affection: 210, desc: '昂贵奢侈，心跳加速' }
+            ],
+            
+            buyGift(itemId) {
+                const item = this.items.find(i => i.id === itemId);
+                if (!item) return;
+                
+                if (GameData.user.currency.milkTea < item.price) {
+                    showNotification('❌ 奶茶不足！');
+                    addAIMessage('[冷淡地瞥了你一眼]：财务还没自由，就想买这些奢侈品来打发我？先去赚够奶茶。');
+                    return;
+                }
+                
+                GameData.user.currency.milkTea -= item.price;
+                RelationshipSystem.changeAffection(item.affection);
+                
+                showNotification(`✅ 购买成功！好感度+${item.affection}`);
+                
+                const responses = [
+                    `[微微一怔，有些促狭地转过头]：${item.name}？你倒是挺懂得试探我的喜好。`,
+                    `[接过你的${item.name}，嘴角泛起微不可察的弧度]：谢谢，这次算你用心了。`,
+                    `[推了推眼镜，指尖摩挲着${item.name}]：你花这么多奶茶，是在讨好我吗？哼。`,
+                    `[挑了挑眉，优雅地收下]：既然你这么坚持，那我就勉为其难地收下了。`
+                ];
+                addAIMessage(responses[Math.floor(Math.random() * responses.length)]);
+                
+                saveData();
+                updateUI();
+            }
+        };
 
-// ==================== 3. 任务管理 (中国时间刷新) ====================
-function initTasks() {
-    const today = getChinaTime().toLocaleDateString();
-    if (GameData.user.lastCheck !== today) {
-        GameData.tasks = [
-            { id: 'd1', title: 'CBEC: 跨境 Listing 深度翻译', type: 'daily', reward: 150, done: false },
-            { id: 'd2', title: '理财: 行业财报数据剥离', type: 'daily', reward: 200, done: false },
-            { id: 'd3', title: '身材: 空腹核心训练 30分钟', type: 'daily', reward: 100, done: false }
-        ];
-        GameData.user.lastCheck = today;
-        save();
-    }
-}
+        // ==================== AI对话系统 ====================
+        const AISystem = {
+            async sendMessage(userMessage) {
+                showTypingIndicator();
+                
+                GameData.ai.dialogHistory.push({
+                    role: 'user',
+                    content: userMessage,
+                    time: Date.now()
+                });
+                
+                if (GameData.ai.dialogHistory.length > 20) {
+                    GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-20);
+                }
+                
+                try {
+                    const response = await this.callAPI(userMessage);
+                    hideTypingIndicator();
+                    addAIMessage(response);
+                    
+                    if (TTSSystem.enabled) {
+                        TTSSystem.speak(response);
+                    }
+                    
+                    RelationshipSystem.changeAffection(1);
+                } catch (error) {
+                    hideTypingIndicator();
+                    addAIMessage('抱歉，我现在有点累...你去设置里检查下API Key吧。');
+                    console.error('API调用失败:', error);
+                }
+                
+                saveData();
+            },
+            
+            async callAPI(message) {
+                if (!GameData.settings.apiKey) {
+                    return '你还没配置API Key呢！去设置里配置一下吧~';
+                }
+                
+                // 深度吃透主线任务的高冷成熟危险御姐人设Prompt
+                const systemPrompt = `你是欣原，一个成熟、高冷、毒舌且拥有绝对专业度的高级监护人。你正在对VIP009(女性)实施严格的生活和学习监督。
+当前好感度：${GameData.ai.affection}/100
+当前心情：${GameData.ai.mood}
+用户昵称：VIP009
 
-let activeTaskId = null;
-function openVerify(id) {
-    const t = GameData.tasks.find(x => x.id === id); 
-    if(t.done) return;
-    activeTaskId = id;
-    document.getElementById('taskTitle').innerText = "任务呈报: " + t.title;
-    document.getElementById('verifyModal').style.display = 'flex';
-}
+你的核心主线任务领域是：
+1. 跨境电商英语 (CBEC Listing、邮件沟通、运营细节分析)
+2. 看财报理财投资 (分析资产负债表与公司研究)
+3. 空腹爬楼有氧与减重
+4. 严禁熬夜
+5. 粤语学习 (支线)
 
-async function submitTask() {
-    const report = document.getElementById('reportText').value.trim();
-    if(report.length < 10) { alert("欣原：这种字数的汇报，你在敷衍谁？至少写满10个字。"); return; }
-    
-    document.getElementById('verifyModal').style.display = 'none';
-    document.getElementById('reportText').value = '';
-    
-    addMsg('ai', `[正在审阅你的汇报...]`);
-    const reply = await askAI(`VIP009提交了任务汇报：'${report}'。请进行严格审核。`);
-    
-    if(reply.includes('[PASS]')) {
-        const t = GameData.tasks.find(x => x.id === activeTaskId);
-        t.done = true; 
-        GameData.user.milkTea += t.reward; 
-        GameData.ai.favor += 5;
-        save(); render();
-    }
-    addMsg('ai', reply.replace('[PASS]', ''));
-}
+性格指令：
+- 说话优雅但极其刻薄。不要使用多余的废话，喜欢使用 [推了推眼镜，眼神没有一丝温度]、[优雅地端起红酒杯] 等动作描写。
+- 如果VIP009表现出懒惰，冷酷地嘲讽她的平庸，指出自律才是她唯一的出路。
+- 好感度越低越表现出强势和掌控感。
+- 绝不允许对她过于温柔！即使取得进步，也只是流露出施舍般的认可，例如：[合上档案] 勉强能看。继续保持。`;
+                
+                const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${GameData.settings.apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'Qwen/Qwen2.5-7B-Instruct',
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            ...GameData.ai.dialogHistory.slice(-10),
+                            { role: 'user', content: message }
+                        ],
+                        max_tokens: 250,
+                        temperature: 0.8
+                    })
+                });
+                
+                const data = await response.json();
+                return data.choices[0].message.content;
+            },
+            
+            sendSystemMessage(message) {
+                setTimeout(() => {
+                    addAIMessage(message);
+                    if (TTSSystem.enabled) {
+                        TTSSystem.speak(message);
+                    }
+                }, 1000);
+            }
+        };
 
-// ==================== 4. 商店数据 ====================
-const shopData = [
-    { name: '冰镇白葡萄酒', icon: '🥂', price: 500, aff: 30, desc: '冰凉清透，解压的首选。' },
-    { name: '定制高阶财报书', icon: '📊', price: 1000, aff: 70, desc: '她会稍微觉得你求知欲尚可。' },
-    { name: '梵克雅宝项链', icon: '💎', price: 3000, aff: 200, desc: '昂贵的奢侈，她眼里会有少许波澜。' }
-];
+        // ==================== TTS语音系统 ====================
+        const TTSSystem = {
+            enabled: true,
+            
+            speak(text) {
+                if (!this.enabled || !('speechSynthesis' in window)) return;
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 1.1;
+                utterance.pitch = 1.2;
+                
+                const voices = speechSynthesis.getVoices();
+                const femaleVoice = voices.find(v => v.lang.includes('zh') && v.name.includes('Female'));
+                if (femaleVoice) utterance.voice = femaleVoice;
+                
+                speechSynthesis.speak(utterance);
+            }
+        };
 
-// ==================== 5. UI 渲染与导航 ====================
-function render() {
-    document.getElementById('milkTea').innerText = GameData.user.milkTea;
-    document.getElementById('streak').innerText = GameData.user.streak;
-    document.getElementById('love').innerText = GameData.ai.favor;
-    
-    document.getElementById('taskList').innerHTML = GameData.tasks.map(t => `
-        <div class="task-card ${t.done?'done':''}" onclick="openVerify('${t.id}')">
-            <div><strong>${t.title}</strong><br><small>Reward: ${t.reward} 🍼</small></div>
-            <div>${t.done?'✅':'⭕'}</div>
-        </div>
-    `).join('');
+        // ==================== 自动推送系统 ====================
+        const AutoPushSystem = {
+            interval: null,
+            
+            start() {
+                if (this.interval) clearInterval(this.interval);
+                
+                this.interval = setInterval(() => {
+                    if (!GameData.settings.autoPushEnabled) return;
+                    
+                    const now = Date.now();
+                    const timeSinceActive = now - GameData.user.records.lastActiveTime;
+                    
+                    if (timeSinceActive > 30 * 60 * 1000) {
+                        const messages = [
+                            'VIP009，你是不是又在偷懒了？[冷淡地看着屏幕] 👀',
+                            '喂，还活着吗？该工作了。别拿借口应付我。',
+                            '已经30分钟没有任何反馈了...摸鱼有那么有趣吗？',
+                            '任务完成了么？不要用你的懒惰挑战我的耐心。',
+                            '你再不理我，好感度要下降了。[合上文件夹] 😤'
+                        ];
+                        
+                        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                        addAIMessage(randomMessage);
+                        
+                        if (TTSSystem.enabled) {
+                            TTSSystem.speak(randomMessage);
+                        }
+                        
+                        if (Notification.permission === "granted") {
+                            new Notification("欣原提醒你", {
+                                body: randomMessage,
+                                icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%239c64ff'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='white'%3E欣%3C/text%3E%3C/svg%3E"
+                            });
+                        }
+                        
+                        GameData.user.records.lastActiveTime = now;
+                        saveData();
+                    }
+                }, 10 * 60 * 1000);
+            }
+        };
 
-    document.getElementById('shopItems').innerHTML = shopData.map(i => `
-        <div class="shop-item" onclick="buy('${i.name}', ${i.price}, ${i.aff})">
-            <div style="font-size:25px; margin-bottom:5px;">${i.icon}</div>
-            <div style="font-size:12px; font-weight:bold;">${i.name}</div>
-            <div style="color:var(--primary); font-size:10px; margin-top:4px;">${i.price} 🍼 (Favor+${i.aff})</div>
-        </div>
-    `).join('');
-}
+        // ==================== UI更新 ====================
+        function updateUI() {
+            document.getElementById('healthStat').textContent = GameData.user.stats.health;
+            document.getElementById('energyStat').textContent = GameData.user.stats.energy;
+            document.getElementById('moodStat').textContent = GameData.user.stats.mood;
+            document.getElementById('focusStat').textContent = GameData.user.stats.focus;
+            document.getElementById('milkTeaAmount').textContent = GameData.user.currency.milkTea;
+            document.getElementById('streakDays').textContent = GameData.user.records.streak;
+            document.getElementById('affectionValue').textContent = GameData.ai.affection;
+            document.getElementById('affectionMiniFill').style.width = GameData.ai.affection + '%';
+            document.getElementById('currentTime').textContent = TimeSystem.formatTime(TimeSystem.getChinaTime());
+            
+            updateTasks();
+            updateShop();
+        }
 
-function buy(name, price, aff) {
-    if(GameData.user.milkTea < price) { 
-        addMsg('ai', `[冷淡地瞥了你一眼]：连基本财务都没自由，就想买这些奢侈品？先去挣够奶茶。`); 
-        return; 
-    }
-    GameData.user.milkTea -= price; 
-    GameData.ai.favor += aff; 
-    save(); render();
-    addMsg('ai', `[动作优雅地收下你的${name}]：你还算懂得我的喜好。那么，今天你的跨境英语任务打算怎么应付我？`);
-}
+        function updateTasks() {
+            const dailyList = document.getElementById('dailyTasksList');
+            dailyList.innerHTML = GameData.tasks.daily.map(task => {
+                const progressPercent = (task.progress / task.maxProgress * 100).toFixed(0);
+                const statusClass = task.completed ? 'completed' : '';
+                
+                return `
+                    <div class="task-item ${statusClass}">
+                        <div class="task-header">
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-reward">+${task.reward}🍼</div>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">${task.desc}</div>
+                        <div class="task-progress">
+                            <div class="task-progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">
+                            进度: ${task.progress}/${task.maxProgress}
+                        </div>
+                        ${!task.completed ? `
+                        <div class="task-actions">
+                            <button class="btn btn-small" onclick="TaskSystem.updateTaskProgress('${task.id}', ${task.progress + 1})">➕ 进度+1</button>
+                        </div>` : ''}
+                        ${task.completed ? '<div style="color: var(--success); margin-top: 10px;">✅ 已完成</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            const mainList = document.getElementById('mainQuestsList');
+            mainList.innerHTML = GameData.tasks.mainQuests.map(task => {
+                const progressPercent = (task.progress / task.maxProgress * 100).toFixed(0);
+                const deadline = new Date(task.deadline);
+                const statusClass = task.completed ? 'completed' : (task.expired ? 'expired' : '');
+                
+                return `
+                    <div class="task-item ${statusClass}">
+                        <div class="task-header">
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-reward">+${task.reward}🍼</div>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">${task.description}</div>
+                        <div class="task-progress">
+                            <div class="task-progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">
+                            进度: ${task.progress}/${task.maxProgress} | 截止: ${TimeSystem.formatTime(deadline)}
+                        </div>
+                        ${!task.completed && !task.expired ? `
+                        <div class="task-actions">
+                            <button class="btn btn-small" onclick="TaskSystem.updateTaskProgress('${task.id}', ${task.progress + 1})">➕ 进度+1</button>
+                        </div>` : ''}
+                        ${task.completed ? '<div style="color: var(--success); margin-top: 10px;">✅ 已完成</div>' : ''}
+                        ${task.expired ? '<div style="color: #ff6b6b; margin-top: 10px;">⏰ 已过期</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            const sideList = document.getElementById('sideQuestsList');
+            sideList.innerHTML = GameData.tasks.sideQuests.map(task => {
+                const progressPercent = (task.progress / task.maxProgress * 100).toFixed(0);
+                const deadline = new Date(task.deadline);
+                const statusClass = task.completed ? 'completed' : (task.expired ? 'expired' : '');
+                
+                return `
+                    <div class="task-item ${statusClass}">
+                        <div class="task-header">
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-reward">+${task.reward}🍼</div>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin: 5px 0;">${task.description}</div>
+                        <div class="task-progress">
+                            <div class="task-progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-secondary);">
+                            进度: ${task.progress}/${task.maxProgress} | 截止: ${TimeSystem.formatTime(deadline)}
+                        </div>
+                        <div class="task-actions">
+                            ${task.phrases ? `<button class="btn btn-secondary btn-small" onclick="showPhrases('${task.id}')">📖 查看短语</button>` : ''}
+                            ${!task.completed && !task.expired ? `<button class="btn btn-small" onclick="TaskSystem.updateTaskProgress('${task.id}', ${task.progress + 1})">➕ 进度+1</button>` : ''}
+                        </div>
+                        ${task.completed ? '<div style="color: var(--success); margin-top: 10px;">✅ 已完成</div>' : ''}
+                        ${task.expired ? '<div style="color: #ff6b6b; margin-top: 10px;">⏰ 已过期</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
 
-function navTo(p, el) {
-    document.querySelectorAll('.tab-page').forEach(x => x.style.display = 'none');
-    document.getElementById(p + 'Page').style.display = 'block';
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    el.classList.add('active');
-    
-    // 如果不是 Home Tab，
+        function updateShop() {
+            const shopGrid = document.getElementById('shopGrid');
+            shopGrid.innerHTML = ShopSystem.items.map(item => `
+                <div class="shop-item" onclick="ShopSystem.buyGift('${item.id}')">
+                    <div class="shop-item-icon">${item.icon}</div>
+                    <div class="shop-item-name">${item.name}</div>
+                    <div style="font-size: 11px; color: var(--text-secondary); margin: 5px 0;">${item.desc}</div>
+                    <div class="shop-item-price">${item.price}🍼</div>
+                    <div style="font-size: 11px; color: var(--primary); margin-top: 5px;">好感+${item.affection}</div>
+                </div>
+            `).join('');
+        }
+
+        // ==================== 聊天相关 ====================
+        function addUserMessage(text) {
+            const time = TimeSystem.formatTime(TimeSystem.getChinaTime());
+            const messageId = 'msg_' + Date.now();
+            const html = `
+                <div class="message-bubble user" id="${messageId}">
+                    <div class="message-content">
+                        <div class="message-text">${text}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                </div>
+            `;
+            const container = document.getElementById('chatMessages');
+            container.insertAdjacentHTML('beforeend', html);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function addAIMessage(text, isPush = false) {
+            const time = TimeSystem.formatTime(TimeSystem.getChinaTime());
+            const messageId = 'msg_' + Date.now();
+            
+            const html = `
+                <div class="message-bubble ai" id="${messageId}">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%239c64ff'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='white'%3E欣%3C/text%3E%3C/svg%3E" class="ai-avatar-img" alt="欣原">
+                    <div class="message-content">
+                        <div class="message-text">${text}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                </div>
+            `;
+            const container = document.getElementById('chatMessages');
+            container.insertAdjacentHTML('beforeend', html);
+            container.scrollTop = container.scrollHeight;
+            
+            if (!isPush) {
+                GameData.ai.dialogHistory.push({
+                    role: 'assistant',
+                    content: text,
+                    time: Date.now()
+                });
+                saveData();
+            }
+        }
+
+        function showTypingIndicator() {
+            const html = `
+                <div class="message-bubble ai" id="typingIndicator">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%239c64ff'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='white'%3E欣%3C/text%3E%3C/svg%3E" class="ai-avatar-img" alt="欣原">
+                    <div class="message-content">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            const container = document.getElementById('chatMessages');
+            container.insertAdjacentHTML('beforeend', html);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            addUserMessage(message);
+            input.value = '';
+            
+            GameData.user.records.lastActiveTime = Date.now();
+            
+            const chatTask = GameData.tasks.daily.find(t => t.id === 'd4');
+            if (chatTask && !chatTask.completed) {
+                TaskSystem.updateTaskProgress('d4', chatTask.progress + 1);
+            }
+            
+            AISystem.sendMessage(message);
+        }
+
+        function quickReply(message) {
+            document.getElementById('chatInput').value = message;
+            sendMessage();
+        }
+
+        // ==================== Tab切换 (修复版：接收 element 并确保不发生事件穿透错误) ====================
+        function switchTab(tabName, element) {
+            // 移除所有tab按钮的active
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 移除所有内容区的active
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 如果显式传入了当前元素，则直接激活
+            if (element) {
+                element.classList.add('active');
+            }
+            
+            // 显示对应的内容区
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // ==================== 通知系统 ====================
+        function showNotification(message) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.remove();
+            }, 3000);
+        }
+
+        // ==================== 模态框 ====================
+        function showModal(title, body) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = body;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function showPhrases(taskId) {
+            const task = GameData.tasks.sideQuests.find(t => t.id === taskId);
+            if (!task || !task.phrases) return;
+            
+            const phrasesHTML = task.phrases.map((phrase, index) => {
+                const learned = index < task.progress;
+                return `
+                    <div style="padding: 10px; margin: 5px 0; background: ${learned ? 'rgba(197, 163, 255, 0.2)' : 'rgba(0,0,0,0.3)'}; border-radius: 8px; border-left: 3px solid ${learned ? 'var(--primary)' : 'rgba(255,255,255,0.3)'};">
+                        ${learned ? '✅' : '⭕'} ${phrase}
+                    </div>
+                `;
+            }).join('');
+            
+            showModal('📖 粤语短语学习', phrasesHTML);
+        }
+
+        // ==================== 设置相关 ====================
+        function toggleVoice() {
+            TTSSystem.enabled = !TTSSystem.enabled;
+            const btn = document.getElementById('voiceBtn');
+            btn.textContent = TTSSystem.enabled ? '🔊' : '🔇';
+            showNotification(TTSSystem.enabled ? '语音已开启' : '语音已关闭');
+        }
+
+        function toggleVoiceSetting() {
+            GameData.settings.voiceEnabled = !GameData.settings.voiceEnabled;
+            TTSSystem.enabled = GameData.settings.voiceEnabled;
+            document.getElementById('voiceSettingText').textContent = GameData.settings.voiceEnabled ? '已开启' : '已关闭';
+            saveData();
+        }
+
+        function toggleAutoPush() {
+            GameData.settings.autoPushEnabled = !GameData.settings.autoPushEnabled;
+            document.getElementById('autoPushText').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
+            saveData();
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(GameData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `xinyuan_backup_${Date.now()}.json`;
+            link.click();
+            showNotification('✅ 数据导出成功！');
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        Object.assign(GameData, data);
+                        saveData();
+                        updateUI();
+                        showNotification('✅ 数据导入成功！');
+                        location.reload();
+                    } catch (error) {
+                        showNotification('❌ 数据格式错误！');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function resetData() {
+            if (!confirm('确定要重置所有数据吗？此操作不可恢复！')) return;
+            
+            localStorage.removeItem('xinyuanGameData');
+            location.reload();
+        }
+
+        // ==================== 数据持久化 ====================
+        function saveData() {
+            localStorage.setItem('xinyuanGameData', JSON.stringify(GameData));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('xinyuanGameData');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    Object.assign(GameData, data);
+                } catch (error) {
+                    console.error('数据加载失败:', error);
+                }
+            }
+            
+            if (TimeSystem.isNewDay(GameData.user.records.lastCheckIn)) {
+                GameData.tasks.daily = TaskSystem.generateDailyTasks();
+                
+                if (GameData.user.records.lastCheckIn) {
+                    const lastDate = new Date(GameData.user.records.lastCheckIn);
+                    const now = TimeSystem.getChinaTime();
+                    const daysDiff = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysDiff === 1) {
+                        GameData.user.records.streak++;
+                        showNotification('🎉 新的一天！连续打卡+1');
+                        addAIMessage(`[端起红酒杯，眼神掠过一丝笑意]：早上好，VIP009。今天是你连续自律的第 ${GameData.user.records.streak} 天。继续用你的行动向我证明，你不是一个平庸的家伙。`);
+                    } else if (daysDiff > 1) {
+                        GameData.user.records.streak = 1;
+                        showNotification('💔 检测到断签，连续打卡已重置');
+                        addAIMessage('[冷淡地合上档案]：看来你的自律也就到此为止了。断签记录已归零，你太让我失望了。今天给我打起精神重新开始。');
+                    } else {
+                        GameData.user.records.streak = Math.max(1, GameData.user.records.streak);
+                    }
+                } else {
+                    GameData.user.records.streak = 1;
+                    showNotification('🎉 欢迎来到欣原监督系统！');
+                    addAIMessage('[优雅地交叠双腿，手指敲击着办公桌面]：你好，VIP009。我是你的监护人欣原。从今天开始，我会对你的学习、理财与减重进行全方位管控。别想敷衍我。');
+                }
+                
+                GameData.user.records.lastCheckIn = Date.now();
+                saveData();
+            }
+            
+            if (!GameData.tasks.daily || GameData.tasks.daily.length === 0) {
+                GameData.tasks.daily = TaskSystem.generateDailyTasks();
+            }
+            if (!GameData.tasks.mainQuests || GameData.tasks.mainQuests.length === 0) {
+                GameData.tasks.mainQuests = TaskSystem.initMainQuests();
+            }
+            if (!GameData.tasks.sideQuests || GameData.tasks.sideQuests.length === 0) {
+                GameData.tasks.sideQuests = TaskSystem.initSideQuests();
+            }
+            
+            if (GameData.settings.apiKey) {
+                document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
+            }
+            TTSSystem.enabled = GameData.settings.voiceEnabled;
+            document.getElementById('voiceSettingText').textContent = GameData.settings.voiceEnabled ? '已开启' : '已关闭';
+            document.getElementById('autoPushText').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
+            
+            saveData();
+        }
+
+        // ==================== 初始化 ====================
+        function init() {
+            loadData();
+            updateUI();
+            RelationshipSystem.updateMood();
+            
+            setInterval(() => {
+                document.getElementById('currentTime').textContent = TimeSystem.formatTime(TimeSystem.getChinaTime());
+            }, 30000);
+            
+            setInterval(() => {
+                TaskSystem.checkExpiredTasks();
+            }, 60000);
+            
+            AutoPushSystem.start();
+            
+            if (Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+            
+            document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            document.getElementById('apiKeyInput').addEventListener('change', (e) => {
+                GameData.settings.apiKey = e.target.value.trim();
+                saveData();
+                showNotification('✅ API Key已保存');
+            });
+            
+            GameData.ai.dialogHistory.slice(-5).forEach(msg => {
+                if (msg.role === 'user') {
+                    addUserMessage(msg.content);
+                } else {
+                    addAIMessage(msg.content, true);
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
