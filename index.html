@@ -3,103 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>欣原 · Elite Supervisor 4.0</title>
+    <title>欣原 · Elite Supervisor</title>
+    <!-- 关键：确保 manifest 路径正确，请检查你的仓库名是否为 xinyuanyuan -->
+    <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        :root { 
-            --primary: #b388ff; --gold: #d4af37; --danger: #ff5252; --bg-dark: #0a0612; 
-            --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(179, 136, 255, 0.2); 
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Times New Roman', 'SimSun', serif; -webkit-tap-highlight-color: transparent; }
-        body { background: linear-gradient(180deg, #0a0612 0%, #1a0f1f 100%); color: #e0e0e0; min-height: 100vh; padding-bottom: 90px; overflow-x: hidden; }
-        
-        .status-board { 
-            background: rgba(15, 10, 20, 0.95); border-bottom: 1px solid var(--glass-border); 
-            padding: 20px 10px; display: grid; grid-template-columns: repeat(4, 1fr); 
-            text-align: center; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(15px);
-        }
-        .status-item span { display: block; font-size: 10px; color: var(--primary); letter-spacing: 1px; font-weight: bold; }
+        :root { --primary: #b388ff; --danger: #ff5252; --bg: #0a0612; --glass: rgba(255, 255, 255, 0.05); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'STSong', serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #0a0612; color: #e0e0e0; min-height: 100vh; padding-bottom: 90px; }
+        .status-board { background: rgba(10, 6, 18, 0.95); border-bottom: 1px solid rgba(179,136,255,0.2); padding: 15px; display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+        .status-item span { display: block; font-size: 10px; color: var(--primary); letter-spacing: 1px; }
         .status-item strong { font-size: 16px; font-weight: 300; }
-
         .container { max-width: 500px; margin: 0 auto; padding: 15px; }
-
-        .chat-box { height: 480px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; margin: 15px 0; padding: 10px; }
-        .msg { display: flex; flex-direction: column; max-width: 85%; }
-        .msg.ai { align-self: flex-start; }
-        .msg.user { align-self: flex-end; }
-        
-        .bubble { padding: 12px 16px; font-size: 14px; line-height: 1.6; border-radius: 18px; position: relative; word-wrap: break-word; }
-        .ai .bubble { background: rgba(179, 136, 255, 0.08); border-left: 2px solid var(--primary); color: #d1c4e9; border-bottom-left-radius: 4px; }
-        .user .bubble { background: var(--primary); color: #0a0612; font-weight: 500; border-bottom-right-radius: 4px; }
-
-        .input-area { 
-            position: fixed; bottom: 85px; left: 15px; right: 15px; 
-            background: rgba(15, 10, 20, 0.9); border: 1px solid var(--glass-border); 
-            border-radius: 30px; padding: 8px 15px; display: flex; align-items: center; gap: 10px; z-index: 99;
-        }
-        .input-area input { flex: 1; background: none; border: none; color: #fff; outline: none; font-size: 14px; }
-        
-        .nav-bar { 
-            position: fixed; bottom: 15px; left: 15px; right: 15px; height: 60px; 
-            background: rgba(10, 6, 18, 0.95); border: 1px solid var(--glass-border); 
-            border-radius: 30px; display: flex; justify-content: space-around; align-items: center; z-index: 1000;
-        }
+        .chat-box { height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; margin: 15px 0; padding: 10px; }
+        .bubble { padding: 12px 16px; font-size: 14px; line-height: 1.6; border-radius: 18px; word-wrap: break-word; max-width: 85%; }
+        .ai .bubble { background: rgba(179, 136, 255, 0.08); border-left: 2px solid var(--primary); align-self: flex-start; }
+        .user .bubble { background: var(--primary); color: #000; align-self: flex-end; margin-left: auto; }
+        .input-area { position: fixed; bottom: 85px; left: 15px; right: 15px; background: rgba(15, 10, 20, 0.9); border: 1px solid rgba(179,136,255,0.2); border-radius: 30px; padding: 8px 15px; display: flex; align-items: center; gap: 10px; z-index: 99; }
+        .input-area input { flex: 1; background: none; border: none; color: #fff; outline: none; }
+        .nav-bar { position: fixed; bottom: 15px; left: 15px; right: 15px; height: 60px; background: #000; border: 1px solid rgba(179,136,255,0.2); border-radius: 30px; display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
         .nav-item { color: #555; text-decoration: none; font-size: 10px; text-align: center; }
-        .nav-item.active { color: var(--primary); text-shadow: 0 0 10px var(--primary); }
-        .nav-item i { display: block; font-size: 20px; margin-bottom: 2px; }
-
-        #imgPreview { width: 60px; height: 60px; border-radius: 10px; display: none; object-fit: cover; border: 1px solid var(--primary); margin-bottom: 5px; }
-        
-        /* 加载动画 */
-        .loading { font-size: 10px; color: var(--primary); margin-top: 5px; display: none; }
+        .nav-item.active { color: var(--primary); }
+        #imgPreview { width: 50px; height: 50px; border-radius: 8px; display: none; object-fit: cover; border: 1px solid var(--primary); }
     </style>
 </head>
 <body>
-
     <div class="status-board">
         <div class="status-item"><span>FINANCE</span><strong id="milkTea">0</strong></div>
         <div class="status-item"><span>STREAK</span><strong id="streak">0</strong></div>
         <div class="status-item"><span>FAVOR</span><strong id="love">0</strong></div>
         <div class="status-item"><span>MOOD</span><strong id="mood">100</strong></div>
     </div>
-
     <div class="container">
         <div id="homePage" class="tab-page">
-            <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
-                <div style="width:50px; height:50px; border:1px solid var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:22px;">欣</div>
-                <div>
-                    <div style="font-size:18px; color:var(--primary);">欣原 <span style="font-size:10px; color:#666;">[ VISION ACTIVE ]</span></div>
-                    <div style="font-size:10px; color:#444;">Elite Supervisor v4.0</div>
-                </div>
-            </div>
-            
             <div class="chat-box" id="chatBox"></div>
-            
-            <div id="loadingTips" class="loading">正在处理高清图像...别催。</div>
             <img id="imgPreview" src="">
             <div class="input-area">
                 <label style="cursor:pointer; font-size:20px;">📷<input type="file" id="camInput" accept="image/*" style="display:none;" onchange="processImage(this)"></label>
-                <input type="text" id="chatInput" placeholder="输入汇报或发送截图...">
-                <button onclick="handleSend()" style="background:none; border:none; color:var(--primary); font-size:22px; cursor:pointer;">➤</button>
+                <input type="text" id="chatInput" placeholder="输入汇报...">
+                <button onclick="handleSend()" style="background:none; border:none; color:var(--primary); font-size:22px;">➤</button>
             </div>
         </div>
-
-        <div id="taskPage" class="tab-page" style="display:none;">
-            <p style="font-size:12px; color:var(--primary); margin-bottom:20px;">MISSION DATABASE</p>
-            <div id="taskList"></div>
-        </div>
-
-        <div id="settingPage" class="tab-page" style="display:none;">
-            <div style="background:var(--glass); padding:25px; border-radius:20px; border:1px solid var(--glass-border);">
-                <p style="font-size:12px; color:var(--primary); margin-bottom:10px;">API KEY</p>
-                <input type="password" id="apiKeyIn" style="width:100%; background:#000; border:1px solid var(--glass-border); color:#fff; padding:12px; border-radius:10px; margin-bottom:20px;">
-                <button onclick="saveConfig()" style="width:100%; padding:15px; background:var(--primary); border:none; color:#000; font-weight:bold; border-radius:10px;">AUTHORIZE</button>
-                <button onclick="clearData()" style="margin-top:40px; color:var(--danger); background:none; border:none; font-size:10px; width:100%;">ERASE ALL DATA</button>
-            </div>
+        <div id="taskPage" class="tab-page" style="display:none;"><div id="taskList" style="padding:10px;"></div></div>
+        <div id="settingPage" class="tab-page" style="display:none; padding:20px;">
+            <p style="font-size:12px; margin-bottom:10px;">API KEY</p>
+            <input type="password" id="apiKeyIn" style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:12px; border-radius:10px;">
+            <button onclick="saveConfig()" style="width:100%; margin-top:20px; padding:12px; background:var(--primary); border:none; border-radius:10px;">AUTHORIZE</button>
         </div>
     </div>
-
     <nav class="nav-bar">
         <a href="javascript:void(0)" class="nav-item active" onclick="navTo('home', this)"><i>🏠</i>Home</a>
         <a href="javascript:void(0)" class="nav-item" onclick="navTo('task', this)"><i>📋</i>Tasks</a>
@@ -107,40 +59,24 @@
     </nav>
 
 <script>
-let GameData = {
-    user: { milkTea: 0, streak: 0 },
-    ai: { favor: 0, history: [] },
-    tasks: [
-        { id: 't1', title: '跨境英语：拆解3个Listing', done: false, reward: 150 },
-        { id: 't2', title: '理财：记录并分析今日开销', done: false, reward: 100 },
-        { id: 't3', title: '减重：完成30分钟高效运动', done: false, reward: 200 }
-    ],
-    config: { apiKey: localStorage.getItem('sk_key') || "" }
-};
+let GameData = { user: { milkTea: 0, streak: 0 }, ai: { favor: 0, history: [] }, tasks: [{ id: 't1', title: '跨境英语：拆解3个Listing', done: false, reward: 150 },{ id: 't2', title: '理财：记录开销', done: false, reward: 100 }], config: { apiKey: localStorage.getItem('sk_key') || "" } };
+let currentImg = null;
 
-let currentImgBase64 = null;
-
-// 1. 图像压缩引擎：防止 API 崩溃的关键
 function processImage(input) {
     if (input.files && input.files[0]) {
-        document.getElementById('loadingTips').style.display = 'block';
         const reader = new FileReader();
         reader.onload = e => {
             const img = new Image();
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-                const max = 800; // 限制最大长边为800px，确保传输稳定
-                if (width > height) { if (width > max) { height *= max / width; width = max; } } 
-                else { if (height > max) { width *= max / height; height = max; } }
-                canvas.width = width; canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                currentImgBase64 = canvas.toDataURL('image/jpeg', 0.7); // 0.7 压缩率
-                document.getElementById('imgPreview').src = currentImgBase64;
+                const max = 500; // 极度压缩，确保弱网也能发出去
+                let w = img.width, h = img.height;
+                if (w > h) { if (w > max) { h *= max/w; w = max; } } else { if (h > max) { w *= max/h; h = max; } }
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                currentImg = canvas.toDataURL('image/jpeg', 0.5);
+                document.getElementById('imgPreview').src = currentImg;
                 document.getElementById('imgPreview').style.display = 'block';
-                document.getElementById('loadingTips').style.display = 'none';
             };
             img.src = e.target.result;
         };
@@ -148,108 +84,51 @@ function processImage(input) {
     }
 }
 
-// 2. 核心督导逻辑
 async function callAI(text, img = null) {
-    if(!GameData.config.apiKey) return "[提醒]：VIP009，去 Settings 填入你的授权码。";
-    
-    // 使用 Qwen2-VL-7B，它对图片的响应速度更快且更稳定
+    if(!GameData.config.apiKey) return "[提醒]：VIP009，去 Settings 授权。";
     const model = img ? "Qwen/Qwen2-VL-7B-Instruct" : "Qwen/Qwen2.5-7B-Instruct";
-    
-    let content = img ? [
-        { type: "text", text: text || "解释这张图片。给我专业的意见。" },
-        { type: "image_url", image_url: { url: img } }
-    ] : text;
-
+    let content = img ? [{ type: "text", text: text || "汇报成果" }, { type: "image_url", image_url: { url: img } }] : text;
     try {
         const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${GameData.config.apiKey}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: model,
-                messages: [
-                    {role: "system", content: "你是欣原，精英督导。冷艳、刻薄、专业。你正在通过视觉监控VIP009的学习。如果她发了图片（不管是猫还是花），请先冷嘲热讽她的不务正业，然后用极高的专业度点出图片的细节，最后催促她去学习。"},
-                    ...GameData.ai.history.slice(-6),
-                    {role: "user", content: content}
-                ]
-            })
+            body: JSON.stringify({ model: model, messages: [{role: "system", content: "你是欣原，冷艳、毒舌、专业督导。"}, ...GameData.ai.history.slice(-6), {role: "user", content: content}] })
         });
         const data = await res.json();
-        if (data.error) return `[API 错误]：${data.error.message}`;
         const reply = data.choices[0].message.content;
         GameData.ai.history.push({role: "assistant", content: reply});
         return reply;
-    } catch (e) { return "[连接中断]：你是想用这种方式逃避监督吗？检查网络。"; }
+    } catch (e) { return "[连接超时]：网络不稳定，我没能收到你的报告。再试一次。"; }
 }
 
 async function handleSend() {
     const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-    if(!text && !currentImgBase64) return;
-
-    addMsg('user', text + (currentImgBase64 ? " [报告已呈递]" : ""));
+    const txt = input.value.trim();
+    if(!txt && !currentImg) return;
+    addMsg('user', txt + (currentImg ? " [报告已呈递]" : ""));
     input.value = '';
-    
-    const reply = await callAI(text, currentImgBase64);
-    addMsg('ai', reply);
-    
-    currentImgBase64 = null;
-    document.getElementById('imgPreview').style.display = 'none';
+    const rep = await callAI(txt, currentImg);
+    addMsg('ai', rep);
+    currentImg = null; document.getElementById('imgPreview').style.display = 'none';
     save();
 }
 
-// 3. UI 控制
-function navTo(page, el) {
-    document.querySelectorAll('.tab-page').forEach(p => p.style.display = 'none');
-    document.getElementById(page + 'Page').style.display = 'block';
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    el.classList.add('active');
-}
-
-function addMsg(role, text) {
-    const box = document.getElementById('chatBox');
-    const div = document.createElement('div');
-    div.className = `msg ${role}`;
-    div.innerHTML = `<div class="bubble">${text}</div>`;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-}
-
+function navTo(p, el) { document.querySelectorAll('.tab-page').forEach(x => x.style.display = 'none'); document.getElementById(p + 'Page').style.display = 'block'; document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+function addMsg(r, t) { const b = document.getElementById('chatBox'); const d = document.createElement('div'); d.className = `msg ${r}`; d.innerHTML = `<div class="bubble">${t}</div>`; b.appendChild(d); b.scrollTop = b.scrollHeight; }
 function render() {
-    document.getElementById('milkTea').innerText = GameData.user.milkTea;
-    document.getElementById('streak').innerText = GameData.user.streak;
-    document.getElementById('love').innerText = GameData.ai.favor;
-    document.getElementById('taskList').innerHTML = GameData.tasks.map(t => `
-        <div class="task-card ${t.done?'done':''}" onclick="toggleTask('${t.id}')">
-            <div><div style="font-size:14px;">${t.title}</div><small style="color:var(--primary)">Reward: ${t.reward}</small></div>
-            <div>${t.done?'✅':'⭕'}</div>
-        </div>
-    `).join('');
+    document.getElementById('milkTea').innerText = GameData.user.milkTea; document.getElementById('streak').innerText = GameData.user.streak; document.getElementById('love').innerText = GameData.ai.favor;
+    document.getElementById('taskList').innerHTML = GameData.tasks.map(t => `<div style="padding:15px; background:var(--glass); border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between;" onclick="toggleTask('${t.id}')"><span>${t.title}</span><span>${t.done?'✅':'⭕'}</span></div>`).join('');
 }
-
-function toggleTask(id) {
-    const t = GameData.tasks.find(x => x.id === id);
-    if(t && !t.done) {
-        t.done = true; GameData.user.milkTea += t.reward; GameData.ai.favor += 5;
-        save(); render();
-        addMsg('ai', `[确认了你的打卡]：${t.title}已入档。别沾沾自喜，这只是基础。`);
-    }
-}
-
-function saveConfig() {
-    localStorage.setItem('sk_key', document.getElementById('apiKeyIn').value);
-    GameData.config.apiKey = document.getElementById('apiKeyIn').value;
-    alert("系统已重启。");
-}
-
-function save() { localStorage.setItem('Xinyuan_V4', JSON.stringify(GameData)); }
-function clearData() { localStorage.clear(); location.reload(); }
+function toggleTask(id) { const t = GameData.tasks.find(x => x.id === id); if(t && !t.done) { t.done = true; GameData.user.milkTea += t.reward; GameData.ai.favor += 5; save(); render(); addMsg('ai', "[确认]：已入档。"); } }
+function saveConfig() { localStorage.setItem('sk_key', document.getElementById('apiKeyIn').value); GameData.config.apiKey = document.getElementById('apiKeyIn').value; alert("授权成功。"); }
+function save() { localStorage.setItem('Xinyuan_V4.1', JSON.stringify(GameData)); }
 
 window.onload = () => {
-    const saved = localStorage.getItem('Xinyuan_V4');
+    const saved = localStorage.getItem('Xinyuan_V4.1');
     if(saved) GameData = JSON.parse(saved);
     if(GameData.config.apiKey) document.getElementById('apiKeyIn').value = GameData.config.apiKey;
     render();
-    addMsg('ai', "[翻看着你的档案]：VIP009，你的基地换得可真勤快。现在，汇报进度。");
+    addMsg('ai', "[冷淡地看着你]：VIP009，听说你被区区网络难住了？汇报进度。");
 };
 </script>
 </body>
