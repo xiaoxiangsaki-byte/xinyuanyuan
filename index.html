@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>欣原 · Elite Supervisor 3.8</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root { --primary: #b388ff; --gold: #d4af37; --danger: #ff5252; --bg-dark: #0a0612; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(179, 136, 255, 0.2); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Times New Roman', 'SimSun', serif; }
+        body { background: linear-gradient(180deg, #0a0612 0%, #1a0f1f 100%); color: #e0e0e0; min-height: 100vh; padding-bottom: 90px; }
+        .status-board { background: rgba(15, 10, 20, 0.9); border-bottom: 1px solid var(--glass-border); padding: 20px 15px; display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+        .status-item span { display: block; font-size: 10px; color: var(--primary); letter-spacing: 1px; }
+        .status-item strong { font-size: 16px; font-weight: 300; }
+        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
+        .chat-box { height: 450px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin: 15px 0; padding: 10px; }
+        .bubble { max-width: 85%; padding: 12px; font-size: 14px; line-height: 1.5; border-radius: 12px; word-wrap: break-word; }
+        .ai .bubble { background: var(--glass); border-left: 2px solid var(--primary); }
+        .user .bubble { background: var(--primary); color: #000; align-self: flex-end; }
+        .task-card { background: var(--glass); border: 1px solid var(--glass-border); padding: 15px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .task-card.done { border-color: #333; opacity: 0.5; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: #000; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
+        .nav-item { color: #555; text-decoration: none; text-align: center; font-size: 11px; flex: 1; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { display: block; font-size: 20px; margin-bottom: 4px; }
+        
+        /* 预览图样式 */
+        #imagePreview { max-width: 100px; max-height: 100px; border-radius: 8px; display: none; margin: 10px 0; border: 1px solid var(--primary); }
+        
+        /* 响应式调整 */
+        @media (max-height: 600px) { .chat-box { height: 300px; } }
+    </style>
+</head>
+<body>
+    <!-- 顶部状态 -->
+    <div class="status-board">
+        <div class="status-item"><span>FINANCE</span><strong id="milkTea">0</strong></div>
+        <div class="status-item"><span>STREAK</span><strong id="streak">0</strong></div>
+        <div class="status-item"><span>FAVOR</span><strong id="love">0</strong></div>
+        <div class="status-item"><span>MOOD</span><strong id="mood">100</strong></div>
+    </div>
+
+    <div class="container">
+        <!-- Home -->
+        <div id="homePage" class="tab-page">
+            <div style="display:flex; align-items:center; gap:15px; margin-bottom:10px;">
+                <div style="width:50px; height:50px; border:1px solid var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:22px; font-weight:bold; box-shadow:0 0 15px rgba(179,136,255,0.3);">欣</div>
+                <div>
+                    <div style="font-size:16px;">欣原 <span style="font-size:10px; color:var(--gold);">[ ELITE COACH ]</span></div>
+                    <div style="font-size:10px; color:#666;">Elite Supervisor System v3.8</div>
+                </div>
+            </div>
+            
+            <div class="chat-box" id="chatBox"></div>
+            
+            <img id="imagePreview" src="">
+            <div style="display:flex; flex-direction:column; gap:10px; background:var(--glass); padding:10px; border-radius:20px;">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <label style="cursor:pointer; font-size:20px;" title="上传图片">📷
+                        <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="previewImage(this)">
+                    </label>
+                    <input type="text" id="userInput" placeholder="发送消息或上传图片问我..." style="flex:1; background:none; border:none; color:#fff; outline:none;">
+                    <button onclick="handleSend()" style="background:var(--primary); border:none; width:35px; height:35px; border-radius:50%; cursor:pointer;">➤</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task -->
+        <div id="taskPage" class="tab-page" style="display:none;">
+            <p style="font-size:12px; color:var(--primary); margin-bottom:15px; letter-spacing:2px;">MISSION REPORTS</p>
+            <div id="taskList"></div>
+        </div>
+
+        <!-- Settings -->
+        <div id="settingPage" class="tab-page" style="display:none;">
+            <div style="background:var(--glass); padding:20px; border-radius:12px;">
+                <p style="font-size:12px;">SiliconFlow API Key</p>
+                <input type="password" id="apiKeyInput" style="width:100%; background:#000; border:1px solid var(--glass-border); color:#fff; padding:12px; border-radius:8px; margin-top:10px;">
+                <button onclick="saveKey()" style="width:100%; margin-top:20px; padding:12px; background:var(--primary); border:none; color:#000; font-weight:bold;">保存授权</button>
+                <button onclick="clearAllData()" style="color:var(--danger); background:none; border:none; margin-top:40px; font-size:10px; width:100%;">清空所有记忆</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <nav class="nav-bar">
+        <a href="javascript:void(0)" class="nav-item active" onclick="navTo('home', this)"><i>🏠</i>Home</a>
+        <a href="javascript:void(0)" class="nav-item" onclick="navTo('task', this)"><i>📋</i>Tasks</a>
+        <a href="javascript:void(0)" class="nav-item" onclick="navTo('setting', this)"><i>⚙️</i>Settings</a>
+    </nav>
+
+<script>
+let GameData = {
+    user: { milkTea: 0, streak: 0 },
+    ai: { favor: 0, history: [] },
+    tasks: [
+        { id: 'c1', title: '跨境英语：拆解3个Listing', done: false, reward: 150 },
+        { id: 'f1', title: '理财：读一段财报分析', done: false, reward: 200 }
+    ],
+    config: { apiKey: localStorage.getItem('sk_key') || "" }
+};
+
+let selectedImageBase64 = null;
+
+function navTo(pageId, el) {
+    document.querySelectorAll('.tab-page').forEach(p => p.style.display = 'none');
+    document.getElementById(pageId + 'Page').style.display = 'block';
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+}
+
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            selectedImageBase64 = e.target.result;
+            document.getElementById('imagePreview').src = e.target.result;
+            document.getElementById('imagePreview').style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+async function askAI(text, imageBase64 = null) {
+    if(!GameData.config.apiKey) return "API Key 为空。点击 Settings 填入你的 sk- 密钥。";
+    
+    // 如果有图片，使用支持视觉的模型
+    const model = imageBase64 ? "Qwen/Qwen2-VL-72B-Instruct" : "Qwen/Qwen2.5-7B-Instruct";
+    
+    let messages = [
+        { role: "system", content: "你是欣原，一位成熟、冷艳、毒舌且专业的高级督导。你正在监督VIP009。如果她上传了图片（题目或生活照），请根据图片内容给出专业的建议或犀利的吐槽。" }
+    ];
+
+    if (imageBase64) {
+        messages.push({
+            role: "user",
+            content: [
+                { type: "text", text: text || "这张图是什么意思？报告你的看法。" },
+                { type: "image_url", image_url: { url: imageBase64 } }
+            ]
+        });
+    } else {
+        messages.push({ role: "user", content: text });
+    }
+
+    try {
+        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${GameData.config.apiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: model, messages: messages, stream: false })
+        });
+        const data = await res.json();
+        return data.choices[0].message.content;
+    } catch(e) { return "欣原拒绝了你的请求。请检查 API Key 或网络状况。"; }
+}
+
+async function handleSend() {
+    const input = document.getElementById('userInput');
+    const val = input.value.trim();
+    if(!val && !selectedImageBase64) return;
+
+    const userMsg = val + (selectedImageBase64 ? " [图片已上传]" : "");
+    addMsg('user', userMsg);
+    
+    const reply = await askAI(val, selectedImageBase64);
+    addMsg('ai', reply);
+
+    // 清空预览
+    selectedImageBase64 = null;
+    document.getElementById('imagePreview').style.display = 'none';
+    input.value = '';
+}
+
+function addMsg(role, text) {
+    const box = document.getElementById('chatBox');
+    const div = document.createElement('div');
+    div.className = `msg ${role}`;
+    div.innerHTML = `<div class="bubble">${text}</div>`;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+}
+
+function render() {
+    document.getElementById('milkTea').innerText = GameData.user.milkTea;
+    document.getElementById('streak').innerText = GameData.user.streak;
+    document.getElementById('love').innerText = GameData.ai.favor;
+    document.getElementById('taskList').innerHTML = GameData.tasks.map(t => `<div class="task-card ${t.done?'done':''}"><div><strong>${t.title}</strong><br><small>Reward: ${t.reward}</small></div><div>${t.done?'✅':'⭕'}</div></div>`).join('');
+}
+
+function saveKey() {
+    const val = document.getElementById('apiKeyInput').value;
+    localStorage.setItem('sk_key', val);
+    GameData.config.apiKey = val;
+    alert("授权已更新，督导系统已就绪。");
+}
+
+function save() { localStorage.setItem('Xinyuan_Elite_V3.8', JSON.stringify(GameData)); }
+function clearAllData() { localStorage.clear(); location.reload(); }
+
+window.onload = () => {
+    const saved = localStorage.getItem('Xinyuan_Elite_V3.8');
+    if(saved) GameData = JSON.parse(saved);
+    if(GameData.config.apiKey) document.getElementById('apiKeyInput').value = GameData.config.apiKey;
+    render();
+    addMsg('ai', "VIP009，汇报进度。如果遇到不会的题，拍给我看。别想耍花招。");
+};
+</script>
+</body>
+</html>
