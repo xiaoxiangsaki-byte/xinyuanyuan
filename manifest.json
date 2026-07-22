@@ -1,0 +1,20 @@
+{
+  "name": "欣原 · Elite Supervisor",
+  "short_name": "欣原",
+  "start_url": "/xinyuanyuan/index.html",
+  "display": "standalone",
+  "background_color": "#0a0612",
+  "theme_color": "#b388ff",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/4a148c/ffffff?text=%E6%AC%A3",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512/4a148c/ffffff?text=%E6%AC%A3",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
