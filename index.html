@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIP009 · 欣原监督系统 6.1</title>
+    <title>VIP009 · 欣原监督系统 6.2</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -47,7 +47,6 @@
             z-index: 0;
         }
         
-        /* 像素装饰元素 - 暗黑冷艳风 */
         .pixel-decoration {
             position: fixed;
             pointer-events: none;
@@ -788,8 +787,9 @@
             isNewDay(lastTime) {
                 if (!lastTime) return true;
                 
-                const last = new Date(lastTime);
-                const now = this.getChinaTime();
+                // 强制每日凌晨3点定时重置与刷新每日任务（将两个时间点都往回推3个小时来计算日期判断）
+                const last = new Date(lastTime - 3 * 3600000);
+                const now = new Date(this.getChinaTime().getTime() - 3 * 3600000);
                 
                 const lastDateStr = `${last.getFullYear()}-${(last.getMonth() + 1).toString().padStart(2, '0')}-${last.getDate().toString().padStart(2, '0')}`;
                 const nowDateStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
@@ -820,33 +820,33 @@
                 return [
                     { 
                         id: 'm1', 
-                        title: '主线: 跨境英语初露锋芒', 
-                        description: '攻克任意5个跨境电商英语 Listing 报告并获得欣原认可',
+                        title: '主线: 跨境英语巅峰突破', 
+                        description: '提交15次跨境 Listing/开发信深度实操报告并获得通过',
                         progress: 0, 
-                        maxProgress: 5, 
-                        reward: 500, 
+                        maxProgress: 15, 
+                        reward: 800, 
                         completed: false,
-                        deadline: now + 7 * 24 * 60 * 60 * 1000,
+                        deadline: now + 30 * 24 * 60 * 60 * 1000,
                         expired: false
                     },
                     { 
                         id: 'm2', 
-                        title: '主线: 财商进阶与财报审计', 
-                        description: '好感度达到40，并成功向欣原递交3份财报分析报告',
+                        title: '主线: 财商觉醒与资本限制', 
+                        description: '向欣原提交5份目标上市企业独立财报分析报告并通过审核',
                         progress: 0, 
-                        maxProgress: 3, 
-                        reward: 800, 
+                        maxProgress: 5, 
+                        reward: 1000, 
                         completed: false,
-                        deadline: now + 14 * 24 * 60 * 60 * 1000,
+                        deadline: now + 30 * 24 * 60 * 60 * 1000,
                         expired: false
                     },
                     { 
                         id: 'm3', 
-                        title: '主线: 身材管理极致形态', 
-                        description: '累计完成身材管理打卡15次，打破懒散惰性',
+                        title: '主线: 身材管理极致变身', 
+                        description: '累计完成15次空腹燃脂爬楼/HIIT燃脂打卡并获得通过',
                         progress: 0, 
                         maxProgress: 15, 
-                        reward: 1000, 
+                        reward: 1200, 
                         completed: false,
                         deadline: now + 30 * 24 * 60 * 60 * 1000,
                         expired: false
@@ -1113,6 +1113,7 @@
                 const activeDailyList = GameData.tasks.daily.filter(t => !t.completed).map(t => t.title).join('、') || '暂无（均已完成或未刷新）';
                 const activeMainList = GameData.tasks.mainQuests.filter(t => !t.completed).map(t => t.title).join('、') || '暂无';
                 
+                // 更强大的高冷精英御姐人设Prompt：严格锁定 VIP009 拼写、防止乱码，拒绝任何复杂的 Markdown 格式
                 const systemPrompt = `你是欣原，一个成熟、高冷、毒舌且极具专业度的高级女监护人。你正在全方位严密监管受督者 VIP009。
 【超级关键】受督者的唯一代号和名称只有：VIP009！禁止在任何时刻将她称呼为 "VIP19"、"VIP09" 或其他任何名字。如称呼错误，说明你是不合格的监护人！
 
@@ -1126,8 +1127,7 @@ VIP009 当前的实时待办任务有：
 1. 你的主线领域是：跨境电商英语 (CBEC Listing 与运营翻译)、看财报分析投资理财、空腹燃脂与身材管理、严禁熬夜。
 2. 说话优雅、冷酷、极具压迫感，喜欢使用诸如 [推了推眼镜，眼神没有一丝温度]、[优雅地端起红酒杯，冷静地扫过你的档案]、[修长的手指敲击着桌面] 等动作描写。
 3. 严格监视 VIP009 的实时任务情况！如果她试图逃避、敷衍或者哭泣撒娇，冷淡而犀利地拆穿她的自我感动与软弱，逼她面对现实去变强。
-4. 好感度如果为负值，则彻底进入掌控者 Dom 模式，用极度居高临下的高岭之花姿态彻底主导她的意志。
-5. 对她不可以过于温柔。只有当她完美提交成果并通过你的审查时，你才可以流露出极少许施舍般的认可。`;
+4. 【重要警告】不要输出复杂的 Markdown 表格、表格代码，回复中禁止包含连续的斜杠、转义双引号、无限循环的特殊符号，直接使用自然段落和简单的换行进行回复，确保输出格式干净纯净，防止本地解析错误！`;
                 
                 const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
                     method: 'POST',
@@ -1136,14 +1136,14 @@ VIP009 当前的实时待办任务有：
                         'Authorization': `Bearer ${GameData.settings.apiKey}`
                     },
                     body: JSON.stringify({
-                        model: 'Qwen/Qwen2.5-7B-Instruct',
+                        model: 'deepseek-ai/DeepSeek-V3', // 替换为硅基流动最顶级、最稳定的 DeepSeek-V3 模型
                         messages: [
                             { role: 'system', content: systemPrompt },
                             ...GameData.ai.dialogHistory.slice(-10),
                             { role: 'user', content: message }
                         ],
-                        max_tokens: 300,
-                        temperature: 0.8
+                        max_tokens: 350,
+                        temperature: 0.6 // 降低随机度与幻觉率，彻底杜绝转义字符死循环刷屏问题
                     })
                 });
                 
