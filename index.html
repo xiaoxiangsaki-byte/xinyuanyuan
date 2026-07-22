@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>欣原 · Elite Supervisor 5.0</title>
+    <title>欣原 · Elite Supervisor 5.1</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -81,7 +81,7 @@
     <div id="verifyModal">
         <div class="modal-content">
             <h4 id="taskTitle" style="color:var(--primary); margin-bottom:15px;">呈递成果</h4>
-            <textarea id="reportText" placeholder="汇报你的进度，或者描述你学到了什么。别想随便打个勾就敷衍我。" style="width:100%; height:120px; background:#000; border:1px solid #333; color:#fff; padding:10px; margin-bottom:15px; outline:none;"></textarea>
+            <textarea id="reportText" placeholder="汇报你的进度...至少10个字。" style="width:100%; height:120px; background:#000; border:1px solid #333; color:#fff; padding:10px; margin-bottom:15px; outline:none;"></textarea>
             <div style="display:flex; gap:10px;">
                 <button onclick="submitTask()" style="flex:1; padding:12px; background:var(--primary); border:none; font-weight:bold;">提交审核</button>
                 <button onclick="closeModal()" style="flex:1; padding:12px; background:#222; border:none; color:#fff;">取消</button>
@@ -97,7 +97,6 @@
     </div>
 
     <div class="container" style="padding-top: 10px;">
-        <!-- 主页 -->
         <div id="homePage" class="tab-page">
             <div style="display:flex; align-items:center; gap:15px; margin-left:10px;">
                 <div style="width:45px; height:45px; border:1px solid var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:20px;">欣</div>
@@ -105,31 +104,29 @@
             </div>
             <div class="chat-box" id="chatBox"></div>
             <div style="background:rgba(0,0,0,0.4); border:1px solid var(--glass-border); border-radius:30px; padding:10px 20px; display:flex; gap:10px; margin:0 10px;">
-                <input type="text" id="chatInput" placeholder="在此汇报进度..." style="flex:1; background:none; border:none; color:#fff; outline:none;">
+                <input type="text" id="chatInput" placeholder="汇报进度..." style="flex:1; background:none; border:none; color:#fff; outline:none;">
                 <button onclick="handleSend()" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:20px;">➤</button>
             </div>
         </div>
 
-        <!-- 任务 -->
         <div id="taskPage" class="tab-page" style="display:none;">
             <p style="font-size:11px; color:var(--primary); margin:10px 0 15px 5px; letter-spacing:2px;">MISSION REPORTS</p>
             <div id="taskList"></div>
         </div>
 
-        <!-- 商店 -->
         <div id="shopPage" class="tab-page" style="display:none;">
             <p style="font-size:11px; color:var(--primary); margin:10px 0 15px 5px; letter-spacing:2px;">LUXURY LOUNGE</p>
             <div class="shop-grid" id="shopItems"></div>
         </div>
 
-        <!-- 设置 -->
         <div id="settingPage" class="tab-page" style="display:none;">
             <div style="background:var(--glass); padding:20px; border-radius:15px; border:1px solid var(--glass-border);">
                 <p style="font-size:12px; margin-bottom:10px;">API KEY</p>
-              <input type="text" id="apiKey" autocomplete="off" placeholder="粘贴你的 sk- 密钥到这里" 
-       style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:12px; border-radius:8px; outline:none;">
-                <button onclick="saveKey()" style="width:100%; margin-top:20px; padding:12px; background:var(--primary); border:none; font-weight:bold;">保存授权</button>
-                <button onclick="localStorage.clear();location.reload();" style="margin-top:40px; color:var(--danger); background:none; border:none; font-size:10px; width:100%;">重置系统数据</button>
+                <!-- 关键修正：type="text" + autocomplete="off" 解决浏览器弹窗干扰 -->
+                <input type="text" id="apiKey" autocomplete="off" placeholder="粘贴 sk- 密钥" 
+                       style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:12px; border-radius:8px; outline:none;">
+                <button onclick="saveKey()" style="width:100%; margin-top:20px; padding:12px; background:var(--primary); border:none; font-weight:bold; color:#000;">保存并激活</button>
+                <button onclick="localStorage.clear();location.reload();" style="margin-top:40px; color:var(--danger); background:none; border:none; font-size:10px; width:100%;">重置系统</button>
             </div>
         </div>
     </div>
@@ -142,7 +139,6 @@
     </nav>
 
 <script>
-// ==================== 1. 初始化 & 中国时间 ====================
 let GameData = {
     user: { milkTea: 0, streak: 0, lastCheck: "" },
     ai: { favor: 0, history: [] },
@@ -152,18 +148,10 @@ let GameData = {
 
 const getChinaTime = () => new Date(new Date().getTime() + (new Date().getTimezoneOffset() + 480) * 60000);
 
-// ==================== 2. AI 核心（主线吃透） ====================
 async function askAI(text) {
     const key = GameData.config.apiKey;
-    if(!key) return "去 Settings 把 API Key 填了，别让我说第二次。";
-    
-    const mood = GameData.ai.favor < 0 ? "极度冷酷且带惩罚欲的DOM模式" : "高冷优雅但极具压迫感的导师";
-    const prompt = `你是欣原，精英监护人。你正在监督VIP009(女)。
-    你的任务目标：1.跨境电商英语 2.看财报理财 3.减重 4.养成不熬夜习惯 5.粤语(支线)。
-    你的性格：成熟、冷艳、毒舌、危险。说话带动作描写。
-    当前好感度：${GameData.ai.favor}。如果是负数，请变得更有掌控感。
-    如果是审核任务，请根据内容的真实性评价，合格则在开头加 [PASS]。`;
-
+    if(!key) return "去 Settings 授权，否则我拒绝交流。";
+    const prompt = `你是欣原，督导。冷艳、刻薄、专业。主线：跨境英语、理财、减重、不熬夜。动作描写。审核任务内容，合格请加 [PASS] 开头。`;
     try {
         const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
             method: 'POST',
@@ -174,19 +162,16 @@ async function askAI(text) {
         const r = d.choices[0].message.content;
         GameData.ai.history.push({role:"assistant", content:r});
         return r;
-    } catch(e) { return "[连接受阻] 你的网络在替你逃避。"; }
+    } catch(e) { return "[连接中断] 检查你的密钥和网络。"; }
 }
 
-// ==================== 3. 任务生成与管理 ====================
 function initTasks() {
     const today = getChinaTime().toLocaleDateString();
     if (GameData.user.lastCheck !== today) {
-        // 每日刷新
         GameData.tasks = [
             { id: 'd1', title: 'CBEC: 核心 Listing 翻译', type: 'daily', reward: 150, done: false },
             { id: 'd2', title: '理财: 分析一份行业研报', type: 'daily', reward: 200, done: false },
-            { id: 'd3', title: '身材: 30min 核心训练', type: 'daily', reward: 100, done: false },
-            { id: 'm1', title: '主线: 跨境英语初级词库', type: 'main', reward: 500, done: false }
+            { id: 'd3', title: '身材: 30min 核心训练', type: 'daily', reward: 100, done: false }
         ];
         GameData.user.lastCheck = today;
         save();
@@ -203,13 +188,11 @@ function openVerify(id) {
 }
 
 async function submitTask() {
-    const report = document.getElementById('reportText').value;
-    if(report.length < 10) { alert("太简短了。重新写。"); return; }
-    
+    const report = document.getElementById('reportText').value.trim();
+    if(report.length < 10) { alert("欣原：这种长度的汇报，你在打发叫花子吗？重新写。"); return; }
     document.getElementById('verifyModal').style.display = 'none';
-    addMsg('ai', `[正在审阅你的汇报...]`);
-    const reply = await askAI(`VIP009提交了任务汇报：'${report}'。请审核。`);
-    
+    addMsg('ai', `[正在审阅报告...]`);
+    const reply = await askAI(`VIP009提交了汇报：'${report}'。请审核。`);
     if(reply.includes('[PASS]')) {
         const t = GameData.tasks.find(x => x.id === activeTaskId);
         t.done = true; GameData.user.milkTea += t.reward; GameData.ai.favor += 5;
@@ -218,7 +201,6 @@ async function submitTask() {
     addMsg('ai', reply.replace('[PASS]', ''));
 }
 
-// ==================== 4. 商店与 UI ====================
 const shopData = [
     { name: '纯净鲜奶', icon: '🥛', price: 100, aff: 5 },
     { name: '冰镇白葡萄酒', icon: '🥂', price: 500, aff: 30 },
@@ -229,28 +211,23 @@ function render() {
     document.getElementById('milkTea').innerText = GameData.user.milkTea;
     document.getElementById('streak').innerText = GameData.user.streak;
     document.getElementById('love').innerText = GameData.ai.favor;
-    
     document.getElementById('taskList').innerHTML = GameData.tasks.map(t => `
-        <div class="task-card ${t.type} ${t.done?'done':''}" onclick="openVerify('${t.id}')">
+        <div class="task-card ${t.done?'done':''}" onclick="openVerify('${t.id}')">
             <div><strong>${t.title}</strong><br><small>${t.reward} 🍼</small></div>
             <div>${t.done?'✅':'⭕'}</div>
         </div>
     `).join('');
-
     document.getElementById('shopItems').innerHTML = shopData.map(i => `
         <div class="shop-item" onclick="buy('${i.name}', ${i.price}, ${i.aff})">
-            <div style="font-size:25px;">${i.icon}</div>
-            <div style="font-size:12px; margin:5px 0;">${i.name}</div>
-            <div style="color:var(--primary); font-size:11px;">${i.price} 🍼</div>
+            <div style="font-size:25px;">${i.icon}</div><div style="font-size:11px;">${i.name}</div>
         </div>
     `).join('');
 }
 
 function buy(name, price, aff) {
-    if(GameData.user.milkTea < price) { addMsg('ai', "财务还没自由就想消费？去工作。"); return; }
-    GameData.user.milkTea -= price; GameData.ai.favor += aff;
-    save(); render();
-    addMsg('ai', `[接过你的${name}]：算你懂事。`);
+    if(GameData.user.milkTea < price) { addMsg('ai', "财务还没自由就想消费？"); return; }
+    GameData.user.milkTea -= price; GameData.ai.favor += aff; save(); render();
+    addMsg('ai', `[收下了你的${name}]。`);
 }
 
 function navTo(p, el) {
@@ -281,25 +258,36 @@ async function handleSend() {
 
 function checkNight() {
     const h = getChinaTime().getHours();
-    const m = getChinaTime().getMinutes();
-    const cur = h + m/60;
-    if(cur >= 23.5 || cur < 6) {
+    if(h >= 23 || h < 6) {
         document.getElementById('nightLock').style.display = 'flex';
-        document.getElementById('nightMsg').innerText = "深夜是放纵的温床。VIP009，滚去睡觉。";
+        document.getElementById('nightMsg').innerText = "熬夜是平庸的开始。滚去睡觉。";
     }
 }
 
-function saveKey() { localStorage.setItem('sk_key', document.getElementById('apiKey').value); location.reload(); }
-function save() { localStorage.setItem('Xinyuan_V5', JSON.stringify(GameData)); }
+function saveKey() {
+    const val = document.getElementById('apiKey').value.trim();
+    if(val.startsWith('sk-')) {
+        localStorage.setItem('sk_key', val);
+        alert("授权成功。系统已激活。");
+        location.reload();
+    } else {
+        alert("格式错误。");
+    }
+}
+
+function save() { localStorage.setItem('Xinyuan_V5_Final', JSON.stringify(GameData)); }
 function closeModal() { document.getElementById('verifyModal').style.display = 'none'; }
 
 window.onload = () => {
-    const s = localStorage.getItem('Xinyuan_V5');
+    const s = localStorage.getItem('Xinyuan_V5_Final');
     if(s) GameData = JSON.parse(s);
-    initTasks();
-    render();
-    checkNight();
-    addMsg('ai', "[坐在办公桌后，冷淡地抬头]：VIP009，汇报进度。");
+    const sk = localStorage.getItem('sk_key');
+    if(sk) {
+        GameData.config.apiKey = sk;
+        document.getElementById('apiKey').value = sk;
+    }
+    initTasks(); render(); checkNight();
+    addMsg('ai', "[推了推眼镜，眼神冰冷]：VIP009，汇报进度。");
 };
 </script>
 </body>
