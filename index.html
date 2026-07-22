@@ -126,7 +126,8 @@
         <div id="settingPage" class="tab-page" style="display:none;">
             <div style="background:var(--glass); padding:20px; border-radius:15px; border:1px solid var(--glass-border);">
                 <p style="font-size:12px; margin-bottom:10px;">API KEY</p>
-                <input type="password" id="apiKey" style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:12px; border-radius:8px;">
+              <input type="text" id="apiKey" autocomplete="off" placeholder="粘贴你的 sk- 密钥到这里" 
+       style="width:100%; background:#000; border:1px solid #333; color:#fff; padding:12px; border-radius:8px; outline:none;">
                 <button onclick="saveKey()" style="width:100%; margin-top:20px; padding:12px; background:var(--primary); border:none; font-weight:bold;">保存授权</button>
                 <button onclick="localStorage.clear();location.reload();" style="margin-top:40px; color:var(--danger); background:none; border:none; font-size:10px; width:100%;">重置系统数据</button>
             </div>
