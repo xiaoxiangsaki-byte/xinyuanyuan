@@ -13,14 +13,17 @@
             --gold: #ffd54f;
             --text-white: #ffffff;
         }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
         body {
             font-family: -apple-system, "Segoe UI", sans-serif;
             background: #080410;
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 16px;
+            padding: 8px;
             background-image: 
                 radial-gradient(ellipse at 20% 30%, rgba(197, 163, 255, 0.15) 0%, transparent 60%),
                 radial-gradient(ellipse at 85% 70%, rgba(156, 100, 255, 0.10) 0%, transparent 50%),
@@ -29,17 +32,17 @@
             background-attachment: fixed;
         }
 
-        /* ===== 主卡片 ===== */
+        /* ===== 主卡片 - 填满屏幕 ===== */
         .glass-card {
-            max-width: 400px;
             width: 100%;
-            min-height: 620px;
-            max-height: 92vh;
+            max-width: 420px;
+            height: 100dvh;
+            max-height: 100dvh;
             background: rgba(18, 10, 30, 0.75);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            border-radius: 28px;
-            padding: 18px 16px 14px;
+            border-radius: 24px;
+            padding: 16px 14px 12px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 20px 60px rgba(0,0,0,0.7);
             position: relative;
@@ -69,19 +72,19 @@
             100% { transform: translate(25px, 15px); opacity: 0.9; }
         }
 
-        /* ===== 头部 - 头像 ===== */
+        /* ===== 头部 ===== */
         .chat-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 10px;
+            gap: 10px;
+            margin-bottom: 8px;
             flex-shrink: 0;
             position: relative;
             z-index: 1;
         }
         .avatar-wrap {
-            width: 60px;
-            height: 60px;
+            width: 52px;
+            height: 52px;
             flex-shrink: 0;
             border-radius: 50%;
             overflow: hidden;
@@ -99,12 +102,12 @@
         }
 
         .info h3 {
-            font-size: 17px;
+            font-size: 16px;
             color: #fff;
             font-weight: 600;
         }
         .info .rel-label {
-            font-size: 12px;
+            font-size: 11px;
             color: rgba(255,255,255,0.35);
         }
         .info .rel-label .name {
@@ -117,7 +120,7 @@
         }
         .currency-display {
             margin-left: auto;
-            font-size: 13px;
+            font-size: 12px;
             color: rgba(255,255,255,0.3);
         }
         .currency-display span { color: #fff; font-weight: 600; }
@@ -125,9 +128,9 @@
         /* ===== 好感度 ===== */
         .affection-wrap {
             background: rgba(0,0,0,0.25);
-            border-radius: 10px;
-            padding: 6px 14px;
-            margin-bottom: 10px;
+            border-radius: 8px;
+            padding: 5px 12px;
+            margin-bottom: 8px;
             border: 1px solid rgba(255,255,255,0.03);
             flex-shrink: 0;
             position: relative;
@@ -136,9 +139,9 @@
         .affection-label {
             display: flex;
             justify-content: space-between;
-            font-size: 11px;
+            font-size: 10px;
             color: rgba(255,255,255,0.4);
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
         .affection-label .rel-name {
             color: var(--primary);
@@ -149,7 +152,7 @@
             text-shadow: 0 0 12px rgba(255, 213, 79, 0.1);
         }
         .affection-bar {
-            height: 4px;
+            height: 3px;
             background: rgba(255,255,255,0.05);
             border-radius: 4px;
             overflow: hidden;
@@ -170,13 +173,13 @@
         .messages {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            flex: 1;
-            min-height: 80px;
-            max-height: 170px;
+            gap: 6px;
+            flex: 0 0 auto;
+            min-height: 100px;
+            max-height: 180px;
             overflow-y: auto;
             padding-right: 4px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             position: relative;
             z-index: 1;
         }
@@ -198,9 +201,9 @@
         .msg.user { align-self: flex-end; align-items: flex-end; }
 
         .msg .bubble {
-            padding: 8px 14px;
+            padding: 6px 12px;
             border-radius: 14px;
-            font-size: 13px;
+            font-size: 12px;
             line-height: 1.6;
             color: #fff;
             box-shadow: 0 2px 10px rgba(0,0,0,0.08);
@@ -219,29 +222,28 @@
             box-shadow: 0 4px 16px rgba(156, 100, 255, 0.10);
         }
         .msg .bubble img {
-            max-width: 100%;
-            max-height: 200px;
+            max-width: 120px;
             border-radius: 8px;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             display: block;
         }
         .msg .time {
-            font-size: 9px;
+            font-size: 8px;
             color: rgba(255,255,255,0.2);
-            margin-top: 2px;
+            margin-top: 1px;
             text-align: right;
         }
         .msg.user .time { text-align: left; }
 
         /* 续写按钮 */
         .msg .continue-msg-btn {
-            font-size: 11px;
+            font-size: 10px;
             color: rgba(255,255,255,0.12);
             background: transparent;
             border: none;
             cursor: pointer;
-            padding: 2px 4px;
-            margin-top: 2px;
+            padding: 1px 4px;
+            margin-top: 1px;
             align-self: flex-start;
             transition: color 0.3s;
             letter-spacing: 0.3px;
@@ -253,11 +255,11 @@
         /* ===== 输入区域 ===== */
         .input-area {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             align-items: center;
             background: rgba(0,0,0,0.25);
             border-radius: 14px;
-            padding: 3px 3px 3px 12px;
+            padding: 2px 2px 2px 10px;
             border: 1px solid rgba(255,255,255,0.04);
             transition: border 0.3s;
             flex-shrink: 0;
@@ -273,14 +275,14 @@
             border: none;
             outline: none;
             color: #fff;
-            font-size: 13px;
-            padding: 8px 0;
+            font-size: 12px;
+            padding: 7px 0;
             min-width: 0;
         }
         .input-area input::placeholder { color: rgba(255,255,255,0.15); }
         .input-area .file-label {
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             color: rgba(255,255,255,0.2);
             transition: 0.3s;
             flex-shrink: 0;
@@ -288,8 +290,8 @@
         }
         .input-area .file-label:hover { color: var(--primary); }
         .input-area #imgPreview {
-            width: 30px;
-            height: 30px;
+            width: 26px;
+            height: 26px;
             border-radius: 6px;
             display: none;
             object-fit: cover;
@@ -297,13 +299,13 @@
             flex-shrink: 0;
         }
         .input-area .send {
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: linear-gradient(135deg, #c5a3ff, #9c64ff);
             border: none;
             color: #000;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             transition: 0.3s;
             display: flex;
@@ -317,19 +319,19 @@
         /* ===== 底部标签 ===== */
         .tabs {
             display: flex;
-            gap: 5px;
-            margin-top: 10px;
+            gap: 4px;
+            margin-top: 8px;
             flex-shrink: 0;
             position: relative;
             z-index: 1;
         }
         .tab {
-            padding: 6px 10px;
+            padding: 5px 8px;
             border-radius: 14px;
             background: rgba(255,255,255,0.02);
             border: 1px solid rgba(255,255,255,0.03);
             color: rgba(255,255,255,0.2);
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
             transition: 0.3s;
             flex: 1;
@@ -344,13 +346,12 @@
             color: #fff;
         }
 
-        /* ===== Tab内容 - 高度统一 + 切换动画 ===== */
+        /* ===== Tab内容 - 自动填充剩余空间 ===== */
         .tab-content {
             display: none;
-            padding: 4px 0;
+            padding: 2px 0;
             flex: 1;
-            min-height: 260px;
-            max-height: 260px;
+            min-height: 0;
             overflow-y: auto;
         }
         .tab-content.active {
@@ -368,53 +369,53 @@
         /* ===== 任务 ===== */
         .task-category {
             background: rgba(0,0,0,0.12);
-            border-radius: 12px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
             border: 1px solid rgba(255,255,255,0.02);
         }
         .category-title {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--primary);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .task-item {
             background: rgba(0,0,0,0.12);
-            padding: 8px 10px;
-            border-radius: 8px;
-            margin-bottom: 6px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            margin-bottom: 4px;
             border-left: 2px solid var(--primary);
         }
         .task-item:last-child { margin-bottom: 0; }
         .task-item .t-title {
             font-weight: 500;
-            font-size: 12px;
+            font-size: 11px;
             color: #fff;
         }
         .task-item .t-desc {
-            font-size: 11px;
+            font-size: 10px;
             color: rgba(255,255,255,0.35);
-            margin: 2px 0 3px;
+            margin: 1px 0 2px;
         }
         .task-item .t-progress {
-            font-size: 11px;
+            font-size: 10px;
             color: rgba(255,255,255,0.25);
         }
         .task-item .t-btn {
-            font-size: 10px;
+            font-size: 9px;
             color: var(--primary);
             background: rgba(197, 163, 255, 0.06);
             border: none;
-            border-radius: 8px;
-            padding: 2px 10px;
+            border-radius: 6px;
+            padding: 1px 8px;
             cursor: pointer;
-            margin-top: 3px;
+            margin-top: 2px;
             transition: 0.3s;
         }
         .task-item .t-btn:hover { background: rgba(197, 163, 255, 0.12); }
         .task-item.completed .t-title { opacity: 0.4; }
-        .task-item .done { color: #69f0ae; font-size: 11px; margin-top: 3px; }
+        .task-item .done { color: #69f0ae; font-size: 10px; margin-top: 2px; }
 
         /* 随机任务 */
         .task-item.random-task {
@@ -432,53 +433,53 @@
         .shop-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
+            gap: 4px;
         }
         .shop-item {
             background: rgba(0,0,0,0.12);
-            padding: 8px 4px;
-            border-radius: 10px;
+            padding: 6px 2px;
+            border-radius: 8px;
             text-align: center;
             cursor: pointer;
             border: 1px solid rgba(255,255,255,0.02);
             transition: 0.3s;
         }
         .shop-item:hover { border-color: rgba(197, 163, 255, 0.06); }
-        .shop-item .icon { font-size: 22px; }
-        .shop-item .name { font-size: 10px; color: #fff; margin: 2px 0; }
-        .shop-item .price { font-size: 10px; color: var(--primary); }
+        .shop-item .icon { font-size: 20px; }
+        .shop-item .name { font-size: 9px; color: #fff; margin: 1px 0; }
+        .shop-item .price { font-size: 9px; color: var(--primary); }
 
         /* ===== 设置 ===== */
         .setting-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 0;
+            padding: 4px 0;
             border-bottom: 1px solid rgba(255,255,255,0.02);
             flex-wrap: wrap;
-            gap: 4px;
+            gap: 2px;
         }
-        .setting-item .label { font-size: 12px; color: rgba(255,255,255,0.35); }
+        .setting-item .label { font-size: 11px; color: rgba(255,255,255,0.35); }
         .setting-item input {
             background: rgba(0,0,0,0.2);
             border: 1px solid rgba(255,255,255,0.03);
             border-radius: 6px;
-            padding: 4px 8px;
+            padding: 3px 6px;
             color: #fff;
-            font-size: 11px;
+            font-size: 10px;
             flex: 1;
-            min-width: 100px;
+            min-width: 80px;
             outline: none;
         }
         .setting-item input:focus { border-color: rgba(197, 163, 255, 0.1); }
         .setting-item .btn {
-            padding: 2px 10px;
-            border-radius: 8px;
+            padding: 1px 8px;
+            border-radius: 6px;
             border: none;
             background: rgba(197, 163, 255, 0.06);
             color: var(--primary);
             cursor: pointer;
-            font-size: 11px;
+            font-size: 10px;
         }
         .setting-item .btn.danger { background: rgba(255, 82, 82, 0.08); color: #ff5252; }
 
@@ -487,17 +488,17 @@
             position: fixed;
             top: 14px;
             right: 14px;
-            padding: 8px 16px;
+            padding: 6px 14px;
             background: rgba(18, 10, 30, 0.9);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(197, 163, 255, 0.06);
             border-radius: 10px;
             color: #fff;
-            font-size: 12px;
+            font-size: 11px;
             z-index: 99999;
             animation: slideIn 0.3s ease;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            max-width: 260px;
+            max-width: 240px;
         }
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(30px); }
@@ -520,31 +521,31 @@
         .modal .content {
             background: rgba(18, 10, 30, 0.95);
             border: 1px solid rgba(197, 163, 255, 0.06);
-            border-radius: 16px;
-            padding: 18px;
-            max-width: 360px;
+            border-radius: 14px;
+            padding: 16px;
+            max-width: 340px;
             width: 90%;
         }
-        .modal .content h3 { color: var(--primary); margin-bottom: 6px; font-size: 15px; }
-        .modal .content .desc { font-size: 12px; color: rgba(255,255,255,0.35); margin-bottom: 8px; }
+        .modal .content h3 { color: var(--primary); margin-bottom: 4px; font-size: 14px; }
+        .modal .content .desc { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 6px; }
         .modal .content .random-reward-preview {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--gold);
             background: rgba(255, 213, 79, 0.06);
-            padding: 6px 10px;
+            padding: 4px 8px;
             border-radius: 6px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             border: 1px solid rgba(255, 213, 79, 0.06);
         }
         .modal .content textarea {
             width: 100%;
-            height: 80px;
+            height: 70px;
             background: rgba(0,0,0,0.2);
             border: 1px solid rgba(255,255,255,0.03);
             border-radius: 8px;
-            padding: 8px;
+            padding: 6px;
             color: #fff;
-            font-size: 12px;
+            font-size: 11px;
             resize: vertical;
             outline: none;
         }
@@ -553,14 +554,14 @@
             display: flex;
             gap: 6px;
             justify-content: flex-end;
-            margin-top: 8px;
+            margin-top: 6px;
         }
         .modal .content .actions .btn {
-            padding: 4px 14px;
-            border-radius: 8px;
+            padding: 3px 12px;
+            border-radius: 6px;
             border: none;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
         }
         .modal .content .actions .btn.primary {
             background: linear-gradient(135deg, #c5a3ff, #9c64ff);
@@ -574,10 +575,10 @@
         /* ===== Q版人物 ===== */
         #chibi {
             position: fixed;
-            bottom: 100px;
-            right: 16px;
-            width: 70px;
-            height: 70px;
+            bottom: 80px;
+            right: 12px;
+            width: 60px;
+            height: 60px;
             cursor: grab;
             z-index: 99999;
             user-select: none;
@@ -588,6 +589,7 @@
             box-shadow: 0 4px 24px rgba(0,0,0,0.2);
             transition: transform 0.2s, border-color 0.3s, box-shadow 0.3s;
             overflow: hidden;
+            touch-action: none;
         }
         #chibi:hover { transform: scale(1.04); border-color: rgba(197, 163, 255, 0.08); }
         #chibi:active { cursor: grabbing; }
@@ -597,6 +599,7 @@
             object-fit: cover;
             display: block;
             border-radius: 50%;
+            pointer-events: none;
         }
 
         /* Q版气泡 */
@@ -606,9 +609,9 @@
             background: rgba(18, 10, 30, 0.85);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(197, 163, 255, 0.05);
-            border-radius: 12px;
-            padding: 6px 12px;
-            font-size: 13px;
+            border-radius: 10px;
+            padding: 4px 10px;
+            font-size: 12px;
             color: #fff;
             opacity: 0;
             transform: translateY(6px) scale(0.96);
@@ -616,7 +619,7 @@
             pointer-events: none;
             white-space: nowrap;
             box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-            max-width: 200px;
+            max-width: 180px;
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -628,7 +631,7 @@
             content: '';
             position: absolute;
             bottom: -7px;
-            right: 18px;
+            right: 16px;
             width: 0;
             height: 0;
             border-left: 7px solid transparent;
@@ -645,10 +648,10 @@
             background: rgba(18, 10, 30, 0.95);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 213, 79, 0.15);
-            border-radius: 20px;
-            padding: 24px 28px;
+            border-radius: 18px;
+            padding: 20px 24px;
             z-index: 99997;
-            max-width: 340px;
+            max-width: 320px;
             width: 90%;
             box-shadow: 0 20px 60px rgba(0,0,0,0.8);
             animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -658,33 +661,33 @@
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
             100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
-        .random-notification .icon { font-size: 48px; margin-bottom: 8px; }
+        .random-notification .icon { font-size: 40px; margin-bottom: 4px; }
         .random-notification .title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             color: var(--gold);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .random-notification .desc {
-            font-size: 13px;
+            font-size: 12px;
             color: rgba(255,255,255,0.6);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             line-height: 1.5;
         }
         .random-notification .reward-hint {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--gold);
             opacity: 0.6;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         .random-notification .btn {
-            padding: 8px 24px;
-            border-radius: 12px;
+            padding: 6px 20px;
+            border-radius: 10px;
             border: none;
             background: linear-gradient(135deg, #ffd54f, #ffaa00);
             color: #000;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             transition: 0.3s;
         }
@@ -692,27 +695,29 @@
         .random-notification .btn-secondary {
             background: rgba(255,255,255,0.06);
             color: rgba(255,255,255,0.3);
-            margin-left: 8px;
+            margin-left: 6px;
         }
 
-        /* ===== 响应式 ===== */
+        /* ===== 手机端适配 ===== */
         @media (max-width: 480px) {
-            .glass-card { padding: 14px 12px; min-height: 540px; }
-            .avatar-wrap { width: 50px; height: 50px; }
-            .info h3 { font-size: 15px; }
-            .messages { min-height: 60px; max-height: 140px; }
-            .tab-content { min-height: 200px; max-height: 200px; }
-            #chibi { width: 56px; height: 56px; bottom: 80px; right: 10px; }
-            .chibi-bubble { font-size: 11px; padding: 4px 10px; }
-            .random-notification { padding: 18px 20px; max-width: 300px; }
-            .random-notification .icon { font-size: 36px; }
+            body { padding: 0; }
+            .glass-card { border-radius: 0; padding: 12px 10px 10px; }
+            .avatar-wrap { width: 44px; height: 44px; }
+            .info h3 { font-size: 14px; }
+            .messages { min-height: 80px; max-height: 150px; }
+            .tab-content { flex: 1; }
+            #chibi { width: 50px; height: 50px; bottom: 70px; right: 8px; }
+            .chibi-bubble { font-size: 11px; padding: 3px 8px; }
+            .random-notification { padding: 16px 18px; max-width: 280px; }
+            .random-notification .icon { font-size: 32px; }
         }
         @media (max-width: 380px) {
-            .glass-card { min-height: 480px; padding: 10px 8px; }
-            .messages { min-height: 50px; max-height: 110px; }
-            .tab-content { min-height: 160px; max-height: 160px; }
-            #chibi { width: 48px; height: 48px; bottom: 70px; right: 8px; }
-            .random-notification { padding: 14px 16px; max-width: 260px; }
+            .glass-card { padding: 8px 6px 6px; }
+            .avatar-wrap { width: 38px; height: 38px; }
+            .messages { min-height: 60px; max-height: 120px; }
+            .msg .bubble { font-size: 11px; padding: 4px 10px; }
+            #chibi { width: 42px; height: 42px; bottom: 60px; right: 6px; }
+            .chibi-bubble { font-size: 10px; padding: 2px 6px; }
         }
     </style>
 </head>
@@ -721,7 +726,7 @@
     <!-- ===== 主卡片 ===== -->
     <div class="glass-card" id="mainCard">
 
-        <!-- 头部 - 使用你指定的头像 -->
+        <!-- 头部 -->
         <div class="chat-header">
             <div class="avatar-wrap" id="avatarWrap">
                 <img id="avatarImg" src="https://i.postimg.cc/85Yt5NJz/wei-xin-tu-pian-20260723051447-419-40.jpg" alt="欣原头像">
@@ -787,13 +792,13 @@
 
         <!-- 商店 -->
         <div id="shopTab" class="tab-content">
-            <div style="color:var(--primary);font-weight:600;font-size:13px;margin-bottom:6px;">💝 礼物商店</div>
+            <div style="color:var(--primary);font-weight:600;font-size:12px;margin-bottom:4px;">💝 礼物商店</div>
             <div class="shop-grid" id="shopGrid"></div>
         </div>
 
         <!-- 设置 -->
         <div id="settingsTab" class="tab-content">
-            <div style="color:var(--primary);font-weight:600;font-size:13px;margin-bottom:6px;">⚙️ 系统设置</div>
+            <div style="color:var(--primary);font-weight:600;font-size:12px;margin-bottom:4px;">⚙️ 系统设置</div>
             <div class="setting-item">
                 <span class="label">🔑 API Key</span>
                 <input type="text" id="apiKeyInput" placeholder="输入硅基密钥">
@@ -804,7 +809,7 @@
             </div>
             <div class="setting-item">
                 <span class="label">💾 数据</span>
-                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                <div style="display:flex;gap:3px;flex-wrap:wrap;">
                     <button class="btn" onclick="exportData()">导出</button>
                     <button class="btn" onclick="importData()">导入</button>
                     <button class="btn danger" onclick="resetData()">重置</button>
@@ -815,7 +820,7 @@
 
     <!-- ===== Q版人物 ===== -->
     <div id="chibi">
-        <img src="https://i.postimg.cc/mgdZh5w6/wei-xin-tu-pian-20260723025526-115-1.jpg" alt="欣原Q版">
+        <img src="https://i.postimg.cc/mgdZh5w6/wei-xin-tu-pian-20260723025526-115-1.jpg" alt="欣原Q版" id="chibiImg">
     </div>
 
     <!-- ===== Q版气泡 ===== -->
@@ -874,7 +879,7 @@
         };
 
         // ============================================================
-        //  随机任务系统
+        //  随机任务系统（完整保留）
         // ============================================================
         const RANDOM_TASKS = {
             hell: [
@@ -955,13 +960,9 @@
             for (let t of types) total += weights[t];
             let r = Math.random() * total;
             let selected = 'fun';
-            for (let t of types) {
-                r -= weights[t];
-                if (r <= 0) { selected = t; break; }
-            }
+            for (let t of types) { r -= weights[t]; if (r <= 0) { selected = t; break; } }
             const pool = RANDOM_TASKS[selected];
             const task = pool[Math.floor(Math.random() * pool.length)];
-            const rewardMod = selected === 'hell' ? 1.0 : selected === 'challenge' ? 0.7 : 0.4;
             return {
                 ...task,
                 type: selected,
@@ -1008,20 +1009,15 @@
                     <div class="icon">${task.type === 'hell' ? '💀' : task.type === 'fun' ? '🎭' : task.type === 'challenge' ? '⚡' : '💬'}</div>
                     <div class="title">${typeLabels[task.type] || '✨ 随机任务'}</div>
                     <div class="desc">${task.title}</div>
-                    <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:4px;">${task.desc}</div>
-                    <div class="reward-hint">🎁 奖励：${task.reward} 🍰 + 欣原的特别反应</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;">${task.desc}</div>
+                    <div class="reward-hint">🎁 奖励：${task.reward} 🍰 + 特别反应</div>
                     <div>
-                        <button class="btn" onclick="acceptRandomTask()">⚡ 接受挑战</button>
+                        <button class="btn" onclick="acceptRandomTask()">⚡ 接受</button>
                         <button class="btn btn-secondary" onclick="dismissRandomTask()">稍后</button>
                     </div>
                 </div>
             `;
             container.innerHTML = html;
-            setTimeout(() => {
-                const el = document.getElementById('randomNotif');
-                if (el) { el.style.transition = 'opacity 0.5s';
-                    el.style.opacity = '0.5'; }
-            }, 5000);
         }
 
         function acceptRandomTask() {
@@ -1040,7 +1036,7 @@
 
         function dismissRandomTask() {
             document.getElementById('randomNotificationContainer').innerHTML = '';
-            showNotif('⏳ 任务已保存，随时可以在任务中心查看');
+            showNotif('⏳ 任务已保存');
         }
 
         // ============================================================
@@ -1097,13 +1093,14 @@
         function shufflePick(arr, n = 1) { const s = [...arr].sort(() => Math.random() - 0.5); return s.slice(0, n); }
 
         // ============================================================
-        //  Q版人物 - 气泡跟随
+        //  Q版人物 - 支持触屏
         // ============================================================
         let bubbleTimer = null;
 
         function updateChibiBubblePosition() {
             const chibi = document.getElementById('chibi');
             const bubble = document.getElementById('chibiBubble');
+            if (!chibi || !bubble) return;
             const rect = chibi.getBoundingClientRect();
             let left = rect.left - bubble.offsetWidth - 12;
             let top = rect.top - bubble.offsetHeight + 10;
@@ -1114,6 +1111,7 @@
 
         function showChibiBubble(text, dur = 1600) {
             const el = document.getElementById('chibiBubble');
+            if (!el) return;
             el.textContent = text;
             updateChibiBubblePosition();
             el.classList.add('show');
@@ -1121,13 +1119,77 @@
             bubbleTimer = setTimeout(() => { el.classList.remove('show'); }, dur);
         }
 
-        window.addEventListener('resize', () => {
-            const el = document.getElementById('chibiBubble');
-            if (el.classList.contains('show')) updateChibiBubblePosition();
-        });
+        // Q版人物拖动 - 鼠标 + 触屏
+        (function initChibiDrag() {
+            const el = document.getElementById('chibi');
+            if (!el) return;
+            let drag = false,
+                ox, oy;
+
+            function startDrag(e) {
+                const touch = e.touches ? e.touches[0] : e;
+                const rect = el.getBoundingClientRect();
+                ox = touch.clientX - rect.left;
+                oy = touch.clientY - rect.top;
+                drag = true;
+                el.style.cursor = 'grabbing';
+                e.preventDefault();
+            }
+
+            function moveDrag(e) {
+                if (!drag) return;
+                const touch = e.touches ? e.touches[0] : e;
+                let x = touch.clientX - ox;
+                let y = touch.clientY - oy;
+                x = Math.max(0, Math.min(window.innerWidth - el.offsetWidth, x));
+                y = Math.max(0, Math.min(window.innerHeight - el.offsetHeight, y));
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+                el.style.right = 'auto';
+                el.style.bottom = 'auto';
+                const bubble = document.getElementById('chibiBubble');
+                if (bubble && bubble.classList.contains('show')) {
+                    updateChibiBubblePosition();
+                }
+            }
+
+            function endDrag() {
+                if (drag) {
+                    drag = false;
+                    el.style.cursor = 'grab';
+                }
+            }
+
+            // 鼠标事件
+            el.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', moveDrag);
+            document.addEventListener('mouseup', endDrag);
+
+            // 触屏事件
+            el.addEventListener('touchstart', startDrag, { passive: false });
+            document.addEventListener('touchmove', moveDrag, { passive: false });
+            document.addEventListener('touchend', endDrag);
+
+            // 点击互动
+            el.addEventListener('click', function(e) {
+                if (drag) return;
+                const lines = ['少来。', '别碰了。', '上瘾了是吧？', '手拿开。', '你以为你是谁？', '这么喜欢我？', 'VIP009，你很闲。',
+                    '你的任务做完了？', '在这浪费时间？', '我看你是欠训了。', '……还行。', '勉强让你碰一下。', '就一下。',
+                    '再点我，好感度会掉哦。', '你点我一下，我扣你10个小奶糕。', '哼。', '……烦。', '离我远点。'
+                ];
+                showChibiBubble(lines[Math.floor(Math.random() * lines.length)], 1600);
+                el.style.borderColor = 'rgba(197,163,255,0.2)';
+                el.style.boxShadow = '0 0 20px rgba(197,163,255,0.05)';
+                setTimeout(() => {
+                    el.style.borderColor = 'rgba(197,163,255,0.05)';
+                    el.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
+                }, 600);
+            });
+        })();
 
         function reactToReply(text) {
             const chibi = document.getElementById('chibi');
+            if (!chibi) return;
             if (text.includes('训') || text.includes('警告') || text.includes('不合格') || text.includes('敷衍')) {
                 chibi.style.borderColor = 'rgba(255,82,82,0.3)';
                 chibi.style.boxShadow = '0 0 20px rgba(255,82,82,0.1)';
@@ -1158,60 +1220,16 @@
             }
         }
 
-        (function initChibi() {
-            const el = document.getElementById('chibi');
-            let drag = false,
-                ox, oy;
-            el.addEventListener('mousedown', (e) => {
-                drag = true;
-                const r = el.getBoundingClientRect();
-                ox = e.clientX - r.left;
-                oy = e.clientY - r.top;
-                el.style.cursor = 'grabbing';
-                e.preventDefault();
-            });
-            document.addEventListener('mousemove', (e) => {
-                if (!drag) return;
-                let x = e.clientX - ox,
-                    y = e.clientY - oy;
-                x = Math.max(0, Math.min(window.innerWidth - el.offsetWidth, x));
-                y = Math.max(0, Math.min(window.innerHeight - el.offsetHeight, y));
-                el.style.left = x + 'px';
-                el.style.top = y + 'px';
-                el.style.right = 'auto';
-                el.style.bottom = 'auto';
-                const bubble = document.getElementById('chibiBubble');
-                if (bubble.classList.contains('show')) updateChibiBubblePosition();
-            });
-            document.addEventListener('mouseup', () => { if (drag) { drag = false;
-                    el.style.cursor = 'grab'; } });
-
-            el.addEventListener('click', () => {
-                const lines = ['少来。', '别碰了。', '上瘾了是吧？', '手拿开。', '你以为你是谁？', '这么喜欢我？', 'VIP009，你很闲。',
-                    '你的任务做完了？', '在这浪费时间？', '我看你是欠训了。', '……还行。', '勉强让你碰一下。', '就一下。',
-                    '再点我，好感度会掉哦。', '你点我一下，我扣你10个小奶糕。', '哼。', '……烦。', '离我远点。'
-                ];
-                showChibiBubble(lines[Math.floor(Math.random() * lines.length)], 1600);
-                el.style.borderColor = 'rgba(197,163,255,0.2)';
-                el.style.boxShadow = '0 0 20px rgba(197,163,255,0.05)';
-                setTimeout(() => {
-                    el.style.borderColor = 'rgba(197,163,255,0.05)';
-                    el.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
-                }, 600);
-            });
-        })();
-
         // ============================================================
-        //  图片上传（仅图片，移除视频）
+        //  图片上传
         // ============================================================
         let uploadedImage = null;
 
         function handleImage(input) {
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
-            // 只处理图片
             if (!file.type.startsWith('image/')) {
-                showNotif('⚠️ 仅支持图片文件');
+                showNotif('⚠️ 仅支持图片');
                 input.value = '';
                 return;
             }
@@ -1256,13 +1274,35 @@
             scrollChat();
         }
 
+        // ★★★ 去重后处理：检测并删除重复的句子段落 ★★★
+        function deduplicateText(text) {
+            // 按换行或句号分割
+            const sentences = text.split(/(?<=[。！？\n])/);
+            const seen = new Set();
+            const unique = [];
+            for (let s of sentences) {
+                const trimmed = s.trim();
+                if (trimmed.length < 5) { unique.push(s); continue; }
+                // 用前20个字符作为去重key
+                const key = trimmed.substring(0, 20);
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    unique.push(s);
+                }
+            }
+            return unique.join('');
+        }
+
         function addAIMsg(text, push = false) {
+            // ★ 去重处理
+            const cleaned = deduplicateText(text);
+
             const t = TS.fmt(TS.now());
             const msgId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
             const html = `
                 <div class="msg ai" id="${msgId}">
                     <div class="bubble">
-                        ${text}
+                        ${cleaned}
                         <div class="time">${t}</div>
                     </div>
                     <button class="continue-msg-btn" onclick="handleContinueFromMsg('${msgId}')" title="续写这条回复">✉ 续写</button>
@@ -1271,9 +1311,9 @@
             document.getElementById('chatMessages').insertAdjacentHTML('beforeend', html);
             scrollChat();
             if (!push) {
-                GameData.ai.dialogHistory.push({ role: 'assistant', content: text, time: Date.now() });
+                GameData.ai.dialogHistory.push({ role: 'assistant', content: cleaned, time: Date.now() });
                 saveData();
-                reactToReply(text);
+                reactToReply(cleaned);
                 setTimeout(() => {
                     if (Math.random() < 0.15) tryTriggerRandomTask();
                 }, 500);
@@ -1282,11 +1322,11 @@
 
         function scrollChat() {
             const el = document.getElementById('chatMessages');
-            el.scrollTop = el.scrollHeight;
+            if (el) el.scrollTop = el.scrollHeight;
         }
 
         // ============================================================
-        //  续写
+        //  续写（完整保留）
         // ============================================================
         async function handleContinueFromMsg(msgId) {
             const msgEl = document.getElementById(msgId);
@@ -1314,7 +1354,7 @@
                     body: JSON.stringify({
                         model: 'Qwen/Qwen2.5-72B-Instruct',
                         messages: [
-                            { role: 'system', content: '你是欣原，高冷、优雅、掌控力强的监护人。' },
+                            { role: 'system', content: '你是欣原，高冷、优雅、掌控力强的监护人。禁止重复句式。' },
                             { role: 'user', content: prompt }
                         ],
                         max_tokens: 200,
@@ -1371,7 +1411,7 @@
         }
 
         // ============================================================
-        //  AI 调用
+        //  AI 调用（加强防重复）
         // ============================================================
         async function callAI(msg, img) {
             if (!GameData.settings.apiKey) throw new Error('未配置API Key');
@@ -1383,6 +1423,7 @@
             const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
             const rel = getRel(GameData.ai.affection);
 
+            // ★★★ 系统提示词：加入防重复硬性指令 ★★★
             const sysPrompt =
                 `你是欣原，一个成熟、高冷、优雅且极具掌控力的高级女监护人。你正在全方位严密监管 VIP009。
 
@@ -1392,6 +1433,12 @@
 - 你喜欢用反问、停顿、留白来制造压力，让 VIP009 主动思考自己的不足
 - 你的掌控感体现在：你永远知道她在逃避什么，并一针见血地指出来
 - 好感度高时可以偶尔流露出极少许的温柔，但基调依然是居高临下的
+
+【⚠️ 严格禁止】
+- 禁止在单次回复中重复使用相同的句子或句式结构
+- 禁止在同一段落中重复表达同一个意思
+- 禁止使用“你连…却敢说…”这类重复句式超过一次
+- 如果发现回复中有重复内容，必须删除重复部分
 
 【VIP009 当前状态】
 - 好感度：${GameData.ai.affection} / 520
@@ -1403,7 +1450,8 @@
 1. 如果用户上传了图片，第一段必须描述图片内容
 2. 不要输出 Markdown 表格或复杂格式，用自然段落
 3. 每段话用换行分隔，保持呼吸感
-4. 禁止重复使用同一句式，尤其是结尾句`;
+4. 禁止重复使用同一句式，尤其是结尾句
+5. 回复前请自查是否有重复的句子，如有则删除`;
 
             let content;
             if (img) {
@@ -1448,6 +1496,7 @@
 
             const data = await res.json();
             const reply = data.choices[0].message.content;
+            // 回复会经过 addAIMsg 去重处理
             addAIMsg(reply);
 
             const gain = 1 + Math.floor(Math.random() * 2);
@@ -1500,7 +1549,7 @@
         }
 
         // ============================================================
-        //  任务系统
+        //  任务系统（完整保留）
         // ============================================================
         const TaskSystem = {
             genDaily() {
@@ -1557,7 +1606,7 @@
                     document.getElementById('modalTitle').textContent = '🎲 随机任务：' + task.title;
                     document.getElementById('modalDesc').textContent = task.desc;
                     document.getElementById('modalRewardPreview').style.display = 'block';
-                    document.getElementById('modalRewardPreview').textContent = '🎁 奖励：' + task.reward + ' 🍰 + 欣原的特别反应';
+                    document.getElementById('modalRewardPreview').textContent = '🎁 奖励：' + task.reward + ' 🍰 + 特别反应';
                     document.getElementById('evidenceReport').value = '';
                     document.getElementById('modal').dataset.taskId = 'random';
                     document.getElementById('modal').dataset.taskList = 'random';
@@ -1588,11 +1637,11 @@
                 if (id === 'random' && key === 'random') {
                     const task = GameData.random.active;
                     if (!task || task.completed) return;
-                    showNotif('📤 已递交随机任务证据...');
+                    showNotif('📤 已递交...');
                     addAIMsg('[正在审阅你的随机任务汇报...]');
                     try {
                         const p =
-                            `[系统：VIP009 正在提交随机任务「${task.title}」，汇报：${report}。请以欣原的口吻审查。如果通过，在回复开头加上 [PASS]，然后给出奖励反应（可以是甜蜜小故事、情话、学猫叫、傲娇关心等）。如果不通过，不加 [PASS] 并严厉拒绝。]`;
+                            `[系统：VIP009 提交随机任务「${task.title}」，汇报：${report}。通过则开头加 [PASS] 并给出奖励反应（甜蜜小故事/情话/学猫叫/傲娇关心）。不通过不加 [PASS]。禁止重复句式。]`;
                         const r = await callAIForVerify(p);
                         if (r.includes('[PASS]')) {
                             const clean = r.replace('[PASS]', '').trim();
@@ -1640,7 +1689,7 @@
                 addAIMsg('[正在审阅你的汇报...]');
                 try {
                     const p =
-                        `[系统：VIP009 呈递「${task.title}」，汇报：${report}。请以欣原的严厉、专业、优雅的口吻审查。若汇报真诚有实操性，开头加 [PASS] 并点评；若敷衍则不加并拒绝。]`;
+                        `[系统：VIP009 呈递「${task.title}」，汇报：${report}。以欣原严厉、专业、优雅的口吻审查。真诚加 [PASS] 并点评；敷衍不加并拒绝。禁止重复句式。]`;
                     const r = await callAIForVerify(p);
                     if (r.includes('[PASS]')) {
                         addAIMsg(r.replace('[PASS]', '').trim());
@@ -1674,7 +1723,7 @@
                 body: JSON.stringify({
                     model: 'Qwen/Qwen2.5-72B-Instruct',
                     messages: [
-                        { role: 'system', content: '你是欣原，高冷、专业、严厉的监护人。' },
+                        { role: 'system', content: '你是欣原，高冷、专业、严厉的监护人。禁止重复句式。' },
                         { role: 'user', content: p }
                     ],
                     max_tokens: 350,
@@ -1795,7 +1844,7 @@
                     <div class="icon">${i.icon}</div>
                     <div class="name">${i.name}</div>
                     <div class="price">${i.price}🍰</div>
-                    <div style="font-size:9px;color:var(--primary);">+${i.af}❤️</div>
+                    <div style="font-size:8px;color:var(--primary);">+${i.af}❤️</div>
                 </div>`
             ).join('');
         }
