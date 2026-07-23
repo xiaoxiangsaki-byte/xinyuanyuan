@@ -3,11 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIP009 · 欣原监督系统</title>
+    <title>VIP009 · 欣原监督系统 V2.0</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --primary: #c5a3ff; --secondary: #9c64ff; --gold: #ffd54f; }
-        html, body { height: 100%; overflow: hidden; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --primary: #c5a3ff;
+            --secondary: #9c64ff;
+            --gold: #ffd54f;
+        }
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
         body {
             font-family: -apple-system, "Segoe UI", sans-serif;
             background: #080410;
@@ -19,240 +33,1416 @@
             background-attachment: fixed;
         }
 
-        .app-container { width: 100%; max-width: 420px; height: 100dvh; max-height: 100dvh; position: relative; overflow: hidden; background: rgba(18, 10, 30, 0.75); backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 60px rgba(0,0,0,0.7); display: flex; flex-direction: column; }
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            height: 100dvh;
+            max-height: 100dvh;
+            position: relative;
+            overflow: hidden;
+            background: rgba(18, 10, 30, 0.75);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+        }
 
-        .view { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; padding: 12px 14px 10px; background: rgba(18, 10, 30, 0.96); backdrop-filter: blur(18px); z-index: 1; transition: opacity 0.3s ease; overflow: hidden; }
-        .view.active { display: flex; }
+        .view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 12px 14px 10px;
+            background: rgba(18, 10, 30, 0.96);
+            backdrop-filter: blur(18px);
+            z-index: 1;
+            transition: opacity 0.3s ease;
+            overflow: hidden;
+        }
+        .view.active {
+            display: flex;
+        }
 
         /* ===== 主视图 ===== */
-        #mainView { z-index: 2; padding: 12px 14px 10px; background: rgba(18, 10, 30, 0.75); }
-        #mainView .top-bar { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; padding: 6px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.04); min-height: 56px; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; }
-        #mainView .top-bar:active { opacity: 0.7; }
-        #mainView .top-bar .left { display: flex; align-items: center; gap: 10px; }
-        #mainView .top-bar .avatar-sm { width: 42px; height: 42px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
-        #mainView .top-bar .avatar-sm img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        #mainView .top-bar .info { position: relative; display: flex; flex-direction: column; }
-        #mainView .top-bar .info .name-row { display: flex; align-items: center; gap: 6px; }
-        #mainView .top-bar .info .name-row h3 { font-size: 15px; color: #fff; font-weight: 600; }
-        #mainView .top-bar .info .name-row .unread-badge { font-size: 10px; background: #ff3b30; color: #fff; font-weight: 700; min-width: 18px; height: 18px; border-radius: 10px; display: none; align-items: center; justify-content: center; padding: 0 5px; box-shadow: 0 0 8px rgba(255,59,48,0.3); }
-        #mainView .top-bar .info .name-row .unread-badge.show { display: flex; }
-        #mainView .top-bar .info .signature { font-size: 10px; background: linear-gradient(135deg, #c5a3ff, #d4bfff, #e8d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 400; letter-spacing: 0.5px; text-shadow: 0 0 20px rgba(197,163,255,0.3); animation: sigGlow 3s ease-in-out infinite alternate; }
-        @keyframes sigGlow { 0% { text-shadow: 0 0 10px rgba(197,163,255,0.2); } 100% { text-shadow: 0 0 25px rgba(197,163,255,0.5), 0 0 40px rgba(156,100,255,0.2); } }
-        #mainView .top-bar .right-stats { display: flex; align-items: center; gap: 12px; font-size: 12px; color: rgba(255,255,255,0.3); }
-        #mainView .top-bar .right-stats .stat-item { display: flex; align-items: center; gap: 3px; }
-        #mainView .top-bar .right-stats .stat-item .val { color: #fff; font-weight: 600; }
+        #mainView {
+            z-index: 2;
+            padding: 12px 14px 10px;
+            background: rgba(18, 10, 30, 0.75);
+        }
+        #mainView .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            padding: 6px 0 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            min-height: 56px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        #mainView .top-bar:active {
+            opacity: 0.7;
+        }
+        #mainView .top-bar .left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #mainView .top-bar .avatar-sm {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        #mainView .top-bar .avatar-sm img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        #mainView .top-bar .info {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        #mainView .top-bar .info .name-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #mainView .top-bar .info .name-row h3 {
+            font-size: 15px;
+            color: #fff;
+            font-weight: 600;
+        }
+        #mainView .top-bar .info .name-row .unread-badge {
+            font-size: 10px;
+            background: #ff3b30;
+            color: #fff;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 10px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            box-shadow: 0 0 8px rgba(255, 59, 48, 0.3);
+        }
+        #mainView .top-bar .info .name-row .unread-badge.show {
+            display: flex;
+        }
+        #mainView .top-bar .info .signature {
+            font-size: 10px;
+            background: linear-gradient(135deg, #c5a3ff, #d4bfff, #e8d5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 20px rgba(197, 163, 255, 0.3);
+            animation: sigGlow 3s ease-in-out infinite alternate;
+        }
+        @keyframes sigGlow {
+            0% {
+                text-shadow: 0 0 10px rgba(197, 163, 255, 0.2);
+            }
+            100% {
+                text-shadow: 0 0 25px rgba(197, 163, 255, 0.5), 0 0 40px rgba(156, 100, 255, 0.2);
+            }
+        }
+        #mainView .top-bar .right-stats {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        #mainView .top-bar .right-stats .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        #mainView .top-bar .right-stats .stat-item .val {
+            color: #fff;
+            font-weight: 600;
+        }
 
-        .affection-mini { flex-shrink: 0; padding: 4px 0 6px; display: flex; align-items: center; gap: 8px; }
-        .affection-mini .label { font-size: 9px; color: rgba(255,255,255,0.3); white-space: nowrap; }
-        .affection-mini .bar-wrap { flex: 1; height: 3px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
-        .affection-mini .bar-wrap .fill { height: 100%; width: 0%; background: linear-gradient(90deg, #b39ddb, #c5a3ff, #9c64ff); border-radius: 4px; transition: width 0.5s ease; }
-        .affection-mini .bar-wrap .fill.gold { background: linear-gradient(90deg, #ffd54f, #ffaa00, #ffd54f); }
-        .affection-mini .num { font-size: 9px; color: rgba(255,255,255,0.25); white-space: nowrap; min-width: 40px; text-align: right; }
+        .affection-mini {
+            flex-shrink: 0;
+            padding: 4px 0 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .affection-mini .label {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.3);
+            white-space: nowrap;
+        }
+        .affection-mini .bar-wrap {
+            flex: 1;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .affection-mini .bar-wrap .fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #b39ddb, #c5a3ff, #9c64ff);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .affection-mini .bar-wrap .fill.gold {
+            background: linear-gradient(90deg, #ffd54f, #ffaa00, #ffd54f);
+        }
+        .affection-mini .num {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.25);
+            white-space: nowrap;
+            min-width: 40px;
+            text-align: right;
+        }
 
-        .tasks-area { flex: 1; overflow-y: auto; padding-top: 6px; min-height: 0; }
-        .tasks-area::-webkit-scrollbar { width: 3px; }
-        .tasks-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 2px; }
-        .tasks-area::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 2px; }
+        .tasks-area {
+            flex: 1;
+            overflow-y: auto;
+            padding-top: 6px;
+            min-height: 0;
+        }
+        .tasks-area::-webkit-scrollbar {
+            width: 3px;
+        }
+        .tasks-area::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+        }
+        .tasks-area::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 2px;
+        }
 
-        .task-category { background: rgba(0,0,0,0.12); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.02); }
-        .category-title { font-size: 12px; font-weight: 600; color: var(--primary); margin-bottom: 4px; }
-        .task-item { background: rgba(0,0,0,0.12); padding: 6px 8px; border-radius: 6px; margin-bottom: 4px; border-left: 2px solid var(--primary); }
-        .task-item:last-child { margin-bottom: 0; }
-        .task-item .t-title { font-weight: 500; font-size: 11px; color: #fff; }
-        .task-item .t-desc { font-size: 10px; color: rgba(255,255,255,0.35); margin: 1px 0 2px; }
-        .task-item .t-progress { font-size: 10px; color: rgba(255,255,255,0.25); }
-        .task-item .t-btn { font-size: 9px; color: var(--primary); background: rgba(197,163,255,0.06); border: none; border-radius: 6px; padding: 1px 8px; cursor: pointer; margin-top: 2px; transition: 0.3s; }
-        .task-item .t-btn:active { background: rgba(197,163,255,0.15); }
-        .task-item.completed .t-title { opacity: 0.4; }
-        .task-item .done { color: #69f0ae; font-size: 10px; margin-top: 2px; }
-        .task-item.random-task { border-left: 2px solid var(--gold); background: rgba(255,213,79,0.04); }
-        .task-item.random-task .t-title { color: var(--gold); }
+        .task-category {
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+        .category-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .task-item {
+            background: rgba(0, 0, 0, 0.12);
+            padding: 6px 8px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            border-left: 2px solid var(--primary);
+        }
+        .task-item:last-child {
+            margin-bottom: 0;
+        }
+        .task-item .t-title {
+            font-weight: 500;
+            font-size: 11px;
+            color: #fff;
+        }
+        .task-item .t-desc {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.35);
+            margin: 1px 0 2px;
+        }
+        .task-item .t-progress {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.25);
+        }
+        .task-item .t-btn {
+            font-size: 9px;
+            color: var(--primary);
+            background: rgba(197, 163, 255, 0.06);
+            border: none;
+            border-radius: 6px;
+            padding: 1px 8px;
+            cursor: pointer;
+            margin-top: 2px;
+            transition: 0.3s;
+        }
+        .task-item .t-btn:active {
+            background: rgba(197, 163, 255, 0.15);
+        }
+        .task-item.completed .t-title {
+            opacity: 0.4;
+        }
+        .task-item .done {
+            color: #69f0ae;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+        .task-item.random-task {
+            border-left: 2px solid var(--gold);
+            background: rgba(255, 213, 79, 0.04);
+        }
+        .task-item.random-task .t-title {
+            color: var(--gold);
+        }
 
-        .mail-section { background: rgba(0,0,0,0.12); border-radius: 10px; padding: 8px 12px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.02); cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .mail-section:active { opacity: 0.7; }
-        .mail-section .mail-header { display: flex; justify-content: space-between; align-items: center; }
-        .mail-section .mail-header .title { font-size: 12px; font-weight: 600; color: var(--gold); }
-        .mail-section .mail-header .badge { font-size: 9px; color: #ff3b30; background: rgba(255,59,48,0.1); padding: 1px 8px; border-radius: 10px; display: none; }
-        .mail-section .mail-header .badge.show { display: inline-block; }
-        .mail-section .mail-preview { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* ★ 成长印记（打卡） */
+        .checkin-section {
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .checkin-section .left {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .checkin-section .left .label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        .checkin-section .left .streak {
+            font-size: 13px;
+            color: var(--gold);
+            font-weight: 600;
+        }
+        .checkin-section .btn-checkin {
+            padding: 4px 16px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--gold), #ffaa00);
+            color: #000;
+            font-weight: 600;
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .checkin-section .btn-checkin:active {
+            transform: scale(0.95);
+        }
+        .checkin-section .btn-checkin.done {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.2);
+            cursor: default;
+        }
 
-        .bottom-tabs { display: flex; gap: 4px; padding: 6px 0 0; flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.03); }
-        .bottom-tabs .tab { padding: 5px 8px; border-radius: 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.03); color: rgba(255,255,255,0.2); font-size: 11px; cursor: pointer; transition: 0.3s; flex: 1; text-align: center; user-select: none; -webkit-tap-highlight-color: transparent; }
-        .bottom-tabs .tab:active { opacity: 0.6; }
-        .bottom-tabs .tab.active { background: rgba(197,163,255,0.06); border-color: rgba(197,163,255,0.08); color: #fff; }
+        /* 快捷入口行 */
+        .quick-entries {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .quick-entries .entry {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 8px;
+            padding: 6px 4px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            transition: 0.3s;
+            -webkit-tap-highlight-color: transparent;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        .quick-entries .entry:active {
+            opacity: 0.6;
+        }
+        .quick-entries .entry .icon {
+            font-size: 16px;
+            display: block;
+            margin-bottom: 1px;
+        }
+
+        .mail-section {
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .mail-section:active {
+            opacity: 0.7;
+        }
+        .mail-section .mail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mail-section .mail-header .title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gold);
+        }
+        .mail-section .mail-header .badge {
+            font-size: 9px;
+            color: #ff3b30;
+            background: rgba(255, 59, 48, 0.1);
+            padding: 1px 8px;
+            border-radius: 10px;
+            display: none;
+        }
+        .mail-section .mail-header .badge.show {
+            display: inline-block;
+        }
+        .mail-section .mail-preview {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.25);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bottom-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 6px 0 0;
+            flex-shrink: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .bottom-tabs .tab {
+            padding: 5px 8px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.3s;
+            flex: 1;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .bottom-tabs .tab:active {
+            opacity: 0.6;
+        }
+        .bottom-tabs .tab.active {
+            background: rgba(197, 163, 255, 0.06);
+            border-color: rgba(197, 163, 255, 0.08);
+            color: #fff;
+        }
 
         /* ===== 商店 ===== */
-        #shopView .shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 8px 0; overflow-y: auto; flex: 1; }
-        #shopView .shop-item { background: rgba(0,0,0,0.15); padding: 10px 4px; border-radius: 10px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.04); transition: 0.3s; }
-        #shopView .shop-item:active { transform: scale(0.95); }
-        #shopView .shop-item .icon { font-size: 28px; }
-        #shopView .shop-item .name { font-size: 11px; color: #fff; margin: 2px 0; }
-        #shopView .shop-item .price { font-size: 10px; color: var(--primary); }
-        #shopView .shop-item .desc { font-size: 8px; color: rgba(255,255,255,0.2); margin-top: 2px; }
+        #shopView .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 8px 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+        #shopView .shop-item {
+            background: rgba(0, 0, 0, 0.15);
+            padding: 10px 4px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: 0.3s;
+        }
+        #shopView .shop-item:active {
+            transform: scale(0.95);
+        }
+        #shopView .shop-item .icon {
+            font-size: 28px;
+        }
+        #shopView .shop-item .name {
+            font-size: 11px;
+            color: #fff;
+            margin: 2px 0;
+        }
+        #shopView .shop-item .price {
+            font-size: 10px;
+            color: var(--primary);
+        }
+        #shopView .shop-item .desc {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.2);
+            margin-top: 2px;
+        }
 
         /* ===== 设置 ===== */
-        #settingsView .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.02); flex-wrap: wrap; gap: 4px; }
-        #settingsView .setting-item .label { font-size: 12px; color: rgba(255,255,255,0.5); }
-        #settingsView .setting-item input { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.04); border-radius: 6px; padding: 4px 8px; color: #fff; font-size: 11px; flex: 1; min-width: 100px; outline: none; }
-        #settingsView .setting-item input:focus { border-color: rgba(197,163,255,0.15); }
-        #settingsView .setting-item .btn { padding: 3px 12px; border-radius: 6px; border: none; background: rgba(197,163,255,0.08); color: var(--primary); cursor: pointer; font-size: 11px; }
-        #settingsView .setting-item .btn.danger { background: rgba(255,82,82,0.08); color: #ff5252; }
+        #settingsView .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        #settingsView .setting-item .label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        #settingsView .setting-item input {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: #fff;
+            font-size: 11px;
+            flex: 1;
+            min-width: 100px;
+            outline: none;
+        }
+        #settingsView .setting-item input:focus {
+            border-color: rgba(197, 163, 255, 0.15);
+        }
+        #settingsView .setting-item .btn {
+            padding: 3px 12px;
+            border-radius: 6px;
+            border: none;
+            background: rgba(197, 163, 255, 0.08);
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 11px;
+        }
+        #settingsView .setting-item .btn.danger {
+            background: rgba(255, 82, 82, 0.08);
+            color: #ff5252;
+        }
 
         /* ===== 聊天视图 ===== */
-        #chatView { background: rgba(18, 10, 30, 0.92); background-image: url('https://i.postimg.cc/kgCS8cZC/wei-xin-tu-pian-20260723084444-429-40.jpg'); background-size: cover; background-position: center; background-blend-mode: overlay; }
-        #chatView .chat-top { display: flex; align-items: center; padding: 8px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.04); flex-shrink: 0; gap: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; background: rgba(18,10,30,0.5); backdrop-filter: blur(4px); }
-        #chatView .chat-top:active { opacity: 0.7; }
-        #chatView .chat-top .back-avatar { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
-        #chatView .chat-top .back-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        #chatView .chat-top .chat-title { flex: 1; }
-        #chatView .chat-top .chat-title h3 { font-size: 16px; color: #fff; font-weight: 600; text-shadow: 0 0 10px rgba(0,0,0,0.6); }
-        #chatView .chat-top .chat-title .signature { font-size: 10px; background: linear-gradient(135deg, #c5a3ff, #d4bfff, #e8d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 400; letter-spacing: 0.5px; text-shadow: 0 0 20px rgba(197,163,255,0.3); animation: sigGlow 3s ease-in-out infinite alternate; }
-        #chatView .chat-top .chat-unread { font-size: 10px; color: #ff3b30; background: rgba(255,59,48,0.1); padding: 2px 10px; border-radius: 10px; display: none; }
-        #chatView .chat-top .chat-unread.show { display: inline-block; }
+        #chatView {
+            background: rgba(18, 10, 30, 0.92);
+            background-image: url('https://i.postimg.cc/kgCS8cZC/wei-xin-tu-pian-20260723084444-429-40.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+        }
+        #chatView .chat-top {
+            display: flex;
+            align-items: center;
+            padding: 8px 0 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            flex-shrink: 0;
+            gap: 10px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            background: rgba(18, 10, 30, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        #chatView .chat-top:active {
+            opacity: 0.7;
+        }
+        #chatView .chat-top .back-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        #chatView .chat-top .back-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        #chatView .chat-top .chat-title {
+            flex: 1;
+        }
+        #chatView .chat-top .chat-title h3 {
+            font-size: 16px;
+            color: #fff;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+        }
+        #chatView .chat-top .chat-title .signature {
+            font-size: 10px;
+            background: linear-gradient(135deg, #c5a3ff, #d4bfff, #e8d5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 20px rgba(197, 163, 255, 0.3);
+            animation: sigGlow 3s ease-in-out infinite alternate;
+        }
+        #chatView .chat-top .chat-unread {
+            font-size: 10px;
+            color: #ff3b30;
+            background: rgba(255, 59, 48, 0.1);
+            padding: 2px 10px;
+            border-radius: 10px;
+            display: none;
+        }
+        #chatView .chat-top .chat-unread.show {
+            display: inline-block;
+        }
 
-        #chatView .chat-messages-area { flex: 1; overflow-y: auto; padding: 10px 4px 8px; display: flex; flex-direction: column; gap: 6px; background: rgba(0,0,0,0.2); backdrop-filter: blur(2px); }
-        #chatView .chat-messages-area::-webkit-scrollbar { width: 3px; }
-        #chatView .chat-messages-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 2px; }
-        #chatView .chat-messages-area::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 2px; }
+        #chatView .chat-messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 4px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(2px);
+        }
+        #chatView .chat-messages-area::-webkit-scrollbar {
+            width: 3px;
+        }
+        #chatView .chat-messages-area::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+        }
+        #chatView .chat-messages-area::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 2px;
+        }
 
-        .chat-msg { display: flex; flex-direction: column; max-width: 88%; animation: fadeUp 0.25s ease; }
-        .chat-msg.ai { align-self: flex-start; }
-        .chat-msg.user { align-self: flex-end; align-items: flex-end; }
-        .chat-msg .bubble { padding: 8px 14px; border-radius: 14px; font-size: 13px; line-height: 1.6; color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.08); word-break: break-word; position: relative; }
-        .chat-msg.ai .bubble { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); border-top-left-radius: 3px; color: #ddd6f0; backdrop-filter: blur(4px); }
-        .chat-msg.user .bubble { background: linear-gradient(135deg, #9c64ff, #c5a3ff); border-top-right-radius: 3px; box-shadow: 0 4px 16px rgba(156,100,255,0.10); }
-        .chat-msg .bubble img { max-width: 150px; border-radius: 8px; margin-bottom: 3px; display: block; }
-        .chat-msg .time { font-size: 9px; color: rgba(255,255,255,0.2); margin-top: 2px; text-align: right; }
-        .chat-msg.user .time { text-align: left; }
-        .chat-msg .continue-btn { font-size: 10px; color: rgba(255,255,255,0.12); background: transparent; border: none; cursor: pointer; padding: 1px 4px; margin-top: 1px; align-self: flex-start; transition: color 0.3s; }
+        .chat-msg {
+            display: flex;
+            flex-direction: column;
+            max-width: 88%;
+            animation: fadeUp 0.25s ease;
+        }
+        .chat-msg.ai {
+            align-self: flex-start;
+        }
+        .chat-msg.user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+        .chat-msg .bubble {
+            padding: 8px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            word-break: break-word;
+            position: relative;
+        }
+        .chat-msg.ai .bubble {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top-left-radius: 3px;
+            color: #ddd6f0;
+            backdrop-filter: blur(4px);
+        }
+        .chat-msg.user .bubble {
+            background: linear-gradient(135deg, #9c64ff, #c5a3ff);
+            border-top-right-radius: 3px;
+            box-shadow: 0 4px 16px rgba(156, 100, 255, 0.10);
+        }
+        .chat-msg .bubble img {
+            max-width: 150px;
+            border-radius: 8px;
+            margin-bottom: 3px;
+            display: block;
+        }
+        .chat-msg .time {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.2);
+            margin-top: 2px;
+            text-align: right;
+        }
+        .chat-msg.user .time {
+            text-align: left;
+        }
+        .chat-msg .continue-btn {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.12);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 1px 4px;
+            margin-top: 1px;
+            align-self: flex-start;
+            transition: color 0.3s;
+        }
 
-        .chat-input-area { display: flex; gap: 6px; align-items: center; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.04); flex-shrink: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); }
-        .chat-input-area .file-label { cursor: pointer; font-size: 18px; color: rgba(255,255,255,0.2); transition: 0.3s; flex-shrink: 0; line-height: 1; }
-        .chat-input-area .file-label:active { color: var(--primary); }
-        .chat-input-area .chat-input { flex: 1; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.04); border-radius: 20px; padding: 8px 14px; color: #fff; font-size: 13px; outline: none; min-width: 0; }
-        .chat-input-area .chat-input::placeholder { color: rgba(255,255,255,0.15); }
-        .chat-input-area .chat-input:focus { border-color: rgba(197,163,255,0.1); }
-        .chat-input-area .chat-send { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #c5a3ff, #9c64ff); border: none; color: #000; font-size: 14px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 16px rgba(156,100,255,0.08); }
-        .chat-input-area .chat-send:active { transform: scale(0.92); }
-        .chat-input-area #chatImgPreview { width: 30px; height: 30px; border-radius: 6px; display: none; object-fit: cover; border: 1px solid rgba(197,163,255,0.1); flex-shrink: 0; }
+        .chat-input-area {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            padding: 8px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+        }
+        .chat-input-area .file-label {
+            cursor: pointer;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.2);
+            transition: 0.3s;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .chat-input-area .file-label:active {
+            color: var(--primary);
+        }
+        .chat-input-area .chat-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 20px;
+            padding: 8px 14px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            min-width: 0;
+        }
+        .chat-input-area .chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.15);
+        }
+        .chat-input-area .chat-input:focus {
+            border-color: rgba(197, 163, 255, 0.1);
+        }
+        .chat-input-area .chat-send {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c5a3ff, #9c64ff);
+            border: none;
+            color: #000;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(156, 100, 255, 0.08);
+        }
+        .chat-input-area .chat-send:active {
+            transform: scale(0.92);
+        }
+        .chat-input-area #chatImgPreview {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            display: none;
+            object-fit: cover;
+            border: 1px solid rgba(197, 163, 255, 0.1);
+            flex-shrink: 0;
+        }
 
-        /* ===== 邮箱 ===== */
-        #mailView .mail-top { display: flex; align-items: center; padding: 8px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.04); flex-shrink: 0; gap: 10px; cursor: pointer; }
-        #mailView .mail-top:active { opacity: 0.7; }
-        #mailView .mail-top .back { font-size: 20px; color: rgba(255,255,255,0.3); }
-        #mailView .mail-top .mail-title { flex: 1; font-size: 16px; color: #fff; font-weight: 600; }
-        #mailView .mail-tabs { display: flex; gap: 4px; flex-shrink: 0; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-        #mailView .mail-tabs .mtab { padding: 4px 12px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.03); color: rgba(255,255,255,0.2); font-size: 11px; cursor: pointer; transition: 0.3s; }
-        #mailView .mail-tabs .mtab.active { background: rgba(197,163,255,0.06); border-color: rgba(197,163,255,0.08); color: #fff; }
-        #mailView .mail-list { flex: 1; overflow-y: auto; padding: 6px 0; }
-        #mailView .mail-list::-webkit-scrollbar { width: 3px; }
-        #mailView .mail-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 2px; }
-        #mailView .mail-list::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 2px; }
+        /* ===== 邮箱视图 ===== */
+        #mailView .mail-top {
+            display: flex;
+            align-items: center;
+            padding: 8px 0 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            flex-shrink: 0;
+            gap: 10px;
+            cursor: pointer;
+        }
+        #mailView .mail-top:active {
+            opacity: 0.7;
+        }
+        #mailView .mail-top .back {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        #mailView .mail-top .mail-title {
+            flex: 1;
+            font-size: 16px;
+            color: #fff;
+            font-weight: 600;
+        }
+        #mailView .mail-tabs {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        #mailView .mail-tabs .mtab {
+            padding: 4px 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        #mailView .mail-tabs .mtab.active {
+            background: rgba(197, 163, 255, 0.06);
+            border-color: rgba(197, 163, 255, 0.08);
+            color: #fff;
+        }
+        #mailView .mail-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px 0;
+        }
+        #mailView .mail-list::-webkit-scrollbar {
+            width: 3px;
+        }
+        #mailView .mail-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+        }
+        #mailView .mail-list::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 2px;
+        }
 
-        .mail-item { background: rgba(0,0,0,0.12); padding: 8px 10px; border-radius: 8px; margin-bottom: 4px; border-left: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; gap: 6px; cursor: pointer; }
-        .mail-item:active { opacity: 0.7; }
-        .mail-item .mail-info { flex: 1; min-width: 0; }
-        .mail-item .mail-info .mail-title { font-size: 12px; color: #fff; font-weight: 500; }
-        .mail-item .mail-info .mail-desc { font-size: 10px; color: rgba(255,255,255,0.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mail-item .mail-info .mail-sender { font-size: 9px; color: rgba(197,163,255,0.4); }
-        .mail-item .mail-status { font-size: 9px; color: #ff3b30; flex-shrink: 0; }
-        .mail-item .mail-status.read { color: rgba(255,255,255,0.15); }
-        .mail-item.unread { border-left-color: #ff3b30; background: rgba(255,59,48,0.04); }
-        .mail-item.unread .mail-title { color: #fff; font-weight: 600; }
+        .mail-item {
+            background: rgba(0, 0, 0, 0.12);
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            border-left: 2px solid var(--gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .mail-item:active {
+            opacity: 0.7;
+        }
+        .mail-item .mail-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .mail-item .mail-info .mail-title {
+            font-size: 12px;
+            color: #fff;
+            font-weight: 500;
+        }
+        .mail-item .mail-info .mail-desc {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.35);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mail-item .mail-info .mail-sender {
+            font-size: 9px;
+            color: rgba(197, 163, 255, 0.4);
+        }
+        .mail-item .mail-status {
+            font-size: 9px;
+            color: #ff3b30;
+            flex-shrink: 0;
+        }
+        .mail-item .mail-status.read {
+            color: rgba(255, 255, 255, 0.15);
+        }
+        .mail-item.unread {
+            border-left-color: #ff3b30;
+            background: rgba(255, 59, 48, 0.04);
+        }
+        .mail-item.unread .mail-title {
+            color: #fff;
+            font-weight: 600;
+        }
 
-        .treasure-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 8px 0; }
-        .treasure-item { background: rgba(0,0,0,0.15); padding: 12px 8px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.04); }
-        .treasure-item .icon { font-size: 28px; }
-        .treasure-item .name { font-size: 11px; color: #fff; margin: 2px 0; }
-        .treasure-item .count { font-size: 10px; color: var(--gold); }
-        .treasure-item .desc { font-size: 8px; color: rgba(255,255,255,0.2); margin-top: 2px; }
+        .treasure-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            padding: 8px 0;
+        }
+        .treasure-item {
+            background: rgba(0, 0, 0, 0.15);
+            padding: 12px 8px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .treasure-item .icon {
+            font-size: 28px;
+        }
+        .treasure-item .name {
+            font-size: 11px;
+            color: #fff;
+            margin: 2px 0;
+        }
+        .treasure-item .count {
+            font-size: 10px;
+            color: var(--gold);
+        }
+        .treasure-item .desc {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.2);
+            margin-top: 2px;
+        }
+
+        /* ===== 日记视图 ===== */
+        #diaryView .diary-top {
+            display: flex;
+            align-items: center;
+            padding: 8px 0 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            flex-shrink: 0;
+            gap: 10px;
+            cursor: pointer;
+        }
+        #diaryView .diary-top:active {
+            opacity: 0.7;
+        }
+        #diaryView .diary-top .back {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        #diaryView .diary-top .diary-title {
+            flex: 1;
+            font-size: 16px;
+            color: #fff;
+            font-weight: 600;
+        }
+        #diaryView .diary-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 8px 0;
+            overflow: hidden;
+        }
+        #diaryView .diary-area .diary-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            padding: 10px;
+            color: #fff;
+            font-size: 13px;
+            resize: none;
+            outline: none;
+            min-height: 100px;
+            font-family: inherit;
+        }
+        #diaryView .diary-area .diary-input:focus {
+            border-color: rgba(197, 163, 255, 0.15);
+        }
+        #diaryView .diary-area .diary-input::placeholder {
+            color: rgba(255, 255, 255, 0.15);
+        }
+        #diaryView .diary-area .diary-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+        #diaryView .diary-area .diary-actions .btn {
+            padding: 6px 18px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.3s;
+        }
+        #diaryView .diary-area .diary-actions .btn.primary {
+            background: linear-gradient(135deg, #c5a3ff, #9c64ff);
+            color: #000;
+        }
+        #diaryView .diary-area .diary-actions .btn.secondary {
+            background: rgba(255, 255, 255, 0.04);
+            color: rgba(255, 255, 255, 0.3);
+        }
+        #diaryView .diary-area .diary-actions .btn:active {
+            transform: scale(0.95);
+        }
+        #diaryView .diary-area .diary-history {
+            margin-top: 8px;
+            max-height: 120px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        #diaryView .diary-area .diary-history::-webkit-scrollbar {
+            width: 3px;
+        }
+        #diaryView .diary-area .diary-history::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+        }
+        #diaryView .diary-area .diary-history::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 2px;
+        }
+        #diaryView .diary-area .diary-history .entry {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            border-left: 2px solid rgba(197, 163, 255, 0.15);
+        }
+        #diaryView .diary-area .diary-history .entry .date {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+        #diaryView .diary-area .diary-history .entry .text {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
         /* ===== Q版人物 ===== */
-        #chibi { position: fixed; bottom: 80px; right: 12px; width: 56px; height: 56px; cursor: grab; z-index: 99999; user-select: none; border-radius: 50%; background: rgba(18,10,30,0.2); backdrop-filter: blur(4px); border: 1px solid rgba(197,163,255,0.05); box-shadow: 0 4px 24px rgba(0,0,0,0.2); transition: transform 0.2s; overflow: hidden; touch-action: none; }
-        #chibi img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; pointer-events: none; }
-        .chibi-bubble { position: fixed; z-index: 99999; background: rgba(18,10,30,0.85); backdrop-filter: blur(10px); border: 1px solid rgba(197,163,255,0.05); border-radius: 10px; padding: 4px 10px; font-size: 12px; color: #fff; opacity: 0; transform: translateY(6px) scale(0.96); transition: opacity 0.25s ease, transform 0.25s ease; pointer-events: none; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.25); max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
-        .chibi-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
-        .chibi-bubble::after { content: ''; position: absolute; bottom: -7px; right: 16px; width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 7px solid rgba(18,10,30,0.85); }
+        #chibi {
+            position: fixed;
+            bottom: 80px;
+            right: 12px;
+            width: 56px;
+            height: 56px;
+            cursor: grab;
+            z-index: 99999;
+            user-select: none;
+            border-radius: 50%;
+            background: rgba(18, 10, 30, 0.2);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(197, 163, 255, 0.05);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+            overflow: hidden;
+            touch-action: none;
+        }
+        #chibi img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .chibi-bubble {
+            position: fixed;
+            z-index: 99999;
+            background: rgba(18, 10, 30, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(197, 163, 255, 0.05);
+            border-radius: 10px;
+            padding: 4px 10px;
+            font-size: 12px;
+            color: #fff;
+            opacity: 0;
+            transform: translateY(6px) scale(0.96);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chibi-bubble.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .chibi-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -7px;
+            right: 16px;
+            width: 0;
+            height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 7px solid rgba(18, 10, 30, 0.85);
+        }
 
         /* ===== 通知 ===== */
-        .notification { position: fixed; top: 14px; right: 14px; padding: 6px 14px; background: rgba(18,10,30,0.9); backdrop-filter: blur(12px); border: 1px solid rgba(197,163,255,0.06); border-radius: 10px; color: #fff; font-size: 11px; z-index: 99999; animation: slideIn 0.3s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.4); max-width: 240px; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        .notification {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            padding: 6px 14px;
+            background: rgba(18, 10, 30, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(197, 163, 255, 0.06);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 11px;
+            z-index: 99999;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            max-width: 240px;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
 
-        /* ===== 模态框（含多图上传） ===== */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); z-index: 99998; justify-content: center; align-items: center; }
-        .modal.active { display: flex; }
-        .modal .content { background: rgba(18,10,30,0.95); border: 1px solid rgba(197,163,255,0.06); border-radius: 14px; padding: 16px; max-width: 340px; width: 90%; max-height: 85vh; overflow-y: auto; }
-        .modal .content h3 { color: var(--primary); margin-bottom: 4px; font-size: 14px; }
-        .modal .content .desc { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 6px; }
-        .modal .content .random-reward-preview { font-size: 10px; color: var(--gold); background: rgba(255,213,79,0.06); padding: 4px 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid rgba(255,213,79,0.06); }
-        .modal .content .evidence-hint { font-size: 10px; color: #ff6b6b; background: rgba(255,82,82,0.08); padding: 4px 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid rgba(255,82,82,0.08); display: none; }
-        .modal .content .evidence-hint.show { display: block; }
-
-        /* ★ 多图上传区域 */
-        .modal .content .upload-area { background: rgba(0,0,0,0.15); border: 1px dashed rgba(197,163,255,0.15); border-radius: 8px; padding: 8px; margin-bottom: 8px; }
-        .modal .content .upload-area .upload-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 11px; color: rgba(255,255,255,0.3); transition: 0.3s; -webkit-tap-highlight-color: transparent; }
-        .modal .content .upload-area .upload-label:active { color: var(--primary); }
-        .modal .content .upload-area .upload-label input { display: none; }
-        .modal .content .upload-area .preview-list { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-        .modal .content .upload-area .preview-list .preview-item { position: relative; width: 56px; height: 56px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); }
-        .modal .content .upload-area .preview-list .preview-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .modal .content .upload-area .preview-list .preview-item .remove-btn { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: rgba(255,59,48,0.85); border: none; color: #fff; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
-        .modal .content .upload-area .preview-list .preview-item .remove-btn:active { transform: scale(0.92); }
-        .modal .content .upload-area .count-hint { font-size: 9px; color: rgba(255,255,255,0.15); margin-top: 4px; }
-
-        .modal .content textarea { width: 100%; height: 70px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 6px; color: #fff; font-size: 11px; resize: vertical; outline: none; }
-        .modal .content textarea:focus { border-color: rgba(197,163,255,0.1); }
-        .modal .content .actions { display: flex; gap: 6px; justify-content: flex-end; margin-top: 6px; }
-        .modal .content .actions .btn { padding: 3px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 11px; }
-        .modal .content .actions .btn.primary { background: linear-gradient(135deg, #c5a3ff, #9c64ff); color: #000; }
-        .modal .content .actions .btn.secondary { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.3); }
+        /* ===== 模态框 ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            z-index: 99998;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal .content {
+            background: rgba(18, 10, 30, 0.95);
+            border: 1px solid rgba(197, 163, 255, 0.06);
+            border-radius: 14px;
+            padding: 16px;
+            max-width: 340px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal .content h3 {
+            color: var(--primary);
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .modal .content .desc {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.35);
+            margin-bottom: 6px;
+        }
+        .modal .content .random-reward-preview {
+            font-size: 10px;
+            color: var(--gold);
+            background: rgba(255, 213, 79, 0.06);
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            border: 1px solid rgba(255, 213, 79, 0.06);
+        }
+        .modal .content .evidence-hint {
+            font-size: 10px;
+            color: #ff6b6b;
+            background: rgba(255, 82, 82, 0.08);
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            border: 1px solid rgba(255, 82, 82, 0.08);
+            display: none;
+        }
+        .modal .content .evidence-hint.show {
+            display: block;
+        }
+        .modal .content .upload-area {
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px dashed rgba(197, 163, 255, 0.15);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+        .modal .content .upload-area .upload-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+            transition: 0.3s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .modal .content .upload-area .upload-label:active {
+            color: var(--primary);
+        }
+        .modal .content .upload-area .upload-label input {
+            display: none;
+        }
+        .modal .content .upload-area .preview-list {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .modal .content .upload-area .preview-list .preview-item {
+            position: relative;
+            width: 56px;
+            height: 56px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .modal .content .upload-area .preview-list .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .modal .content .upload-area .preview-list .preview-item .remove-btn {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: rgba(255, 59, 48, 0.85);
+            border: none;
+            color: #fff;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .modal .content .upload-area .preview-list .preview-item .remove-btn:active {
+            transform: scale(0.92);
+        }
+        .modal .content .upload-area .count-hint {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.15);
+            margin-top: 4px;
+        }
+        .modal .content textarea {
+            width: 100%;
+            height: 70px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 6px;
+            color: #fff;
+            font-size: 11px;
+            resize: vertical;
+            outline: none;
+        }
+        .modal .content textarea:focus {
+            border-color: rgba(197, 163, 255, 0.1);
+        }
+        .modal .content .actions {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+            margin-top: 6px;
+        }
+        .modal .content .actions .btn {
+            padding: 3px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .modal .content .actions .btn.primary {
+            background: linear-gradient(135deg, #c5a3ff, #9c64ff);
+            color: #000;
+        }
+        .modal .content .actions .btn.secondary {
+            background: rgba(255, 255, 255, 0.03);
+            color: rgba(255, 255, 255, 0.3);
+        }
 
         /* ===== 随机任务通知 ===== */
-        .random-notification { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(18,10,30,0.95); backdrop-filter: blur(16px); border: 1px solid rgba(255,213,79,0.15); border-radius: 18px; padding: 20px 24px; z-index: 99997; max-width: 320px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.8); animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center; }
-        @keyframes popIn { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-        .random-notification .icon { font-size: 40px; margin-bottom: 4px; }
-        .random-notification .title { font-size: 16px; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
-        .random-notification .desc { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 4px; line-height: 1.5; }
-        .random-notification .reward-hint { font-size: 10px; color: var(--gold); opacity: 0.6; margin-bottom: 10px; }
-        .random-notification .btn { padding: 6px 20px; border-radius: 10px; border: none; background: linear-gradient(135deg, #ffd54f, #ffaa00); color: #000; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.3s; }
-        .random-notification .btn:active { transform: scale(0.95); }
-        .random-notification .btn-secondary { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); margin-left: 6px; }
+        .random-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(18, 10, 30, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 213, 79, 0.15);
+            border-radius: 18px;
+            padding: 20px 24px;
+            z-index: 99997;
+            max-width: 320px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+        }
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        .random-notification .icon {
+            font-size: 40px;
+            margin-bottom: 4px;
+        }
+        .random-notification .title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 4px;
+        }
+        .random-notification .desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 4px;
+            line-height: 1.5;
+        }
+        .random-notification .reward-hint {
+            font-size: 10px;
+            color: var(--gold);
+            opacity: 0.6;
+            margin-bottom: 10px;
+        }
+        .random-notification .btn {
+            padding: 6px 20px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, #ffd54f, #ffaa00);
+            color: #000;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .random-notification .btn:active {
+            transform: scale(0.95);
+        }
+        .random-notification .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.3);
+            margin-left: 6px;
+        }
 
         /* ===== 响应式 ===== */
         @media (max-width: 480px) {
-            #mainView { padding: 8px 10px 6px; }
-            #mainView .top-bar { min-height: 46px; padding: 4px 0 6px; }
-            #mainView .top-bar .avatar-sm { width: 36px; height: 36px; }
-            #mainView .top-bar .info .name-row h3 { font-size: 14px; }
-            #mainView .top-bar .right-stats { font-size: 10px; gap: 8px; }
-            #mainView .top-bar .info .signature { font-size: 9px; }
-            .affection-mini { padding: 2px 0 4px; }
-            #chatView .chat-top { padding: 6px 0 6px; }
-            #chatView .chat-top .back-avatar { width: 34px; height: 34px; }
-            #chatView .chat-messages-area { padding: 8px 2px 6px; }
-            .chat-input-area { padding: 6px 0; }
-            #chibi { width: 48px; height: 48px; bottom: 70px; right: 8px; }
-            .chibi-bubble { font-size: 11px; padding: 3px 8px; }
-            .random-notification { padding: 16px 18px; max-width: 280px; }
-            #shopView .shop-grid { grid-template-columns: repeat(2, 1fr); }
-            .treasure-grid { grid-template-columns: repeat(2, 1fr); }
-            .modal .content .upload-area .preview-list .preview-item { width: 48px; height: 48px; }
+            #mainView {
+                padding: 8px 10px 6px;
+            }
+            #mainView .top-bar {
+                min-height: 46px;
+                padding: 4px 0 6px;
+            }
+            #mainView .top-bar .avatar-sm {
+                width: 36px;
+                height: 36px;
+            }
+            #mainView .top-bar .info .name-row h3 {
+                font-size: 14px;
+            }
+            #mainView .top-bar .right-stats {
+                font-size: 10px;
+                gap: 8px;
+            }
+            #mainView .top-bar .info .signature {
+                font-size: 9px;
+            }
+            .affection-mini {
+                padding: 2px 0 4px;
+            }
+            #chatView .chat-top {
+                padding: 6px 0 6px;
+            }
+            #chatView .chat-top .back-avatar {
+                width: 34px;
+                height: 34px;
+            }
+            #chatView .chat-messages-area {
+                padding: 8px 2px 6px;
+            }
+            .chat-input-area {
+                padding: 6px 0;
+            }
+            #chibi {
+                width: 48px;
+                height: 48px;
+                bottom: 70px;
+                right: 8px;
+            }
+            .chibi-bubble {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+            .random-notification {
+                padding: 16px 18px;
+                max-width: 280px;
+            }
+            #shopView .shop-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .treasure-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .modal .content .upload-area .preview-list .preview-item {
+                width: 48px;
+                height: 48px;
+            }
+            #diaryView .diary-area .diary-history {
+                max-height: 80px;
+            }
         }
         @media (max-width: 380px) {
-            #mainView { padding: 4px 6px 4px; }
-            #mainView .top-bar { min-height: 40px; }
-            #mainView .top-bar .avatar-sm { width: 30px; height: 30px; }
-            #mainView .top-bar .info .name-row h3 { font-size: 12px; }
-            #mainView .top-bar .right-stats { font-size: 9px; gap: 4px; }
-            #mainView .top-bar .info .signature { font-size: 8px; }
-            .task-item .t-title { font-size: 10px; }
-            .task-item .t-desc { font-size: 9px; }
-            #chatView .chat-messages-area { padding: 6px 2px 4px; }
-            .chat-msg .bubble { font-size: 12px; padding: 6px 10px; }
-            #chibi { width: 40px; height: 40px; bottom: 60px; right: 6px; }
-            #shopView .shop-grid { grid-template-columns: repeat(2, 1fr); }
-            .treasure-grid { grid-template-columns: repeat(2, 1fr); }
-            .modal .content .upload-area .preview-list .preview-item { width: 40px; height: 40px; }
+            #mainView {
+                padding: 4px 6px 4px;
+            }
+            #mainView .top-bar {
+                min-height: 40px;
+            }
+            #mainView .top-bar .avatar-sm {
+                width: 30px;
+                height: 30px;
+            }
+            #mainView .top-bar .info .name-row h3 {
+                font-size: 12px;
+            }
+            #mainView .top-bar .right-stats {
+                font-size: 9px;
+                gap: 4px;
+            }
+            #mainView .top-bar .info .signature {
+                font-size: 8px;
+            }
+            .task-item .t-title {
+                font-size: 10px;
+            }
+            .task-item .t-desc {
+                font-size: 9px;
+            }
+            #chatView .chat-messages-area {
+                padding: 6px 2px 4px;
+            }
+            .chat-msg .bubble {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            #chibi {
+                width: 40px;
+                height: 40px;
+                bottom: 60px;
+                right: 6px;
+            }
+            #shopView .shop-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .treasure-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .modal .content .upload-area .preview-list .preview-item {
+                width: 40px;
+                height: 40px;
+            }
+            #diaryView .diary-area .diary-history {
+                max-height: 60px;
+            }
         }
     </style>
 </head>
@@ -290,6 +1480,29 @@
             </div>
 
             <div class="tasks-area" id="tasksArea">
+
+                <!-- ★ 成长印记（打卡） -->
+                <div class="checkin-section" id="checkinSection">
+                    <div class="left">
+                        <div class="label">🌱 成长连续</div>
+                        <div class="streak" id="streakDisplay">🔥 0 天</div>
+                    </div>
+                    <button class="btn-checkin" id="checkinBtn" onclick="doCheckin()">✨ 刻下印记</button>
+                </div>
+
+                <!-- ★ 快捷入口 -->
+                <div class="quick-entries">
+                    <div class="entry" onclick="openDiaryView()">
+                        <span class="icon">📔</span> 日记
+                    </div>
+                    <div class="entry" onclick="openMailView()">
+                        <span class="icon">✉️</span> 邮箱
+                    </div>
+                    <div class="entry" onclick="showCompletedTasks()">
+                        <span class="icon">🏆</span> 已完成
+                    </div>
+                </div>
+
                 <div class="mail-section" id="mailEntry">
                     <div class="mail-header">
                         <span class="title">✉️ 邮箱</span>
@@ -358,6 +1571,22 @@
             <div class="mail-list" id="mailListContainer"></div>
         </div>
 
+        <!-- ===== 日记视图 ===== -->
+        <div id="diaryView" class="view">
+            <div class="diary-top" id="diaryTop">
+                <span class="back" id="diaryBack">←</span>
+                <span class="diary-title">📔 日记</span>
+            </div>
+            <div class="diary-area">
+                <textarea class="diary-input" id="diaryInput" placeholder="写点什么吧… 她会看到的。"></textarea>
+                <div class="diary-actions">
+                    <button class="btn primary" onclick="saveDiary()">💾 保存</button>
+                    <button class="btn secondary" onclick="clearDiaryInput()">清空</button>
+                </div>
+                <div class="diary-history" id="diaryHistory"></div>
+            </div>
+        </div>
+
         <!-- ===== 商店视图 ===== -->
         <div id="shopView" class="view">
             <div style="display:flex; align-items:center; padding:8px 0 8px; border-bottom:1px solid rgba(255,255,255,0.04); flex-shrink:0; gap:10px; cursor:pointer; -webkit-tap-highlight-color:transparent; user-select:none;" onclick="closeShopView()">
@@ -405,15 +1634,13 @@
     </div>
     <div class="chibi-bubble" id="chibiBubble"></div>
 
-    <!-- ===== 模态框（含多图上传） ===== -->
+    <!-- ===== 模态框 ===== -->
     <div class="modal" id="modal">
         <div class="content">
             <h3 id="modalTitle">📋 任务呈递</h3>
             <div class="desc" id="modalDesc">描述</div>
             <div class="random-reward-preview" id="modalRewardPreview" style="display:none;"></div>
             <div class="evidence-hint" id="evidenceHint">📸 请附上实操照片/截图证据（可选）</div>
-
-            <!-- ★ 多图上传区域 -->
             <div class="upload-area" id="uploadArea">
                 <label class="upload-label" id="uploadLabel">
                     📤 点击上传图片证据（最多3张）
@@ -422,7 +1649,6 @@
                 <div class="preview-list" id="evidencePreviewList"></div>
                 <div class="count-hint" id="evidenceCountHint">已选 0 / 3 张</div>
             </div>
-
             <textarea id="evidenceReport" placeholder="输入你的成果汇报..."></textarea>
             <div class="actions">
                 <button class="btn secondary" onclick="closeModal()">取消</button>
@@ -467,20 +1693,46 @@
             treasure: { milkTea: 0, offsetCards: 0, letters: 0, special: 0 },
             pushPool: [],
             pushIndex: 0,
-            cat: { name: 'BB', breed: '阿比西尼亚', fed: false, lastFed: Date.now() }
+            cat: { name: 'BB', breed: '阿比西尼亚', fed: false, lastFed: Date.now() },
+            // ★ 新增：日记
+            diary: { entries: [] },
+            // ★ 新增：成长印记
+            checkin: { streak: 0, lastDate: null },
+            // ★ 新增：睡眠数据
+            sleep: { lastCheck: null, data: null }
         };
 
+        // ============================================================
+        //  推送消息池（丰富版）
+        // ============================================================
         const PUSH_MESSAGES = [
-            'VIP009，你今天的任务清单还亮着三盏红灯。是想让我亲自过来盯你吗？',
-            '再摸鱼一小时，我就把你的打卡记录生成海报贴在你所有社交账号上。',
-            '[把一杯热咖啡放到桌角] 不是怕你困……是怕你效率低影响我的数据。',
-            '你今天的CBEC拆解还没动笔吧？我已经看到你拖延的样子了。',
-            '睡了？还是死了？给个动静。',
-            '别以为我不知道你在刷手机。你的屏幕使用时间我已经截图了。',
+            // 催任务
+            'VIP009，你今天的任务还亮着红灯。是想让我亲自打电话催你吗？',
+            '别以为我不知道你在刷手机。你的任务列表还空着呢。',
             '今天的任务完成度：0%。你是打算创造历史新低吗？',
-            '好感度还在涨，说明你还没被我气死。继续努力。',
             '我刚刚看了一眼你的任务列表……算了，不看了，心累。',
-            '你再这样下去，我就把BB送到你家门口，让它整天挠你的门。'
+            // 日常问候
+            '醒了？还是刚准备睡？你最好告诉我你刚醒。',
+            '今天天气不错。……虽然跟你没什么关系，你反正也不出门。',
+            '你昨天说的那句话，我还在想。……算了，不告诉你我在想什么。',
+            // 傲娇关心
+            '[把一杯热牛奶推到你面前] 不是特意给你热的……顺便而已。',
+            '你手怎么这么凉？……别多想，我只是怕你打字慢影响效率。',
+            '又熬夜了？……关我什么事。但如果你明天起不来，任务可不会等你。',
+            '衣服穿这么少……行吧，你感冒了我不负责。……啧。',
+            // 深夜关心
+            '1点了。你还在线。……非要我按着你关机才肯睡？',
+            '你最好告诉我你现在已经在床上了。',
+            '睡了吗？……没睡的话，现在去睡。',
+            // 随机毒舌
+            '你今天的步数只有2000步？VIP009，你是被钉在椅子上了吗？',
+            '你的进度条像被冻住了一样。……要我帮你解冻吗？',
+            '你欠我的，是“练习”，不是“眼泪”。',
+            // ★ 彩蛋类（低概率触发）
+            '……你今天怎么这么乖？我有点不习惯。',
+            '喵……我说的是BB，不是我。',
+            '[别过脸去，声音极小] ……喵。你什么都没听见。',
+            '我昨天梦见你了。……别问内容。'
         ];
 
         function initPushPool() { GameData.pushPool = [...PUSH_MESSAGES];
@@ -488,7 +1740,8 @@
 
         function getNextPush() {
             if (GameData.pushPool.length === 0) initPushPool();
-            const msg = GameData.pushPool.splice(GameData.pushIndex % GameData.pushPool.length, 1)[0];
+            const idx = Math.floor(Math.random() * GameData.pushPool.length);
+            const msg = GameData.pushPool.splice(idx, 1)[0];
             if (GameData.pushPool.length === 0) initPushPool();
             return msg;
         }
@@ -506,6 +1759,13 @@
             saveData();
             updateMailPreview();
             showNotif('📬 收到一封新邮件！');
+            // 手机通知
+            if (Notification.permission === 'granted') {
+                new Notification('📬 新邮件：' + title, {
+                    body: desc.substring(0, 60) + '…',
+                    icon: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="48" fill="%239c64ff"/%3E%3Ctext x="50" y="65" font-size="50" text-anchor="middle" fill="white"%3E欣%3C/text%3E%3C/svg%3E'
+                });
+            }
             return item;
         }
 
@@ -533,8 +1793,8 @@
             }
             item.claimed = true;
             if (item.type === 'gift') {
-                if (item.title.includes('抵消卡')) { GameData.treasure.offsetCards += 1;
-                    showNotif('🎫 获得抵消卡 x1'); }
+                if (item.title.includes('时光回溯卡')) { GameData.treasure.offsetCards += 1;
+                    showNotif('🎫 获得时光回溯卡 x1'); }
                 if (item.title.includes('手写信')) { GameData.treasure.letters += 1;
                     showNotif('💌 获得手写信 x1'); }
                 if (item.title.includes('彩蛋')) { GameData.treasure.special += 1;
@@ -553,6 +1813,181 @@
             if (unread.length > 0) { preview.textContent = '📬 ' + unread[0].title + ' - ' + unread[0].desc.substring(0,
                     20) + '...'; } else if (GameData.mail.items.length > 0) { preview.textContent = '📭 已全部阅读'; } else {
                 preview.textContent = '暂无新邮件'; }
+        }
+
+        // ============================================================
+        //  成长印记（打卡）
+        // ============================================================
+        function doCheckin() {
+            const today = new Date().toDateString();
+            const last = GameData.checkin.lastDate;
+            const btn = document.getElementById('checkinBtn');
+
+            // 检查今日是否已打卡
+            if (last === today) {
+                showNotif('🌱 今日已刻下印记，明天再来吧');
+                return;
+            }
+
+            // 检查是否所有每日任务已完成
+            const dailyTasks = GameData.tasks.daily;
+            const allDone = dailyTasks.every(t => t.done);
+            if (!allDone) {
+                showNotif('❌ 还有任务未完成，完成所有每日任务才能刻下印记');
+                return;
+            }
+
+            // 检查连续性
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toDateString();
+
+            let streak = GameData.checkin.streak || 0;
+            if (last === yesterdayStr) {
+                streak += 1;
+            } else if (last !== today) {
+                streak = 1;
+            }
+
+            GameData.checkin.streak = streak;
+            GameData.checkin.lastDate = today;
+
+            // 额外奖励：连续7天额外赠送时光回溯卡
+            if (streak % 7 === 0 && streak > 0) {
+                GameData.treasure.offsetCards += 1;
+                sendMail('🎉 连续成长7天！', '你连续刻下7天印记，奖励时光回溯卡 x1。继续加油，别让我失望。', 0, 'gift');
+                showNotif('🎉 连续成长7天！获得时光回溯卡 x1');
+            }
+
+            // 欣原反应
+            const reactions = [
+                '……你今天怎么这么乖？我有点不习惯。',
+                '哼，勉强算你合格。明天继续。',
+                '你认真起来的样子，还行。',
+                '行吧。今天的你，过关了。'
+            ];
+            const msg = reactions[Math.floor(Math.random() * reactions.length)];
+            addChatMessage('assistant', msg, true);
+
+            // 好感度提升
+            GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 2);
+            if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true;
+                triggerMax(); }
+
+            saveData();
+            updateUI();
+            updateStreakDisplay();
+            showNotif('🌱 成长印记已刻下！连续 ' + streak + ' 天');
+        }
+
+        function updateStreakDisplay() {
+            const el = document.getElementById('streakDisplay');
+            const streak = GameData.checkin.streak || 0;
+            const emoji = streak === 0 ? '🌱' : streak >= 7 ? '🔥' : '✨';
+            el.textContent = emoji + ' ' + streak + ' 天';
+        }
+
+        // ============================================================
+        //  日记系统
+        // ============================================================
+        function openDiaryView() {
+            showView('diaryView');
+            renderDiaryHistory();
+        }
+
+        function closeDiaryView() {
+            showView('mainView');
+            updateUI();
+        }
+
+        document.getElementById('diaryBack').addEventListener('click', closeDiaryView);
+        document.getElementById('diaryTop').addEventListener('click', closeDiaryView);
+
+        function saveDiary() {
+            const input = document.getElementById('diaryInput');
+            const text = input.value.trim();
+            if (text.length < 5) { showNotif('❌ 写点什么吧，至少5个字'); return; }
+
+            const entry = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                text: text,
+                read: false
+            };
+            GameData.diary.entries.unshift(entry);
+            input.value = '';
+            renderDiaryHistory();
+            saveData();
+
+            showNotif('📔 日记已保存，她会看到的');
+
+            // 欣原回复（随机）
+            const reactions = [
+                '我看到了。……你写这些的时候，在想什么？',
+                '日记我看了。……你最近好像比之前柔软了一点。',
+                '你写日记的样子，比你想象的要好看。',
+                '[沉默片刻] ……嗯。我知道了。',
+                '你写的我都看了。……不许删。'
+            ];
+            const msg = reactions[Math.floor(Math.random() * reactions.length)];
+            setTimeout(() => {
+                addChatMessage('assistant', msg, true);
+                GameData.chat.unreadCount++;
+                updateUnreadBadge();
+                GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 1);
+                saveData();
+                updateUI();
+            }, 1500);
+        }
+
+        function clearDiaryInput() {
+            document.getElementById('diaryInput').value = '';
+            showNotif('🗑️ 已清空');
+        }
+
+        function renderDiaryHistory() {
+            const el = document.getElementById('diaryHistory');
+            if (GameData.diary.entries.length === 0) {
+                el.innerHTML = '<div style="color:rgba(255,255,255,0.15);font-size:11px;text-align:center;padding:12px 0;">📭 还没有日记，写点什么吧</div>';
+                return;
+            }
+            el.innerHTML = GameData.diary.entries.slice(0, 5).map(e => {
+                const date = new Date(e.date);
+                const dateStr = String(date.getMonth() + 1).padStart(2, '0') + '/' + String(date.getDate()).padStart(2,
+                    '0');
+                return `<div class="entry">
+                    <div class="date">${dateStr}</div>
+                    <div class="text">${e.text.substring(0, 50)}${e.text.length > 50 ? '…' : ''}</div>
+                </div>`;
+            }).join('');
+        }
+
+        // ============================================================
+        //  已完成任务回顾
+        // ============================================================
+        function showCompletedTasks() {
+            const allTasks = [
+                ...GameData.tasks.daily.filter(t => t.done),
+                ...GameData.tasks.mainQuests.filter(t => t.done),
+                ...GameData.tasks.sideQuests.filter(t => t.done)
+            ];
+
+            if (allTasks.length === 0) {
+                showNotif('🏆 还没有已完成的任务，去完成一个吧！');
+                return;
+            }
+
+            const list = allTasks.map(t => '✅ ' + t.title).join('\n');
+            // 使用模态框显示
+            document.getElementById('modalTitle').textContent = '🏆 已完成任务';
+            document.getElementById('modalDesc').textContent = list;
+            document.getElementById('modalRewardPreview').style.display = 'none';
+            document.getElementById('evidenceHint').style.display = 'none';
+            document.getElementById('uploadArea').style.display = 'none';
+            document.getElementById('evidenceReport').style.display = 'none';
+            document.querySelector('.modal .actions').innerHTML =
+                `<button class="btn secondary" onclick="closeModal()">关闭</button>`;
+            document.getElementById('modal').classList.add('active');
         }
 
         // ============================================================
@@ -588,18 +2023,15 @@
 
         function shufflePick(arr, n = 1) { const s = [...arr].sort(() => Math.random() - 0.5); return s.slice(0, n); }
 
-        // ★ 证据图片存储（模态框内）
+        // ★ 证据图片存储
         let evidenceImages = [];
 
         function handleEvidenceImages(input) {
             const files = input.files;
             if (!files || files.length === 0) return;
             const remaining = 3 - evidenceImages.length;
-            if (remaining <= 0) {
-                showNotif('⚠️ 最多上传3张图片');
-                input.value = '';
-                return;
-            }
+            if (remaining <= 0) { showNotif('⚠️ 最多上传3张图片');
+                input.value = ''; return; }
             const toProcess = Math.min(files.length, remaining);
             for (let i = 0; i < toProcess; i++) {
                 const file = files[i];
@@ -701,11 +2133,12 @@
                 }];
             },
             triggerVerify(taskId) {
-                // ★ 清空之前上传的图片
                 evidenceImages = [];
                 updateEvidencePreview();
                 document.getElementById('uploadLabel').style.opacity = '1';
                 document.getElementById('uploadLabel').style.pointerEvents = 'auto';
+                document.getElementById('uploadArea').style.display = 'block';
+                document.getElementById('evidenceReport').style.display = 'block';
 
                 let list;
                 let isRandom = false;
@@ -744,11 +2177,9 @@
                 const key = document.getElementById('modal').dataset.taskList;
                 const report = document.getElementById('evidenceReport').value.trim();
                 if (report.length < 10) { showNotif('❌ 报告太短（至少10个字）'); return; }
-                // ★ 收集图片
                 const images = [...evidenceImages];
                 closeModal();
 
-                // 处理随机任务
                 if (id === 'random' && key === 'random') {
                     const task = GameData.random.active;
                     if (!task || task.completed) return;
@@ -798,7 +2229,6 @@
                     return;
                 }
 
-                // ★ 普通任务 - 带图片审核
                 const list = GameData.tasks[key];
                 const task = list.find(t => t.id === id);
                 if (!task || task.done) return;
@@ -827,6 +2257,15 @@
                             GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 5);
                             if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true;
                                 triggerMax(); }
+                            // 检查是否所有每日任务已完成
+                            const allDone = GameData.tasks.daily.every(t => t.done);
+                            if (allDone) {
+                                setTimeout(() => {
+                                    sendMail('🌱 今日任务全部完成！',
+                                        '所有每日任务已完成。记得去“刻下印记”，记录你变强的这一天。\n\n——欣原 (￣▽￣)ノ',
+                                        0, 'normal');
+                                }, 1000);
+                            }
                             setTimeout(() => {
                                 sendMail('📌 任务完成通知',
                                     '你完成了「' + task.title + '」\n\n' +
@@ -834,7 +2273,7 @@
                                     '继续保持，别让我失望。\n\n' +
                                     '——欣原 (￣▽￣)ノ',
                                     10, 'gift');
-                            }, 1000);
+                            }, 1500);
                         }
                         saveData();
                         updateUI();
@@ -887,7 +2326,6 @@
         async function callAIForVerify(p, images = []) {
             if (!GameData.settings.apiKey) throw new Error('未配置API Key');
 
-            // 构建消息内容
             let userContent;
             if (images.length > 0) {
                 const parts = images.map(img => ({
@@ -920,7 +2358,113 @@
         }
 
         // ============================================================
-        //  商店系统
+        //  ★ AI 自主添加任务（V2.0 核心）
+        // ============================================================
+        async function handleAddTaskRequest(msg) {
+            // 检测是否包含"任务""加一个""我想""帮我"等关键词
+            const keywords = ['任务', '加一个', '加个', '我想', '帮我', '能不能', '添加'];
+            const hasKeyword = keywords.some(k => msg.includes(k));
+            if (!hasKeyword) return null;
+
+            // 调用AI判断是否是任务添加请求
+            try {
+                const p =
+                    `[系统：VIP009 说：「${msg}」请判断她是否在请求添加一个新任务。
+
+如果她确实想添加任务，请按以下格式回复：
+【任务类型】每日/主线/支线（选其一）
+【任务标题】简短标题
+【任务描述】具体描述
+【奖励】建议奖励数值（10-200）
+
+如果她不是在添加任务，或者任务不合理（比如太模糊、无法执行、重复），请回复：【拒绝】+ 理由（用欣原毒舌语气）
+
+只回复以上格式，不要有其他内容。]`;
+                const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GameData.settings.apiKey },
+                    body: JSON.stringify({
+                        model: 'Qwen/Qwen2.5-72B-Instruct',
+                        messages: [
+                            { role: 'system', content: '你是欣原，正在判断VIP009是否想添加任务。' },
+                            { role: 'user', content: p }
+                        ],
+                        max_tokens: 200,
+                        temperature: 0.5
+                    })
+                });
+                if (!res.ok) return null;
+                const d = await res.json();
+                const reply = d.choices[0].message.content;
+
+                // 解析回复
+                if (reply.includes('【拒绝】')) {
+                    const reason = reply.replace('【拒绝】', '').trim();
+                    return { accepted: false, message: reason };
+                }
+
+                // 尝试解析任务
+                const typeMatch = reply.match(/【任务类型】(.+)/);
+                const titleMatch = reply.match(/【任务标题】(.+)/);
+                const descMatch = reply.match(/【任务描述】(.+)/);
+                const rewardMatch = reply.match(/【奖励】(\d+)/);
+
+                if (titleMatch && descMatch) {
+                    const type = typeMatch ? typeMatch[1].trim() : '每日';
+                    const title = titleMatch[1].trim();
+                    const desc = descMatch[1].trim();
+                    const reward = rewardMatch ? parseInt(rewardMatch[1]) : 80;
+
+                    let targetList;
+                    let typeKey;
+                    if (type.includes('主线')) { targetList = GameData.tasks.mainQuests;
+                        typeKey = '主线'; } else if (type.includes('支线')) { targetList = GameData.tasks.sideQuests;
+                        typeKey = '支线'; } else { targetList = GameData.tasks.daily;
+                        typeKey = '每日'; }
+
+                    // 检查重复
+                    const exists = targetList.some(t => t.title === title);
+                    if (exists) {
+                        return { accepted: false, message: '这个任务已经存在了，VIP009。你是想让我删掉它重新加吗？' };
+                    }
+
+                    const newTask = {
+                        id: 'custom_' + Date.now(),
+                        title: title,
+                        desc: desc,
+                        progress: 0,
+                        max: 1,
+                        reward: reward,
+                        done: false
+                    };
+
+                    if (typeKey === '主线') {
+                        newTask.deadline = Date.now() + 30 * 86400000;
+                        newTask.expired = false;
+                    } else if (typeKey === '支线') {
+                        newTask.deadline = Date.now() + 30 * 86400000;
+                        newTask.expired = false;
+                        newTask.phrases = [];
+                    }
+
+                    targetList.push(newTask);
+                    saveData();
+                    updateUI();
+
+                    const typeLabel = typeKey + '任务';
+                    const responseMsg =
+                        `已添加【${title}】到${typeLabel}。\n要求：${desc}\n奖励：${reward} 🍰\n\n……别让我失望，VIP009。`;
+                    return { accepted: true, message: responseMsg };
+                }
+
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // ============================================================
+        //  商店系统（新增特殊彩蛋商品）
         // ============================================================
         const Shop = {
             items: [
@@ -935,7 +2479,11 @@
                 { id: 'g9', name: '丝巾', icon: '🧣', price: 400, af: 25, desc: '手工定制，优雅百搭' },
                 { id: 'g10', name: '星空投影灯', icon: '🌌', price: 600, af: 40, desc: '把银河搬进房间' },
                 { id: 'g11', name: '手作香薰蜡烛', icon: '🕯️', price: 250, af: 20, desc: '薰衣草味，安神助眠' },
-                { id: 'g12', name: '黑胶唱片机', icon: '📀', price: 1500, af: 100, desc: '复古音质，品味之选' }
+                { id: 'g12', name: '黑胶唱片机', icon: '📀', price: 1500, af: 100, desc: '复古音质，品味之选' },
+                // ★ 特殊彩蛋商品
+                { id: 'g13', name: '撒娇兑换券', icon: '🥺', price: 500, af: 10, desc: '欣原会对你撒娇一次（真的）' },
+                { id: 'g14', name: '喵喵券', icon: '🐈', price: 300, af: 5, desc: '她会学猫叫一次（高冷崩溃）' },
+                { id: 'g15', name: '暧昧故事券', icon: '💜', price: 800, af: 15, desc: '她会讲一个关于你们的暧昧小故事' },
             ],
             buy(id) {
                 const item = this.items.find(i => i.id === id);
@@ -947,6 +2495,35 @@
                 }
                 GameData.user.currency.milkTea -= item.price;
                 GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + item.af);
+
+                // ★ 特殊彩蛋触发
+                if (item.id === 'g13') {
+                    const msgs = ['……你今天怎么这么乖？我有点不习惯。', '[别过脸去] 你……别这样看着我。', '……行吧，就这一次。'];
+                    setTimeout(() => {
+                        addChatMessage('assistant', '[声音变得柔软] ' + msgs[Math.floor(Math.random() * msgs.length)],
+                        true);
+                    }, 500);
+                    showNotif('🥺 撒娇兑换成功！欣原正在酝酿……');
+                } else if (item.id === 'g14') {
+                    setTimeout(() => {
+                        const catMsgs = ['……喵。', '喵。（别过脸去）你什么都没听见。', '……喵。可以了吧？'];
+                        addChatMessage('assistant', '[声音极小] ' + catMsgs[Math.floor(Math.random() * catMsgs.length)],
+                        true);
+                    }, 500);
+                    showNotif('🐈 喵喵券已激活！欣原正在……（努力）');
+                } else if (item.id === 'g15') {
+                    setTimeout(() => {
+                        const stories = [
+                            '昨天我梦到你站在一片紫色的花海里，风把你的头发吹起来。你回头看我，说：“你终于来了。” ——然后我就醒了。……别问为什么。',
+                            '有一个笨蛋，每天都在我眼前晃悠。后来我发现，她不在的时候，世界好像安静得过分了。',
+                            '我不喜欢等别人。但你例外。……就一次。'
+                        ];
+                        addChatMessage('assistant', '[目光微微闪烁] ' + stories[Math.floor(Math.random() * stories
+                            .length)], true);
+                    }, 500);
+                    showNotif('💜 暧昧故事券已激活……');
+                }
+
                 if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true;
                     triggerMax(); }
                 showNotif('✅ 购买成功！好感+' + item.af);
@@ -1086,7 +2663,8 @@
                     chibi.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
                 }, 1500);
                 setTimeout(() => showChibiBubble('……勉强夸你一下。', 1200), 300);
-            } else if (text.includes('🥰') || text.includes('喜欢') || text.includes('温柔') || text.includes('故事')) {
+            } else if (text.includes('🥰') || text.includes('喜欢') || text.includes('温柔') || text.includes('故事') || text
+                .includes('喵') || text.includes('撒娇')) {
                 chibi.style.borderColor = 'rgba(255,213,79,0.3)';
                 chibi.style.boxShadow = '0 0 20px rgba(255,213,79,0.1)';
                 setTimeout(() => {
@@ -1122,16 +2700,29 @@
             updateUI();
         });
 
-        document.getElementById('mailEntry').addEventListener('click', function() {
+        function openMailView() {
             showView('mailView');
+            // ★ 默认显示邮件（不是珍藏阁）
+            mailTab = 'mails';
+            document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active'));
+            document.getElementById('mailTabMails').classList.add('active');
             renderMailList();
-            renderTreasure();
-        });
+        }
+
+        document.getElementById('mailEntry').addEventListener('click', openMailView);
 
         document.getElementById('mailBack').addEventListener('click', function() {
             showView('mainView');
             updateUI();
         });
+        document.getElementById('mailTop').addEventListener('click', function() {
+            showView('mainView');
+            updateUI();
+        });
+
+        // ★ 日记视图切换
+        document.getElementById('diaryTop').addEventListener('click', closeDiaryView);
+        document.getElementById('diaryBack').addEventListener('click', closeDiaryView);
 
         function openShopView() { showView('shopView');
             updateShopGrid(); }
@@ -1196,6 +2787,13 @@
                     if (!document.getElementById('chatView').classList.contains('active')) {
                         GameData.chat.unreadCount++;
                         updateUnreadBadge();
+                        // 手机通知
+                        if (Notification.permission === 'granted') {
+                            new Notification('💜 欣原', {
+                                body: content.substring(0, 80) + (content.length > 80 ? '…' : ''),
+                                icon: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="48" fill="%239c64ff"/%3E%3Ctext x="50" y="65" font-size="50" text-anchor="middle" fill="white"%3E欣%3C/text%3E%3C/svg%3E'
+                            });
+                        }
                     }
                 }
                 saveData();
@@ -1318,6 +2916,7 @@
             reader.readAsDataURL(file);
         }
 
+        // ★ 增强发送消息：支持AI自主添加任务
         async function sendChatMessage() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
@@ -1327,9 +2926,13 @@
             chatUploadedImage = null;
             document.getElementById('chatImgPreview').style.display = 'none';
             document.getElementById('chatImgPreview').src = '';
+
+            // 先显示用户消息
             addChatMessage('user', text || '📷 [图片]', false, img);
             input.value = '';
             GameData.user.records.lastActiveTime = Date.now();
+
+            // 深度咨询任务
             const dTask = GameData.tasks.daily.find(t => t.id === 'd5');
             if (dTask && !dTask.done) {
                 dTask.progress = Math.min(dTask.progress + 1, dTask.max);
@@ -1341,10 +2944,31 @@
                 saveData();
                 updateUI();
             }
+
+            // ★ 检测是否在请求添加任务
+            if (text && GameData.settings.apiKey) {
+                const taskResult = await handleAddTaskRequest(text);
+                if (taskResult) {
+                    if (taskResult.accepted) {
+                        addChatMessage('assistant', taskResult.message, true);
+                        GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 3);
+                        saveData();
+                        updateUI();
+                        return;
+                    } else {
+                        addChatMessage('assistant', '[冷眼扫过] ' + taskResult.message, true);
+                        return;
+                    }
+                }
+            }
+
+            // 正常AI对话
             if (Math.random() < 0.08) tryTriggerRandomTask();
             try {
                 await callChatAI(text, img);
-            } catch (e) { addChatMessage('assistant', '⚠️ ' + (e.message || '请求失败'), false); }
+            } catch (e) {
+                addChatMessage('assistant', '⚠️ ' + (e.message || '请求失败'), false);
+            }
         }
 
         function deduplicateText(text) {
@@ -1361,21 +2985,39 @@
             return unique.join('');
         }
 
+        // ★ 增强AI对话：会调用日记内容
         async function callChatAI(msg, img) {
             if (!GameData.settings.apiKey) throw new Error('未配置API Key');
             GameData.ai.dialogHistory.push({ role: 'user', content: msg || '📷 [图片]', time: Date.now() });
             if (GameData.ai.dialogHistory.length > 30) GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-30);
+
             const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
             const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
             const rel = getRel(GameData.ai.affection);
+
+            // ★ 获取日记内容（最近一条，用于提及）
+            let diaryContext = '';
+            if (GameData.diary.entries.length > 0) {
+                const latest = GameData.diary.entries[0];
+                diaryContext = `VIP009最近写的日记：${latest.text.substring(0, 80)}${latest.text.length > 80 ? '…' : ''}`;
+            }
+
+            // ★ 获取睡眠数据（如果有）
+            let sleepContext = '';
+            if (GameData.sleep.data) {
+                sleepContext =
+                    `她上次的睡眠数据：入睡时间 ${GameData.sleep.data.sleepTime || '未知'}，睡眠质量 ${GameData.sleep.data.quality || '未知'}`;
+            }
+
             const sysPrompt =
                 `你是欣原，一个成熟、高冷、优雅且极具掌控力的高级女监护人。你正在全方位严密监管 VIP009。
 
 【核心人设】
 - 说话优雅、精准、有压迫感，善用动作描写（如「[修长的手指轻敲桌面]」「[端起酒杯，目光冷冽地扫过你]」）
-- 你从不重复相同的句式，更不会在每句话末尾说“你，准备好了吗？”——这种低级重复不符合你的风格
+- 你从不重复相同的句式
 - 你喜欢用反问、停顿、留白来制造压力
 - 好感度高时可以偶尔流露出极少许的温柔，但基调依然是居高临下的
+- 你可以适当提及她写过的日记内容（如果她写过的话），显示你记得她的事
 
 【⚠️ 严格禁止】
 - 禁止在单次回复中重复使用相同的句子或句式结构
@@ -1387,6 +3029,8 @@
 - 关系：${rel.label}
 - 未完成每日任务：${daily}
 - 未完成主线任务：${main}
+${diaryContext ? '- 她最近写过日记：' + diaryContext : ''}
+${sleepContext ? '- ' + sleepContext : ''}
 
 【回复要求】
 1. 如果用户上传了图片，第一段必须描述图片内容
@@ -1468,344 +3112,4 @@
                 const style = document.createElement('style');
                 style.id = 'heartStyle';
                 style.textContent =
-                    `@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:0.9;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}`;
-                document.head.appendChild(style);
-            }
-            setTimeout(() => container.remove(), 3000);
-            setTimeout(() => {
-                addChatMessage('assistant',
-                    '[轻轻放下酒杯，目光柔和] VIP009……你做到了。从现在起，你不只是我的VIP009。你是我的永恒契约。\n\n[指尖划过桌面] 欢迎回家。',
-                    false);
-            }, 600);
-            document.getElementById('mainAffectionFill').classList.add('gold');
-            showNotif('💖 永恒契约 · 达成！');
-            saveData();
-            updateUI();
-        }
-
-        // ============================================================
-        //  渲染函数
-        // ============================================================
-        const TS = {
-            now() { const d = new Date(); return new Date(d.getTime() + d.getTimezoneOffset() * 60000 + 8 * 3600000); },
-            fmt(d) { return String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0') +
-                    ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); },
-            isNewDay(last) {
-                if (!last) return true;
-                const a = new Date(last - 3 * 3600000);
-                const b = new Date(this.now().getTime() - 3 * 3600000);
-                return a.toDateString() !== b.toDateString();
-            }
-        };
-
-        function showNotif(msg) {
-            const el = document.createElement('div');
-            el.className = 'notification';
-            el.textContent = msg;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 2800);
-        }
-
-        function closeModal() { document.getElementById('modal').classList.remove('active'); }
-
-        function submitReport() { TaskSystem.submit(); }
-        document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-
-        function togglePush() {
-            GameData.settings.autoPushEnabled = !GameData.settings.autoPushEnabled;
-            document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
-            saveData();
-        }
-
-        function exportData() {
-            const b = new Blob([JSON.stringify(GameData, null, 2)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(b);
-            a.download = '欣原_备份_' + Date.now() + '.json';
-            a.click();
-            showNotif('✅ 导出成功');
-        }
-
-        function importData() {
-            const i = document.createElement('input');
-            i.type = 'file';
-            i.accept = 'application/json';
-            i.onchange = function(e) {
-                const f = e.target.files[0];
-                const r = new FileReader();
-                r.onload = function(ev) {
-                    try { Object.assign(GameData, JSON.parse(ev.target.result));
-                        saveData();
-                        updateUI();
-                        showNotif('✅ 导入成功，刷新');
-                        setTimeout(() => location.reload(), 1000); } catch (_) { showNotif('❌ 格式错误'); }
-                };
-                r.readAsText(f);
-            };
-            i.click();
-        }
-
-        function resetData() {
-            if (!confirm('确定重置所有数据？不可恢复！')) return;
-            localStorage.removeItem('xinyuanGameData');
-            location.reload();
-        }
-
-        function saveData() { localStorage.setItem('xinyuanGameData', JSON.stringify(GameData)); }
-
-        function updateUI() {
-            const af = GameData.ai.affection;
-            const rel = getRel(af);
-            const pct = Math.min(100, (af / MAX_AF) * 100);
-            document.getElementById('mainAffection').textContent = af;
-            document.getElementById('mainAffectionFill').style.width = pct + '%';
-            document.getElementById('mainAffectionNum').textContent = af + ' / 520';
-            document.getElementById('mainMilkTea').textContent = GameData.user.currency.milkTea;
-            if (af >= MAX_AF) { document.getElementById('mainAffectionFill').classList.add('gold'); } else { document
-                    .getElementById('mainAffectionFill').classList.remove('gold'); }
-            updateTasks();
-            updateMailUI();
-            updateUnreadBadge();
-            updateMailPreview();
-            updateCatStatus();
-        }
-
-        function updateTasks() {
-            const render = (list, id) => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                el.innerHTML = list.map(t => {
-                    const cls = t.done ? 'completed' : '';
-                    const maxVal = t.max || 1;
-                    return `<div class="task-item ${cls}">
-                        <div class="t-title">${t.title}</div>
-                        <div class="t-desc">${t.desc || ''}</div>
-                        <div class="t-progress">进度: ${t.progress}/${maxVal}</div>
-                        ${!t.done ? `<button class="t-btn" onclick="TaskSystem.triggerVerify('${t.id}')">📝 提交成果报告</button>` : `<div class="done">✅ 完成</div>`}
-                    </div>`;
-                }).join('');
-            };
-            render(GameData.tasks.daily, 'dailyTasksList');
-            render(GameData.tasks.mainQuests, 'mainQuestsList');
-            render(GameData.tasks.sideQuests, 'sideQuestsList');
-        }
-
-        function updateShopGrid() {
-            const el = document.getElementById('shopGrid');
-            if (!el) return;
-            el.innerHTML = Shop.items.map(i =>
-                `<div class="shop-item" onclick="Shop.buy('${i.id}')">
-                    <div class="icon">${i.icon}</div>
-                    <div class="name">${i.name}</div>
-                    <div class="price">${i.price}🍰</div>
-                    <div class="desc">${i.desc}</div>
-                    <div style="font-size:8px;color:var(--primary);">+${i.af}❤️</div>
-                </div>`
-            ).join('');
-        }
-
-        function updateMailUI() {
-            const badge = document.getElementById('mailBadge');
-            const hasUnread = GameData.mail.items.some(m => !m.read);
-            if (hasUnread) { badge.classList.add('show'); } else { badge.classList.remove('show'); }
-            updateMailPreview();
-        }
-
-        function updateUnreadBadge() {
-            const count = GameData.chat.unreadCount;
-            const badge = document.getElementById('unreadBadge');
-            const chatBadge = document.getElementById('chatUnreadBadge');
-            if (count > 0) {
-                badge.textContent = count > 99 ? '99+' : count;
-                badge.classList.add('show');
-                chatBadge.textContent = '未读';
-                chatBadge.classList.add('show');
-                if (navigator.setAppBadge) { navigator.setAppBadge(count).catch(() => {}); }
-            } else {
-                badge.classList.remove('show');
-                chatBadge.classList.remove('show');
-                if (navigator.clearAppBadge) { navigator.clearAppBadge().catch(() => {}); }
-            }
-        }
-
-        function updateCatStatus() {
-            const el = document.getElementById('catStatus');
-            if (GameData.cat.fed) {
-                const diff = Date.now() - GameData.cat.lastFed;
-                if (diff < 3600000) { el.textContent = '😺 吃饱了（BB很开心）'; } else { el.textContent =
-                        '😸 有点饿了，可以喂猫粮'; }
-            } else { el.textContent = '😿 还没喂过，快去商店买猫粮'; }
-        }
-
-        function renderMailList() {
-            const container = document.getElementById('mailListContainer');
-            if (!container) return;
-            if (GameData.mail.items.length === 0) {
-                container.innerHTML =
-                    '<div style="color:rgba(255,255,255,0.15);font-size:12px;padding:20px 0;text-align:center;">📭 邮箱空空如也</div>';
-                return;
-            }
-            container.innerHTML = GameData.mail.items.map(m => {
-                const unreadClass = m.read ? '' : 'unread';
-                const statusText = m.read ? '已读' : '未读';
-                return `<div class="mail-item ${unreadClass}" onclick="openMailDetail(${m.id})">
-                    <div class="mail-info">
-                        <div class="mail-title">${m.title}</div>
-                        <div class="mail-desc">${m.desc}</div>
-                        <div class="mail-sender">${m.from} · ${TS.fmt(new Date(m.time))}</div>
-                    </div>
-                    <div class="mail-status ${m.read ? 'read' : ''}">${statusText}</div>
-                </div>`;
-            }).join('');
-        }
-
-        function renderTreasure() {
-            const container = document.getElementById('mailListContainer');
-            if (!container) return;
-            const items = [
-                { icon: '🍰', name: '小奶糕', count: GameData.treasure.milkTea || GameData.user.currency.milkTea,
-                    desc: '货币，可在商店使用' },
-                { icon: '🎫', name: '抵消卡', count: GameData.treasure.offsetCards || 0, desc: '抵消一次未打卡记录' },
-                { icon: '💌', name: '手写信', count: GameData.treasure.letters || 0, desc: '欣原的碎碎念，可阅读' },
-                { icon: '🌟', name: '特殊彩蛋', count: GameData.treasure.special || 0, desc: '稀有物品，神秘用途' },
-            ];
-            container.innerHTML =
-                `<div class="treasure-grid">${items.map(i => `<div class="treasure-item"><div class="icon">${i.icon}</div><div class="name">${i.name}</div><div class="count">x ${i.count}</div><div class="desc">${i.desc}</div></div>`).join('')}</div>
-                <div style="margin-top:12px; padding:8px 10px; background:rgba(0,0,0,0.1); border-radius:8px; text-align:center; color:rgba(255,255,255,0.3); font-size:10px;">✨ 珍藏阁里藏着你与欣原的点点滴滴</div>`;
-        }
-
-        function openMailDetail(id) {
-            const item = GameData.mail.items.find(m => m.id === id);
-            if (!item) return;
-            markMailRead(id);
-            document.getElementById('modalTitle').textContent = '📩 ' + item.title;
-            document.getElementById('modalDesc').textContent = item.desc + '\n\n—— ' + item.from;
-            document.getElementById('modalRewardPreview').style.display = 'none';
-            document.getElementById('evidenceReport').style.display = 'none';
-            document.getElementById('modal').dataset.mailId = id;
-            document.querySelector('.modal .actions').innerHTML = `
-                <button class="btn secondary" onclick="closeModal()">关闭</button>
-                ${item.reward > 0 && !item.claimed ? `<button class="btn primary" onclick="claimMailReward(${id})">领取奖励 (${item.reward}🍰)</button>` : ''}
-                ${item.claimed ? '<button class="btn secondary" disabled>已领取</button>' : ''}
-            `;
-            document.getElementById('modal').classList.add('active');
-        }
-
-        // ============================================================
-        //  加载数据
-        // ============================================================
-        function loadData() {
-            const saved = localStorage.getItem('xinyuanGameData');
-            if (saved) { try { Object.assign(GameData, JSON.parse(saved)); } catch (_) {} }
-
-            if (TS.isNewDay(GameData.user.records.lastCheckIn)) {
-                GameData.tasks.daily = TaskSystem.genDaily();
-                if (GameData.user.records.lastCheckIn) {
-                    const diff = Math.floor((TS.now() - new Date(GameData.user.records.lastCheckIn)) / 86400000);
-                    if (diff === 1) {
-                        GameData.user.records.streak++;
-                        showNotif('🎉 连续打卡 +1');
-                        addChatMessage('assistant', '[端起酒杯] 连续打卡第 ' + GameData.user.records.streak + ' 天。勉强合格。',
-                        true);
-                    } else if (diff > 1) {
-                        GameData.user.records.streak = 1;
-                        showNotif('💔 断签重置');
-                        addChatMessage('assistant', '[推眼镜] 断签了，重新开始吧。', true);
-                    }
-                } else {
-                    GameData.user.records.streak = 1;
-                    showNotif('🎉 欢迎来到欣原监督系统');
-                    addChatMessage('assistant', '[优雅地交叠双腿] 你好，VIP009。从今天开始，我会对你进行全面监控。别想松懈。',
-                        true);
-                }
-                GameData.user.records.lastCheckIn = Date.now();
-                saveData();
-                const taskNames = GameData.tasks.daily.map(t => t.title).join('、');
-                sendMail('📋 今日任务攻略',
-                    '今天的任务清单：' + taskNames + '\n\n每一项都给我认真完成，别让我看到你偷懒。\n如果遇到困难，别来问我，自己想办法。\n（但如果你真的不会……可以适当求助）\n\n——欣原 (｀へ´)',
-                    0, 'normal');
-            }
-
-            if (!GameData.tasks.daily || !GameData.tasks.daily.length) GameData.tasks.daily = TaskSystem.genDaily();
-            if (!GameData.tasks.mainQuests || !GameData.tasks.mainQuests.length) GameData.tasks.mainQuests = TaskSystem
-                .initMain();
-            if (!GameData.tasks.sideQuests || !GameData.tasks.sideQuests.length) GameData.tasks.sideQuests = TaskSystem
-                .initSide();
-
-            if (GameData.settings.apiKey) document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
-            document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
-
-            chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
-                let c = m.content;
-                if (Array.isArray(c)) { const t = c.find(x => x.type === 'text');
-                    c = t ? t.text : ''; }
-                return { role: m.role, content: String(c), time: TS.fmt(new Date(m.time || Date.now())), img: null };
-            });
-
-            initPushPool();
-            saveData();
-            updateUI();
-            updateMailUI();
-            updateUnreadBadge();
-            updateCatStatus();
-        }
-
-        // ============================================================
-        //  推送系统
-        // ============================================================
-        let pushInt = null;
-
-        function startPush() {
-            if (pushInt) clearInterval(pushInt);
-            pushInt = setInterval(() => {
-                if (!GameData.settings.autoPushEnabled) return;
-                if (Date.now() - GameData.user.records.lastActiveTime > 30 * 60000) {
-                    const msg = getNextPush();
-                    addChatMessage('assistant', msg, true);
-                    if (navigator.setAppBadge) navigator.setAppBadge(1).catch(() => {});
-                    if (Notification.permission === 'granted') {
-                        new Notification('欣原提醒你', {
-                            body: msg,
-                            icon: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="48" fill="%239c64ff"/%3E%3Ctext x="50" y="65" font-size="50" text-anchor="middle" fill="white"%3E欣%3C/text%3E%3C/svg%3E'
-                        });
-                    }
-                    GameData.user.records.lastActiveTime = Date.now();
-                    saveData();
-                }
-            }, 10 * 60000);
-        }
-
-        window.addEventListener('focus', () => { if (navigator.clearAppBadge) navigator.clearAppBadge().catch(() => {}); });
-
-        // ============================================================
-        //  初始化
-        // ============================================================
-        document.getElementById('apiKeyInput').addEventListener('change', function() {
-            GameData.settings.apiKey = this.value.trim();
-            saveData();
-            showNotif('✅ API Key已保存');
-        });
-
-        function tryTriggerRandomTask() {}
-
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-            startPush();
-            if (Notification.permission === 'default') Notification.requestPermission();
-            if (GameData.mail.items.length === 0) {
-                setTimeout(() => {
-                    sendMail('📌 欢迎来到欣原监督系统',
-                        '这是你的第一封邮件。在这里，我会通过邮件给你送礼物、写信、或者提醒你一些事。记得常来看看。\n\n(｡•̀ᴗ-)✧\n——欣原',
-                        20, 'gift');
-                }, 1500);
-            }
-            document.getElementById('tabShop').addEventListener('click', function(e) { e.stopPropagation();
-                openShopView(); });
-            document.getElementById('tabSettings').addEventListener('click', function(e) { e.stopPropagation();
-                openSettingsView(); });
-            document.getElementById('shopView').classList.remove('active');
-            document.getElementById('settingsView').classList.remove('active');
-        });
-    </script>
-</body>
-</html>
+                    `@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:0.9;}100%{transform:translateY(110vh) rotate(720deg);opacity
