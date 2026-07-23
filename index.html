@@ -268,8 +268,8 @@
         }
 
         #imgPreview {
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             border-radius: 8px;
             display: none;
             object-fit: cover;
@@ -645,7 +645,7 @@
             <div class="chat-input-area">
                 <!-- 预留证据图片上传按钮 -->
                 <label style="cursor: pointer; font-size: 22px; margin-right: 5px; user-select: none;" title="呈递实操照片">📷<input type="file" id="evidenceImage" accept="image/*" style="display: none;" onchange="compressAndPreview(this)"></label>
-                <img id="imgPreview" src="" alt="预览">
+                <img id="imgPreview" src="" alt="预览" style="width: 45px; height: 45px; border-radius: 8px; display: none; object-fit: cover; border: 1.5px solid var(--primary); box-shadow: 0 0 8px var(--primary); margin-right: 4px;">
                 <input type="text" class="chat-input" id="chatInput" placeholder="输入消息...按Enter或键盘发送键发送">
                 <button class="send-btn" onclick="sendMessage()">▶</button>
             </div>
@@ -1164,12 +1164,12 @@
 
         // ==================== AI对话系统 ====================
         const AISystem = {
-            async sendMessage(userMessage) {
+            async sendMessage(userMessage, base64Image = null) {
                 showTypingIndicator();
                 
                 GameData.ai.dialogHistory.push({
                     role: 'user',
-                    content: userMessage,
+                    content: userMessage || "📷 [上传了实操截图证据]",
                     time: Date.now()
                 });
                 
@@ -1178,11 +1178,7 @@
                 }
                 
                 try {
-                    const activeImg = uploadedImageBase64;
-                    uploadedImageBase64 = null;
-                    document.getElementById('imgPreview').style.display = 'none';
-
-                    const response = await this.callAPI(userMessage, activeImg);
+                    const response = await this.callAPI(userMessage, base64Image);
                     hideTypingIndicator();
                     addAIMessage(response);
                     
@@ -1435,13 +1431,20 @@ VIP009 当前的实时待办任务有：
         }
 
         // ==================== 聊天相关 ====================
-        function addUserMessage(text) {
+        function addUserMessage(text, imageBase64 = null) {
             const time = TimeSystem.formatTime(TimeSystem.getChinaTime());
             const messageId = 'msg_' + Date.now();
+            
+            // 如果携带有图片，动态构建 img 元素渲染到气泡里（完美自研渲染逻辑）
+            const imgHtml = imageBase64 ? `<img src="${imageBase64}" style="max-width: 150px; border-radius: 10px; margin-bottom: 5px; display: block; border: 1.5px solid var(--primary); box-shadow: 0 0 8px rgba(156, 100, 255, 0.45);" />` : '';
+
             const html = `
                 <div class="message-bubble user" id="${messageId}">
                     <div class="message-content">
-                        <div class="message-text">${text}</div>
+                        <div class="message-text">
+                            ${imgHtml}
+                            ${text}
+                        </div>
                         <div class="message-time">${time}</div>
                     </div>
                 </div>
@@ -1526,7 +1529,12 @@ VIP009 当前的实时待办任务有：
             const message = input.value.trim();
             if (!message && !uploadedImageBase64) return;
             
-            addUserMessage(message || "📷 [上传了实操截图证据]");
+            const activeImg = uploadedImageBase64;
+            uploadedImageBase64 = null;
+            document.getElementById('imgPreview').style.display = 'none';
+
+            // 修复渲染逻辑：传入本地 base64 并在气泡渲染图片，解决你聊天框里看不见图的问题！
+            addUserMessage(message || "📷 [上传了实操截图证据]", activeImg);
             input.value = '';
             
             GameData.user.records.lastActiveTime = Date.now();
@@ -1536,10 +1544,7 @@ VIP009 当前的实时待办任务有：
                 taskProgressUp('d4');
             }
             
-            const activeImg = uploadedImageBase64;
-            uploadedImageBase64 = null;
-            document.getElementById('imgPreview').style.display = 'none';
-
+            // 修复参数链路：把 activeImg 作为第二个参数正式传递，确保图片数据不再丢失！
             AISystem.sendMessage(message, activeImg);
         }
 
@@ -1599,6 +1604,7 @@ VIP009 当前的实时待办任务有：
             document.getElementById('modal').classList.add('active');
         }
 
+        // 覆盖关闭：确保不残留临时上传数据
         function closeModal() {
             document.getElementById('modal').classList.remove('active');
         }
