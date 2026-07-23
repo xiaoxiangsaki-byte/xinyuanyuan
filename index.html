@@ -1146,7 +1146,7 @@ VIP009 当前的实时待办任务有：
                 } else {
                     GameData.user.records.streak = 1;
                     showNotification('🎉 欢迎来到欣原监督系统！');
-                    // ★★★ 关键修复：加 true，避免重复 ★★★
+                    // ★★★ 修复：加 true，避免重复 ★★★
                     addAIMessage('[优雅地交叠双腿，手指敲击着办公桌面]：你好，VIP009。我是你的监护人欣原。从今天开始，我会对你的跨境电商英语、财务投资、身材管理进行全方位严苛监控。别想在我的眼皮底下有任何松懈。', true);
                 }
                 GameData.user.records.lastCheckIn = Date.now();
