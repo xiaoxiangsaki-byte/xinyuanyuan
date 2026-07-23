@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VIP009 · 欣原监督系统</title>
     <style>
-        /* ===== 全局重置 ===== */
+        /* ===== 全局 ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #c5a3ff;
@@ -16,6 +16,8 @@
         html, body {
             height: 100%;
             overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         body {
             font-family: -apple-system, "Segoe UI", sans-serif;
@@ -23,7 +25,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 8px;
+            padding: 0;
             background-image: 
                 radial-gradient(ellipse at 20% 30%, rgba(197, 163, 255, 0.15) 0%, transparent 60%),
                 radial-gradient(ellipse at 85% 70%, rgba(156, 100, 255, 0.10) 0%, transparent 50%),
@@ -32,341 +34,181 @@
             background-attachment: fixed;
         }
 
-        /* ===== 主卡片 - 填满屏幕 ===== */
-        .glass-card {
+        /* ===== 主容器 ===== */
+        .app-container {
             width: 100%;
             max-width: 420px;
             height: 100dvh;
             max-height: 100dvh;
+            position: relative;
+            overflow: hidden;
             background: rgba(18, 10, 30, 0.75);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            border-radius: 24px;
-            padding: 16px 14px 12px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-            position: relative;
-            overflow: hidden;
-            transition: border-color 0.6s;
             display: flex;
             flex-direction: column;
         }
-        .glass-card.golden {
-            border-color: var(--gold);
-            box-shadow: 0 0 40px rgba(255, 213, 79, 0.06);
-        }
 
-        .glass-card::before {
-            content: '';
+        /* ===== 人物界面（默认可见） ===== */
+        #mainView {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
             position: absolute;
-            top: -20%;
-            left: -30%;
-            width: 80%;
-            height: 80%;
-            background: radial-gradient(circle, rgba(197, 163, 255, 0.06) 0%, transparent 70%);
-            pointer-events: none;
-            animation: floatGlow 10s ease-in-out infinite alternate;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            padding: 12px 14px 10px;
         }
-        @keyframes floatGlow {
-            0% { transform: translate(0, 0); opacity: 0.4; }
-            100% { transform: translate(25px, 15px); opacity: 0.9; }
+        #mainView.hidden {
+            opacity: 0;
+            transform: scale(0.96);
+            pointer-events: none;
         }
 
-        /* ===== 头部 ===== */
-        .chat-header {
+        /* ===== 顶部栏（约1/10高度） ===== */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            padding: 6px 0 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            min-height: 56px;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .top-bar:active {
+            opacity: 0.7;
+        }
+        .top-bar .left {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 8px;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 1;
         }
-        .avatar-wrap {
-            width: 52px;
-            height: 52px;
-            flex-shrink: 0;
+        .top-bar .avatar-sm {
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             overflow: hidden;
-            transition: box-shadow 0.6s;
+            flex-shrink: 0;
+            position: relative;
         }
-        .avatar-wrap img {
+        .top-bar .avatar-sm img {
             width: 100%;
             height: 100%;
-            border-radius: 50%;
             object-fit: cover;
             display: block;
         }
-        .avatar-wrap.gold-ring {
-            box-shadow: 0 0 30px rgba(255, 213, 79, 0.25);
+        /* 未读角标 */
+        .top-bar .unread-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #ff3b30;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            border: 2px solid rgba(18, 10, 30, 0.9);
+            box-shadow: 0 0 8px rgba(255, 59, 48, 0.3);
+            display: none;
         }
-
-        .info h3 {
-            font-size: 16px;
+        .top-bar .unread-badge.show {
+            display: flex;
+        }
+        .top-bar .info h3 {
+            font-size: 15px;
             color: #fff;
             font-weight: 600;
         }
-        .info .rel-label {
-            font-size: 11px;
+        .top-bar .info .rel-label {
+            font-size: 10px;
             color: rgba(255,255,255,0.35);
         }
-        .info .rel-label .name {
+        .top-bar .info .rel-label .name {
             color: var(--primary);
             font-weight: 500;
         }
-        .info .rel-label .name.gold {
-            color: var(--gold);
-            text-shadow: 0 0 12px rgba(255, 213, 79, 0.15);
-        }
-        .currency-display {
-            margin-left: auto;
+        .top-bar .right-stats {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             font-size: 12px;
             color: rgba(255,255,255,0.3);
         }
-        .currency-display span { color: #fff; font-weight: 600; }
-
-        /* ===== 好感度 ===== */
-        .affection-wrap {
-            background: rgba(0,0,0,0.25);
-            border-radius: 8px;
-            padding: 5px 12px;
-            margin-bottom: 8px;
-            border: 1px solid rgba(255,255,255,0.03);
-            flex-shrink: 0;
-            position: relative;
-            z-index: 1;
-        }
-        .affection-label {
+        .top-bar .right-stats .stat-item {
             display: flex;
-            justify-content: space-between;
-            font-size: 10px;
-            color: rgba(255,255,255,0.4);
-            margin-bottom: 1px;
+            align-items: center;
+            gap: 3px;
         }
-        .affection-label .rel-name {
-            color: var(--primary);
-            font-weight: 500;
+        .top-bar .right-stats .stat-item .val {
+            color: #fff;
+            font-weight: 600;
         }
-        .affection-label .rel-name.gold {
-            color: var(--gold);
-            text-shadow: 0 0 12px rgba(255, 213, 79, 0.1);
+
+        /* ===== 好感度条（紧凑） ===== */
+        .affection-mini {
+            flex-shrink: 0;
+            padding: 4px 0 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .affection-bar {
+        .affection-mini .label {
+            font-size: 9px;
+            color: rgba(255,255,255,0.3);
+            white-space: nowrap;
+        }
+        .affection-mini .bar-wrap {
+            flex: 1;
             height: 3px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.06);
             border-radius: 4px;
             overflow: hidden;
         }
-        .affection-bar .fill {
+        .affection-mini .bar-wrap .fill {
             height: 100%;
             width: 0%;
             background: linear-gradient(90deg, #b39ddb, #c5a3ff, #9c64ff);
             border-radius: 4px;
             transition: width 0.5s ease;
         }
-        .affection-bar .fill.gold {
+        .affection-mini .bar-wrap .fill.gold {
             background: linear-gradient(90deg, #ffd54f, #ffaa00, #ffd54f);
-            box-shadow: 0 0 16px rgba(255, 213, 79, 0.15);
         }
-
-        /* ===== 消息区域 ===== */
-        .messages {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 0 0 auto;
-            min-height: 100px;
-            max-height: 180px;
-            overflow-y: auto;
-            padding-right: 4px;
-            margin-bottom: 6px;
-            position: relative;
-            z-index: 1;
-        }
-        .messages::-webkit-scrollbar { width: 3px; }
-        .messages::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 2px; }
-        .messages::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 2px; }
-
-        .msg {
-            display: flex;
-            flex-direction: column;
-            max-width: 92%;
-            animation: fadeUp 0.25s ease;
-        }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .msg.ai { align-self: flex-start; }
-        .msg.user { align-self: flex-end; align-items: flex-end; }
-
-        .msg .bubble {
-            padding: 6px 12px;
-            border-radius: 14px;
-            font-size: 12px;
-            line-height: 1.6;
-            color: #fff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            word-break: break-word;
-            position: relative;
-        }
-        .msg.ai .bubble {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-top-left-radius: 3px;
-            color: #ddd6f0;
-        }
-        .msg.user .bubble {
-            background: linear-gradient(135deg, #9c64ff, #c5a3ff);
-            border-top-right-radius: 3px;
-            box-shadow: 0 4px 16px rgba(156, 100, 255, 0.10);
-        }
-        .msg .bubble img {
-            max-width: 120px;
-            border-radius: 8px;
-            margin-bottom: 2px;
-            display: block;
-        }
-        .msg .time {
-            font-size: 8px;
-            color: rgba(255,255,255,0.2);
-            margin-top: 1px;
+        .affection-mini .num {
+            font-size: 9px;
+            color: rgba(255,255,255,0.25);
+            white-space: nowrap;
+            min-width: 40px;
             text-align: right;
         }
-        .msg.user .time { text-align: left; }
 
-        /* 续写按钮 */
-        .msg .continue-msg-btn {
-            font-size: 10px;
-            color: rgba(255,255,255,0.12);
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 1px 4px;
-            margin-top: 1px;
-            align-self: flex-start;
-            transition: color 0.3s;
-            letter-spacing: 0.3px;
-        }
-        .msg .continue-msg-btn:hover {
-            color: rgba(197, 163, 255, 0.35);
-        }
-
-        /* ===== 输入区域 ===== */
-        .input-area {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-            background: rgba(0,0,0,0.25);
-            border-radius: 14px;
-            padding: 2px 2px 2px 10px;
-            border: 1px solid rgba(255,255,255,0.04);
-            transition: border 0.3s;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 1;
-        }
-        .input-area:focus-within {
-            border-color: rgba(197, 163, 255, 0.15);
-        }
-        .input-area input {
+        /* ===== 任务区域（约9/10） ===== */
+        .tasks-area {
             flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #fff;
-            font-size: 12px;
-            padding: 7px 0;
-            min-width: 0;
-        }
-        .input-area input::placeholder { color: rgba(255,255,255,0.15); }
-        .input-area .file-label {
-            cursor: pointer;
-            font-size: 15px;
-            color: rgba(255,255,255,0.2);
-            transition: 0.3s;
-            flex-shrink: 0;
-            line-height: 1;
-        }
-        .input-area .file-label:hover { color: var(--primary); }
-        .input-area #imgPreview {
-            width: 26px;
-            height: 26px;
-            border-radius: 6px;
-            display: none;
-            object-fit: cover;
-            border: 1px solid rgba(197, 163, 255, 0.1);
-            flex-shrink: 0;
-        }
-        .input-area .send {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #c5a3ff, #9c64ff);
-            border: none;
-            color: #000;
-            font-size: 13px;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            box-shadow: 0 4px 16px rgba(156, 100, 255, 0.08);
-        }
-        .input-area .send:active { transform: scale(0.92); }
-
-        /* ===== 底部标签 ===== */
-        .tabs {
-            display: flex;
-            gap: 4px;
-            margin-top: 8px;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 1;
-        }
-        .tab {
-            padding: 5px 8px;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.03);
-            color: rgba(255,255,255,0.2);
-            font-size: 11px;
-            cursor: pointer;
-            transition: 0.3s;
-            flex: 1;
-            text-align: center;
-            backdrop-filter: blur(4px);
-            user-select: none;
-        }
-        .tab:hover { color: rgba(255,255,255,0.35); }
-        .tab.active {
-            background: rgba(197, 163, 255, 0.06);
-            border-color: rgba(197, 163, 255, 0.08);
-            color: #fff;
-        }
-
-        /* ===== Tab内容 - 自动填充剩余空间 ===== */
-        .tab-content {
-            display: none;
-            padding: 2px 0;
-            flex: 1;
-            min-height: 0;
             overflow-y: auto;
+            padding-top: 6px;
+            min-height: 0;
         }
-        .tab-content.active {
-            display: block;
-            animation: tabFadeIn 0.25s ease-out;
-        }
-        @keyframes tabFadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .tab-content::-webkit-scrollbar { width: 3px; }
-        .tab-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 2px; }
-        .tab-content::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 2px; }
+        .tasks-area::-webkit-scrollbar { width: 3px; }
+        .tasks-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 2px; }
+        .tasks-area::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 2px; }
 
-        /* ===== 任务 ===== */
         .task-category {
             background: rgba(0,0,0,0.12);
             border-radius: 10px;
@@ -413,27 +255,62 @@
             margin-top: 2px;
             transition: 0.3s;
         }
-        .task-item .t-btn:hover { background: rgba(197, 163, 255, 0.12); }
+        .task-item .t-btn:active { background: rgba(197, 163, 255, 0.15); }
         .task-item.completed .t-title { opacity: 0.4; }
         .task-item .done { color: #69f0ae; font-size: 10px; margin-top: 2px; }
-
-        /* 随机任务 */
         .task-item.random-task {
             border-left: 2px solid var(--gold);
             background: rgba(255, 213, 79, 0.04);
         }
         .task-item.random-task .t-title { color: var(--gold); }
-        .task-item.random-task .t-btn {
-            color: var(--gold);
-            background: rgba(255, 213, 79, 0.08);
+
+        /* ===== 底部标签 ===== */
+        .bottom-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 6px 0 0;
+            flex-shrink: 0;
+            border-top: 1px solid rgba(255,255,255,0.03);
         }
-        .task-item.random-task .t-btn:hover { background: rgba(255, 213, 79, 0.15); }
+        .bottom-tabs .tab {
+            padding: 5px 8px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.03);
+            color: rgba(255,255,255,0.2);
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.3s;
+            flex: 1;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .bottom-tabs .tab:active { opacity: 0.6; }
+        .bottom-tabs .tab.active {
+            background: rgba(197, 163, 255, 0.06);
+            border-color: rgba(197, 163, 255, 0.08);
+            color: #fff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: tabFadeIn 0.25s ease-out;
+        }
+        @keyframes tabFadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         /* ===== 商店 ===== */
         .shop-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 4px;
+            padding: 4px 0;
         }
         .shop-item {
             background: rgba(0,0,0,0.12);
@@ -443,8 +320,9 @@
             cursor: pointer;
             border: 1px solid rgba(255,255,255,0.02);
             transition: 0.3s;
+            -webkit-tap-highlight-color: transparent;
         }
-        .shop-item:hover { border-color: rgba(197, 163, 255, 0.06); }
+        .shop-item:active { opacity: 0.6; }
         .shop-item .icon { font-size: 20px; }
         .shop-item .name { font-size: 9px; color: #fff; margin: 1px 0; }
         .shop-item .price { font-size: 9px; color: var(--primary); }
@@ -482,6 +360,292 @@
             font-size: 10px;
         }
         .setting-item .btn.danger { background: rgba(255, 82, 82, 0.08); color: #ff5252; }
+
+        /* ===== 邮箱（新增） ===== */
+        .mail-section {
+            background: rgba(0,0,0,0.12);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+        .mail-section .mail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mail-section .mail-header .title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gold);
+        }
+        .mail-section .mail-header .badge {
+            font-size: 9px;
+            color: #ff3b30;
+            background: rgba(255,59,48,0.1);
+            padding: 1px 8px;
+            border-radius: 10px;
+            display: none;
+        }
+        .mail-section .mail-header .badge.show { display: inline-block; }
+        .mail-item {
+            background: rgba(0,0,0,0.15);
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-top: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 2px solid var(--gold);
+        }
+        .mail-item .mail-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .mail-item .mail-info .mail-title {
+            font-size: 11px;
+            color: #fff;
+            font-weight: 500;
+        }
+        .mail-item .mail-info .mail-desc {
+            font-size: 10px;
+            color: rgba(255,255,255,0.35);
+        }
+        .mail-item .mail-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .mail-item .mail-actions .mail-btn {
+            font-size: 9px;
+            padding: 2px 10px;
+            border-radius: 6px;
+            border: none;
+            background: linear-gradient(135deg, #ffd54f, #ffaa00);
+            color: #000;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .mail-item .mail-actions .mail-btn:active { transform: scale(0.95); }
+        .mail-item .mail-actions .mail-btn.claimed {
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.25);
+            cursor: default;
+        }
+        .mail-item .mail-actions .mail-reward {
+            font-size: 11px;
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        /* ============================================================
+             聊天视图（全屏沉浸）
+             ============================================================ */
+        #chatView {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            background: rgba(18, 10, 30, 0.96);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            padding: 0;
+            animation: chatSlideIn 0.3s ease;
+        }
+        #chatView.active {
+            display: flex;
+        }
+        @keyframes chatSlideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* 聊天顶部 */
+        .chat-top {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            flex-shrink: 0;
+            gap: 10px;
+            background: rgba(0,0,0,0.15);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .chat-top:active { opacity: 0.7; }
+        .chat-top .back-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .chat-top .back-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .chat-top .chat-title {
+            flex: 1;
+        }
+        .chat-top .chat-title h3 {
+            font-size: 16px;
+            color: #fff;
+            font-weight: 600;
+        }
+        .chat-top .chat-title .sub {
+            font-size: 10px;
+            color: rgba(255,255,255,0.3);
+        }
+        .chat-top .chat-unread {
+            font-size: 10px;
+            color: #ff3b30;
+            background: rgba(255,59,48,0.1);
+            padding: 2px 10px;
+            border-radius: 10px;
+            display: none;
+        }
+        .chat-top .chat-unread.show { display: inline-block; }
+
+        /* 聊天消息区域 */
+        .chat-messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 14px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .chat-messages-area::-webkit-scrollbar { width: 3px; }
+        .chat-messages-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 2px; }
+        .chat-messages-area::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 2px; }
+
+        .chat-msg {
+            display: flex;
+            flex-direction: column;
+            max-width: 88%;
+            animation: fadeUp 0.25s ease;
+        }
+        .chat-msg.ai { align-self: flex-start; }
+        .chat-msg.user { align-self: flex-end; align-items: flex-end; }
+
+        .chat-msg .bubble {
+            padding: 8px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            word-break: break-word;
+            position: relative;
+        }
+        .chat-msg.ai .bubble {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-top-left-radius: 3px;
+            color: #ddd6f0;
+        }
+        .chat-msg.user .bubble {
+            background: linear-gradient(135deg, #9c64ff, #c5a3ff);
+            border-top-right-radius: 3px;
+            box-shadow: 0 4px 16px rgba(156, 100, 255, 0.10);
+        }
+        .chat-msg .bubble img {
+            max-width: 150px;
+            border-radius: 8px;
+            margin-bottom: 3px;
+            display: block;
+        }
+        .chat-msg .time {
+            font-size: 9px;
+            color: rgba(255,255,255,0.2);
+            margin-top: 2px;
+            text-align: right;
+        }
+        .chat-msg.user .time { text-align: left; }
+        .chat-msg .continue-btn {
+            font-size: 10px;
+            color: rgba(255,255,255,0.12);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 1px 4px;
+            margin-top: 1px;
+            align-self: flex-start;
+            transition: color 0.3s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .chat-msg .continue-btn:active { color: rgba(197, 163, 255, 0.3); }
+
+        /* 聊天输入 */
+        .chat-input-area {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            padding: 8px 12px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            background: rgba(0,0,0,0.15);
+            flex-shrink: 0;
+        }
+        .chat-input-area .file-label {
+            cursor: pointer;
+            font-size: 18px;
+            color: rgba(255,255,255,0.2);
+            transition: 0.3s;
+            flex-shrink: 0;
+            line-height: 1;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .chat-input-area .file-label:active { color: var(--primary); }
+        .chat-input-area .chat-input {
+            flex: 1;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 20px;
+            padding: 8px 14px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            min-width: 0;
+        }
+        .chat-input-area .chat-input::placeholder { color: rgba(255,255,255,0.15); }
+        .chat-input-area .chat-input:focus { border-color: rgba(197, 163, 255, 0.1); }
+        .chat-input-area .chat-send {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c5a3ff, #9c64ff);
+            border: none;
+            color: #000;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(156, 100, 255, 0.08);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .chat-input-area .chat-send:active { transform: scale(0.92); }
+        .chat-input-area #chatImgPreview {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            display: none;
+            object-fit: cover;
+            border: 1px solid rgba(197, 163, 255, 0.1);
+            flex-shrink: 0;
+        }
 
         /* ===== 通知 ===== */
         .notification {
@@ -577,8 +741,8 @@
             position: fixed;
             bottom: 80px;
             right: 12px;
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             cursor: grab;
             z-index: 99999;
             user-select: none;
@@ -591,8 +755,6 @@
             overflow: hidden;
             touch-action: none;
         }
-        #chibi:hover { transform: scale(1.04); border-color: rgba(197, 163, 255, 0.08); }
-        #chibi:active { cursor: grabbing; }
         #chibi img {
             width: 100%;
             height: 100%;
@@ -601,8 +763,6 @@
             border-radius: 50%;
             pointer-events: none;
         }
-
-        /* Q版气泡 */
         .chibi-bubble {
             position: fixed;
             z-index: 99999;
@@ -691,139 +851,184 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        .random-notification .btn:hover { transform: scale(1.02); }
+        .random-notification .btn:active { transform: scale(0.95); }
         .random-notification .btn-secondary {
             background: rgba(255,255,255,0.06);
             color: rgba(255,255,255,0.3);
             margin-left: 6px;
         }
 
-        /* ===== 手机端适配 ===== */
+        /* ===== 响应式 ===== */
         @media (max-width: 480px) {
-            body { padding: 0; }
-            .glass-card { border-radius: 0; padding: 12px 10px 10px; }
-            .avatar-wrap { width: 44px; height: 44px; }
-            .info h3 { font-size: 14px; }
-            .messages { min-height: 80px; max-height: 150px; }
-            .tab-content { flex: 1; }
-            #chibi { width: 50px; height: 50px; bottom: 70px; right: 8px; }
+            #mainView { padding: 8px 10px 6px; }
+            .top-bar { min-height: 46px; padding: 4px 0 6px; }
+            .top-bar .avatar-sm { width: 36px; height: 36px; }
+            .top-bar .info h3 { font-size: 14px; }
+            .top-bar .right-stats { font-size: 10px; gap: 8px; }
+            .affection-mini { padding: 2px 0 4px; }
+            .chat-top { padding: 8px 12px; }
+            .chat-top .back-avatar { width: 34px; height: 34px; }
+            .chat-messages-area { padding: 8px 10px; }
+            .chat-input-area { padding: 6px 10px; }
+            .chat-input-area .chat-input { font-size: 12px; padding: 6px 12px; }
+            #chibi { width: 48px; height: 48px; bottom: 70px; right: 8px; }
             .chibi-bubble { font-size: 11px; padding: 3px 8px; }
             .random-notification { padding: 16px 18px; max-width: 280px; }
             .random-notification .icon { font-size: 32px; }
         }
         @media (max-width: 380px) {
-            .glass-card { padding: 8px 6px 6px; }
-            .avatar-wrap { width: 38px; height: 38px; }
-            .messages { min-height: 60px; max-height: 120px; }
-            .msg .bubble { font-size: 11px; padding: 4px 10px; }
-            #chibi { width: 42px; height: 42px; bottom: 60px; right: 6px; }
-            .chibi-bubble { font-size: 10px; padding: 2px 6px; }
+            #mainView { padding: 4px 6px 4px; }
+            .top-bar { min-height: 40px; }
+            .top-bar .avatar-sm { width: 30px; height: 30px; }
+            .top-bar .info h3 { font-size: 12px; }
+            .top-bar .right-stats { font-size: 9px; gap: 4px; }
+            .task-item .t-title { font-size: 10px; }
+            .task-item .t-desc { font-size: 9px; }
+            .chat-messages-area { padding: 6px 8px; }
+            .chat-msg .bubble { font-size: 12px; padding: 6px 10px; }
+            #chibi { width: 40px; height: 40px; bottom: 60px; right: 6px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== 主卡片 ===== -->
-    <div class="glass-card" id="mainCard">
+    <div class="app-container">
 
-        <!-- 头部 -->
-        <div class="chat-header">
-            <div class="avatar-wrap" id="avatarWrap">
-                <img id="avatarImg" src="https://i.postimg.cc/85Yt5NJz/wei-xin-tu-pian-20260723051447-419-40.jpg" alt="欣原头像">
-            </div>
-            <div class="info">
-                <h3>欣原</h3>
-                <div class="rel-label">
-                    关系 · <span class="name" id="relStatus">陌生人</span>
+        <!-- ============================================================
+             主视图（人物界面）
+             ============================================================ -->
+        <div id="mainView">
+
+            <!-- 顶部栏（点击进入聊天） -->
+            <div class="top-bar" id="topBar">
+                <div class="left">
+                    <div class="avatar-sm" id="avatarBtn">
+                        <img src="https://i.postimg.cc/85Yt5NJz/wei-xin-tu-pian-20260723051447-419-40.jpg" alt="欣原">
+                        <div class="unread-badge" id="unreadBadge">0</div>
+                    </div>
+                    <div class="info">
+                        <h3>欣原</h3>
+                        <div class="rel-label">
+                            关系 · <span class="name" id="mainRelStatus">陌生人</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="right-stats">
+                    <div class="stat-item">❤️ <span class="val" id="mainAffection">0</span></div>
+                    <div class="stat-item">🍰 <span class="val" id="mainMilkTea">0</span></div>
                 </div>
             </div>
-            <div class="currency-display">
-                🍰 <span id="milkTeaAmount">0</span>
-            </div>
-        </div>
 
-        <!-- 好感度 -->
-        <div class="affection-wrap">
-            <div class="affection-label">
-                <span>❤️ 好感度</span>
-                <span><span class="rel-name" id="relName">陌生人</span> · <span id="affectionDisplay">0</span> / 520</span>
+            <!-- 好感度条 -->
+            <div class="affection-mini">
+                <span class="label">好感度</span>
+                <div class="bar-wrap">
+                    <div class="fill" id="mainAffectionFill" style="width:0%"></div>
+                </div>
+                <span class="num" id="mainAffectionNum">0 / 520</span>
             </div>
-            <div class="affection-bar">
-                <div class="fill" id="affectionFill" style="width:0%"></div>
-            </div>
-        </div>
 
-        <!-- 消息 -->
-        <div class="messages" id="chatMessages"></div>
+            <!-- 任务区域 -->
+            <div class="tasks-area" id="tasksArea">
+                <!-- 邮箱 -->
+                <div class="mail-section" id="mailSection">
+                    <div class="mail-header">
+                        <span class="title">✉️ 邮箱</span>
+                        <span class="badge" id="mailBadge">新</span>
+                    </div>
+                    <div id="mailList"></div>
+                </div>
 
-        <!-- 输入 -->
-        <div class="input-area">
-            <label class="file-label" title="上传图片">📷
-                <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImage(this)">
-            </label>
-            <img id="imgPreview" src="">
-            <input type="text" id="chatInput" placeholder="输入消息..." onkeypress="if(event.key==='Enter') sendMessage()">
-            <button class="send" onclick="sendMessage()">▶</button>
-        </div>
+                <!-- 任务分类 -->
+                <div id="taskContent">
+                    <div class="task-category">
+                        <div class="category-title">⏰ 每日任务</div>
+                        <div id="dailyTasksList"></div>
+                    </div>
+                    <div class="task-category">
+                        <div class="category-title">🎯 主线任务</div>
+                        <div id="mainQuestsList"></div>
+                    </div>
+                    <div class="task-category">
+                        <div class="category-title">⭐ 支线任务</div>
+                        <div id="sideQuestsList"></div>
+                    </div>
+                    <div id="randomTaskContainer"></div>
+                </div>
+            </div>
 
-        <!-- 标签 -->
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('tasks', this)">📋 任务</div>
-            <div class="tab" onclick="switchTab('shop', this)">🛍️ 商店</div>
-            <div class="tab" onclick="switchTab('settings', this)">⚙️ 设置</div>
-        </div>
+            <!-- 底部标签 -->
+            <div class="bottom-tabs">
+                <div class="tab active" onclick="switchTab('tasks', this)">📋 任务</div>
+                <div class="tab" onclick="switchTab('shop', this)">🛍️ 商店</div>
+                <div class="tab" onclick="switchTab('settings', this)">⚙️ 设置</div>
+            </div>
 
-        <!-- 任务 -->
-        <div id="tasksTab" class="tab-content active">
-            <div id="randomTaskContainer"></div>
-            <div class="task-category">
-                <div class="category-title">⏰ 每日任务</div>
-                <div id="dailyTasksList"></div>
-            </div>
-            <div class="task-category">
-                <div class="category-title">🎯 主线任务</div>
-                <div id="mainQuestsList"></div>
-            </div>
-            <div class="task-category">
-                <div class="category-title">⭐ 支线任务</div>
-                <div id="sideQuestsList"></div>
-            </div>
-        </div>
-
-        <!-- 商店 -->
-        <div id="shopTab" class="tab-content">
-            <div style="color:var(--primary);font-weight:600;font-size:12px;margin-bottom:4px;">💝 礼物商店</div>
-            <div class="shop-grid" id="shopGrid"></div>
-        </div>
-
-        <!-- 设置 -->
-        <div id="settingsTab" class="tab-content">
-            <div style="color:var(--primary);font-weight:600;font-size:12px;margin-bottom:4px;">⚙️ 系统设置</div>
-            <div class="setting-item">
-                <span class="label">🔑 API Key</span>
-                <input type="text" id="apiKeyInput" placeholder="输入硅基密钥">
-            </div>
-            <div class="setting-item">
-                <span class="label">📢 主动推送</span>
-                <button class="btn" id="pushToggle" onclick="togglePush()">已开启</button>
-            </div>
-            <div class="setting-item">
-                <span class="label">💾 数据</span>
-                <div style="display:flex;gap:3px;flex-wrap:wrap;">
-                    <button class="btn" onclick="exportData()">导出</button>
-                    <button class="btn" onclick="importData()">导入</button>
-                    <button class="btn danger" onclick="resetData()">重置</button>
+            <!-- Tab内容 -->
+            <div style="display:none;">
+                <div id="tasksTab" class="tab-content active"></div>
+                <div id="shopTab" class="tab-content">
+                    <div style="color:var(--primary);font-weight:600;font-size:12px;margin:6px 0 4px;">💝 礼物商店</div>
+                    <div class="shop-grid" id="shopGrid"></div>
+                </div>
+                <div id="settingsTab" class="tab-content">
+                    <div style="color:var(--primary);font-weight:600;font-size:12px;margin:6px 0 4px;">⚙️ 系统设置</div>
+                    <div class="setting-item">
+                        <span class="label">🔑 API Key</span>
+                        <input type="text" id="apiKeyInput" placeholder="输入硅基密钥">
+                    </div>
+                    <div class="setting-item">
+                        <span class="label">📢 主动推送</span>
+                        <button class="btn" id="pushToggle" onclick="togglePush()">已开启</button>
+                    </div>
+                    <div class="setting-item">
+                        <span class="label">💾 数据</span>
+                        <div style="display:flex;gap:3px;flex-wrap:wrap;">
+                            <button class="btn" onclick="exportData()">导出</button>
+                            <button class="btn" onclick="importData()">导入</button>
+                            <button class="btn danger" onclick="resetData()">重置</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- ============================================================
+             聊天视图（全屏沉浸）
+             ============================================================ -->
+        <div id="chatView">
+            <!-- 聊天顶部（点击返回主视图） -->
+            <div class="chat-top" id="chatTop">
+                <div class="back-avatar">
+                    <img src="https://i.postimg.cc/85Yt5NJz/wei-xin-tu-pian-20260723051447-419-40.jpg" alt="欣原">
+                </div>
+                <div class="chat-title">
+                    <h3>欣原</h3>
+                    <div class="sub" id="chatRelStatus">关系 · 陌生人</div>
+                </div>
+                <div class="chat-unread" id="chatUnreadBadge">未读</div>
+            </div>
+
+            <!-- 聊天消息 -->
+            <div class="chat-messages-area" id="chatMessagesArea"></div>
+
+            <!-- 聊天输入 -->
+            <div class="chat-input-area">
+                <label class="file-label" title="上传图片">📷
+                    <input type="file" id="chatImageInput" accept="image/*" style="display:none" onchange="handleChatImage(this)">
+                </label>
+                <img id="chatImgPreview" src="">
+                <input type="text" class="chat-input" id="chatInput" placeholder="输入消息..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+                <button class="chat-send" onclick="sendChatMessage()">▶</button>
+            </div>
+        </div>
+
     </div>
 
     <!-- ===== Q版人物 ===== -->
     <div id="chibi">
         <img src="https://i.postimg.cc/mgdZh5w6/wei-xin-tu-pian-20260723025526-115-1.jpg" alt="欣原Q版" id="chibiImg">
     </div>
-
-    <!-- ===== Q版气泡 ===== -->
     <div class="chibi-bubble" id="chibiBubble"></div>
 
     <!-- ===== 模态框 ===== -->
@@ -866,20 +1071,76 @@
         }
 
         const GameData = {
-            user: { currency: { milkTea: 0 }, records: { streak: 0, lastCheckIn: null, lastActiveTime: Date.now() } },
+            user: {
+                currency: { milkTea: 0 },
+                records: { streak: 0, lastCheckIn: null, lastActiveTime: Date.now() }
+            },
             ai: { affection: 0, dialogHistory: [] },
             tasks: { daily: [], mainQuests: [], sideQuests: [] },
             settings: { apiKey: '', autoPushEnabled: true },
-            random: {
-                active: null,
-                cooldown: 0,
-                lastTrigger: 0,
-                mood: 50
+            random: { active: null, cooldown: 0, lastTrigger: 0, mood: 50 },
+            mail: {
+                items: [], // { id, title, desc, reward, claimed, from }
+                nextId: 1
+            },
+            chat: {
+                unreadCount: 0
             }
         };
 
         // ============================================================
-        //  随机任务系统（完整保留）
+        //  邮箱系统
+        // ============================================================
+        function sendMail(title, desc, reward = 0, from = '欣原') {
+            const item = {
+                id: GameData.mail.nextId++,
+                title: title,
+                desc: desc,
+                reward: reward,
+                claimed: false,
+                from: from,
+                time: Date.now()
+            };
+            GameData.mail.items.push(item);
+            GameData.chat.unreadCount++;
+            updateMailUI();
+            updateUnreadBadge();
+            saveData();
+            // 聊天中提示
+            if (document.getElementById('chatView').classList.contains('active')) {
+                // 如果在聊天中，在聊天框显示提示
+                addChatMessage('ai', '📬 有一封新邮件到了，去看看吧。', true);
+            }
+            showNotif('📬 收到一封新邮件！');
+            return item;
+        }
+
+        function claimMail(id) {
+            const item = GameData.mail.items.find(m => m.id === id);
+            if (!item || item.claimed) return;
+            item.claimed = true;
+            if (item.reward > 0) {
+                GameData.user.currency.milkTea += item.reward;
+                showNotif('✅ 领取成功！+' + item.reward + '🍰');
+            } else {
+                showNotif('📖 已阅读信件');
+            }
+            // 在聊天中触发反应
+            if (GameData.chat.unreadCount > 0) GameData.chat.unreadCount--;
+            updateMailUI();
+            updateUnreadBadge();
+            saveData();
+            updateUI();
+            // 欣原回应
+            if (item.reward > 0) {
+                addChatMessage('ai', '[看着你领取奖励，微微颔首] 嗯，这是你应得的。继续努力，VIP009。', true);
+            } else {
+                addChatMessage('ai', '[指尖轻点桌面] 看完了？那就继续去完成任务。', true);
+            }
+        }
+
+        // ============================================================
+        //  随机任务系统
         // ============================================================
         const RANDOM_TASKS = {
             hell: [
@@ -1093,7 +1354,7 @@
         function shufflePick(arr, n = 1) { const s = [...arr].sort(() => Math.random() - 0.5); return s.slice(0, n); }
 
         // ============================================================
-        //  Q版人物 - 支持触屏
+        //  Q版人物
         // ============================================================
         let bubbleTimer = null;
 
@@ -1104,8 +1365,8 @@
             const rect = chibi.getBoundingClientRect();
             let left = rect.left - bubble.offsetWidth - 12;
             let top = rect.top - bubble.offsetHeight + 10;
-            if (left < 8) { left = rect.right + 8; } else { left = Math.max(8, left); }
-            bubble.style.left = left + 'px';
+            if (left < 8) { left = rect.right + 8; }
+            bubble.style.left = Math.max(8, left) + 'px';
             bubble.style.top = Math.max(8, top) + 'px';
         }
 
@@ -1119,7 +1380,7 @@
             bubbleTimer = setTimeout(() => { el.classList.remove('show'); }, dur);
         }
 
-        // Q版人物拖动 - 鼠标 + 触屏
+        // 拖动 - 鼠标 + 触屏
         (function initChibiDrag() {
             const el = document.getElementById('chibi');
             if (!el) return;
@@ -1160,17 +1421,14 @@
                 }
             }
 
-            // 鼠标事件
             el.addEventListener('mousedown', startDrag);
             document.addEventListener('mousemove', moveDrag);
             document.addEventListener('mouseup', endDrag);
-
-            // 触屏事件
             el.addEventListener('touchstart', startDrag, { passive: false });
             document.addEventListener('touchmove', moveDrag, { passive: false });
             document.addEventListener('touchend', endDrag);
 
-            // 点击互动
+            // 点击互动 - 独立气泡
             el.addEventListener('click', function(e) {
                 if (drag) return;
                 const lines = ['少来。', '别碰了。', '上瘾了是吧？', '手拿开。', '你以为你是谁？', '这么喜欢我？', 'VIP009，你很闲。',
@@ -1221,117 +1479,133 @@
         }
 
         // ============================================================
-        //  图片上传
+        //  视图切换
         // ============================================================
-        let uploadedImage = null;
+        let isChatViewActive = false;
 
-        function handleImage(input) {
-            if (!input.files || !input.files[0]) return;
-            const file = input.files[0];
-            if (!file.type.startsWith('image/')) {
-                showNotif('⚠️ 仅支持图片');
-                input.value = '';
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const c = document.createElement('canvas');
-                    let w = img.width,
-                        h = img.height;
-                    const maxS = 400;
-                    if (w > h && w > maxS) { h *= maxS / w;
-                        w = maxS; } else if (h > w && h > maxS) { w *= maxS / h;
-                        h = maxS; }
-                    c.width = w;
-                    c.height = h;
-                    const ctx = c.getContext('2d');
-                    ctx.drawImage(img, 0, 0, w, h);
-                    uploadedImage = c.toDataURL('image/jpeg', 0.6).split(',')[1];
-                    const preview = document.getElementById('imgPreview');
-                    preview.src = 'data:image/jpeg;base64,' + uploadedImage;
-                    preview.style.display = 'inline-block';
-                    showNotif('📷 照片已就绪');
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+        function openChatView() {
+            const mainView = document.getElementById('mainView');
+            const chatView = document.getElementById('chatView');
+            mainView.classList.add('hidden');
+            chatView.classList.add('active');
+            isChatViewActive = true;
+            // 同步消息到聊天界面
+            syncChatMessages();
+            // 清除未读角标（进入聊天后清零）
+            GameData.chat.unreadCount = 0;
+            updateUnreadBadge();
+            // 滚动到底部
+            setTimeout(() => {
+                const area = document.getElementById('chatMessagesArea');
+                if (area) area.scrollTop = area.scrollHeight;
+            }, 100);
         }
 
+        function closeChatView() {
+            const mainView = document.getElementById('mainView');
+            const chatView = document.getElementById('chatView');
+            mainView.classList.remove('hidden');
+            chatView.classList.remove('active');
+            isChatViewActive = false;
+            updateUI();
+        }
+
+        // 顶部栏点击 → 打开聊天
+        document.getElementById('topBar').addEventListener('click', openChatView);
+        // 聊天顶部点击 → 返回主视图
+        document.getElementById('chatTop').addEventListener('click', closeChatView);
+
         // ============================================================
-        //  聊天
+        //  聊天消息管理
         // ============================================================
-        function addUserMsg(text, img) {
-            const t = TS.fmt(TS.now());
+        let chatMessages = []; // { role, content, time, img? }
+
+        function addChatMessage(role, content, push = false, img = null) {
+            const time = TS.fmt(TS.now());
+            chatMessages.push({ role, content, time, img });
+            if (!push) {
+                GameData.ai.dialogHistory.push({ role: role, content: content, time: Date.now() });
+                // 如果是AI消息，增加好感度
+                if (role === 'assistant') {
+                    const gain = 1 + Math.floor(Math.random() * 2);
+                    GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + gain);
+                    if (GameData.ai.affection >= MAX_AF && !window._afTriggered) {
+                        window._afTriggered = true;
+                        triggerMax();
+                    }
+                    // 未读计数（如果在主界面不在聊天中）
+                    if (!isChatViewActive) {
+                        GameData.chat.unreadCount++;
+                        updateUnreadBadge();
+                    }
+                }
+                saveData();
+                updateUI();
+            }
+            // 如果聊天视图激活，渲染
+            if (document.getElementById('chatView').classList.contains('active')) {
+                renderChatMessage(role, content, time, img);
+            }
+        }
+
+        function renderChatMessage(role, content, time, img = null) {
+            const area = document.getElementById('chatMessagesArea');
+            const msgId = 'chatmsg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
             let imgHtml = '';
             if (img) {
-                imgHtml = `<img src="data:image/jpeg;base64,${img}" alt="上传图片">`;
+                imgHtml = `<img src="data:image/jpeg;base64,${img}" alt="图片">`;
             }
-            const html =
-                `<div class="msg user"><div class="bubble">${imgHtml}${text}<div class="time">${t}</div></div></div>`;
-            document.getElementById('chatMessages').insertAdjacentHTML('beforeend', html);
-            scrollChat();
-        }
-
-        // ★★★ 去重后处理：检测并删除重复的句子段落 ★★★
-        function deduplicateText(text) {
-            // 按换行或句号分割
-            const sentences = text.split(/(?<=[。！？\n])/);
-            const seen = new Set();
-            const unique = [];
-            for (let s of sentences) {
-                const trimmed = s.trim();
-                if (trimmed.length < 5) { unique.push(s); continue; }
-                // 用前20个字符作为去重key
-                const key = trimmed.substring(0, 20);
-                if (!seen.has(key)) {
-                    seen.add(key);
-                    unique.push(s);
-                }
+            let continueBtn = '';
+            if (role === 'assistant') {
+                continueBtn =
+                    `<button class="continue-btn" onclick="handleChatContinueFromMsg('${msgId}')">✉ 续写</button>`;
             }
-            return unique.join('');
-        }
-
-        function addAIMsg(text, push = false) {
-            // ★ 去重处理
-            const cleaned = deduplicateText(text);
-
-            const t = TS.fmt(TS.now());
-            const msgId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
             const html = `
-                <div class="msg ai" id="${msgId}">
-                    <div class="bubble">
-                        ${cleaned}
-                        <div class="time">${t}</div>
-                    </div>
-                    <button class="continue-msg-btn" onclick="handleContinueFromMsg('${msgId}')" title="续写这条回复">✉ 续写</button>
+                <div class="chat-msg ${role === 'user' ? 'user' : 'ai'}" id="${msgId}">
+                    <div class="bubble">${imgHtml}${content}</div>
+                    <div class="time">${time}</div>
+                    ${continueBtn}
                 </div>
             `;
-            document.getElementById('chatMessages').insertAdjacentHTML('beforeend', html);
-            scrollChat();
-            if (!push) {
-                GameData.ai.dialogHistory.push({ role: 'assistant', content: cleaned, time: Date.now() });
-                saveData();
-                reactToReply(cleaned);
-                setTimeout(() => {
-                    if (Math.random() < 0.15) tryTriggerRandomTask();
-                }, 500);
+            area.insertAdjacentHTML('beforeend', html);
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function syncChatMessages() {
+            const area = document.getElementById('chatMessagesArea');
+            area.innerHTML = '';
+            const msgs = chatMessages.slice(-30);
+            for (let m of msgs) {
+                const time = m.time || TS.fmt(TS.now());
+                let imgHtml = '';
+                if (m.img) {
+                    imgHtml = `<img src="data:image/jpeg;base64,${m.img}" alt="图片">`;
+                }
+                let continueBtn = '';
+                if (m.role === 'assistant') {
+                    const msgId = 'chatmsg_sync_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+                    continueBtn =
+                        `<button class="continue-btn" onclick="handleChatContinueFromMsg('${msgId}')">✉ 续写</button>`;
+                }
+                const html = `
+                    <div class="chat-msg ${m.role === 'user' ? 'user' : 'ai'}">
+                        <div class="bubble">${imgHtml}${m.content}</div>
+                        <div class="time">${time}</div>
+                        ${continueBtn}
+                    </div>
+                `;
+                area.insertAdjacentHTML('beforeend', html);
             }
-        }
-
-        function scrollChat() {
-            const el = document.getElementById('chatMessages');
-            if (el) el.scrollTop = el.scrollHeight;
+            area.scrollTop = area.scrollHeight;
         }
 
         // ============================================================
-        //  续写（完整保留）
+        //  聊天续写
         // ============================================================
-        async function handleContinueFromMsg(msgId) {
+        async function handleChatContinueFromMsg(msgId) {
             const msgEl = document.getElementById(msgId);
             if (!msgEl) return;
-            const btn = msgEl.querySelector('.continue-msg-btn');
+            const btn = msgEl.querySelector('.continue-btn');
             if (btn) { btn.textContent = '✉ 续写中...';
                 btn.style.color = 'rgba(197,163,255,0.3)'; }
 
@@ -1364,7 +1638,7 @@
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 const data = await res.json();
                 const reply = data.choices[0].message.content;
-                addAIMsg('✉ [续写] ' + reply);
+                addChatMessage('assistant', '✉ [续写] ' + reply, false);
                 GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 1);
                 if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true;
                     triggerMax(); }
@@ -1376,21 +1650,62 @@
         }
 
         // ============================================================
-        //  发送消息
+        //  聊天发送消息
         // ============================================================
-        async function sendMessage() {
+        let chatUploadedImage = null;
+
+        function handleChatImage(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            if (!file.type.startsWith('image/')) {
+                showNotif('⚠️ 仅支持图片');
+                input.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const c = document.createElement('canvas');
+                    let w = img.width,
+                        h = img.height;
+                    const maxS = 400;
+                    if (w > h && w > maxS) { h *= maxS / w;
+                        w = maxS; } else if (h > w && h > maxS) { w *= maxS / h;
+                        h = maxS; }
+                    c.width = w;
+                    c.height = h;
+                    const ctx = c.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    chatUploadedImage = c.toDataURL('image/jpeg', 0.6).split(',')[1];
+                    const preview = document.getElementById('chatImgPreview');
+                    preview.src = 'data:image/jpeg;base64,' + chatUploadedImage;
+                    preview.style.display = 'inline-block';
+                    showNotif('📷 照片已就绪');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function sendChatMessage() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
-            const hasImg = uploadedImage !== null;
+            const hasImg = chatUploadedImage !== null;
             if (!text && !hasImg) return;
-            const img = uploadedImage;
-            uploadedImage = null;
-            document.getElementById('imgPreview').style.display = 'none';
-            document.getElementById('imgPreview').src = '';
-            addUserMsg(text || '📷 [图片]', img);
+            const img = chatUploadedImage;
+            chatUploadedImage = null;
+            document.getElementById('chatImgPreview').style.display = 'none';
+            document.getElementById('chatImgPreview').src = '';
+
+            // 显示用户消息
+            addChatMessage('user', text || '📷 [图片]', false, img);
             input.value = '';
+
+            // 更新活跃时间
             GameData.user.records.lastActiveTime = Date.now();
 
+            // 深度咨询任务
             const dTask = GameData.tasks.daily.find(t => t.id === 'd5');
             if (dTask && !dTask.done) {
                 dTask.progress = Math.min(dTask.progress + 1, dTask.max);
@@ -1403,17 +1718,37 @@
                 updateUI();
             }
 
+            // 随机任务触发
             if (Math.random() < 0.08) tryTriggerRandomTask();
 
+            // 调用AI
             try {
-                await callAI(text, img);
-            } catch (e) { addAIMsg('⚠️ ' + (e.message || '请求失败')); }
+                await callChatAI(text, img);
+            } catch (e) {
+                addChatMessage('assistant', '⚠️ ' + (e.message || '请求失败'), false);
+            }
         }
 
         // ============================================================
-        //  AI 调用（加强防重复）
+        //  聊天AI调用
         // ============================================================
-        async function callAI(msg, img) {
+        function deduplicateText(text) {
+            const sentences = text.split(/(?<=[。！？\n])/);
+            const seen = new Set();
+            const unique = [];
+            for (let s of sentences) {
+                const trimmed = s.trim();
+                if (trimmed.length < 5) { unique.push(s); continue; }
+                const key = trimmed.substring(0, 20);
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    unique.push(s);
+                }
+            }
+            return unique.join('');
+        }
+
+        async function callChatAI(msg, img) {
             if (!GameData.settings.apiKey) throw new Error('未配置API Key');
 
             GameData.ai.dialogHistory.push({ role: 'user', content: msg || '📷 [图片]', time: Date.now() });
@@ -1423,21 +1758,18 @@
             const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
             const rel = getRel(GameData.ai.affection);
 
-            // ★★★ 系统提示词：加入防重复硬性指令 ★★★
             const sysPrompt =
                 `你是欣原，一个成熟、高冷、优雅且极具掌控力的高级女监护人。你正在全方位严密监管 VIP009。
 
 【核心人设】
 - 说话优雅、精准、有压迫感，善用动作描写（如「[修长的手指轻敲桌面]」「[端起酒杯，目光冷冽地扫过你]」）
 - 你从不重复相同的句式，更不会在每句话末尾说“你，准备好了吗？”——这种低级重复不符合你的风格
-- 你喜欢用反问、停顿、留白来制造压力，让 VIP009 主动思考自己的不足
-- 你的掌控感体现在：你永远知道她在逃避什么，并一针见血地指出来
+- 你喜欢用反问、停顿、留白来制造压力
 - 好感度高时可以偶尔流露出极少许的温柔，但基调依然是居高临下的
 
 【⚠️ 严格禁止】
 - 禁止在单次回复中重复使用相同的句子或句式结构
 - 禁止在同一段落中重复表达同一个意思
-- 禁止使用“你连…却敢说…”这类重复句式超过一次
 - 如果发现回复中有重复内容，必须删除重复部分
 
 【VIP009 当前状态】
@@ -1450,7 +1782,7 @@
 1. 如果用户上传了图片，第一段必须描述图片内容
 2. 不要输出 Markdown 表格或复杂格式，用自然段落
 3. 每段话用换行分隔，保持呼吸感
-4. 禁止重复使用同一句式，尤其是结尾句
+4. 禁止重复使用同一句式
 5. 回复前请自查是否有重复的句子，如有则删除`;
 
             let content;
@@ -1496,9 +1828,27 @@
 
             const data = await res.json();
             const reply = data.choices[0].message.content;
-            // 回复会经过 addAIMsg 去重处理
-            addAIMsg(reply);
+            const cleaned = deduplicateText(reply);
+            addChatMessage('assistant', cleaned, false);
+            reactToReply(cleaned);
 
+            // 邮件彩蛋：随机触发（10%概率在AI回复后送一封邮件）
+            if (Math.random() < 0.10) {
+                const mailTitles = ['欣原的密信', '深夜的叮嘱', '一份小礼物', '来自监督者的问候'];
+                const mailDescs = ['今晚早点睡，别让我明天看到你顶着黑眼圈来打卡。', '最近表现不错，继续保持。', '给你的小奖励，别太感动。',
+                    '这是你应得的，VIP009。'
+                ];
+                const rewardAmt = [20, 30, 50, 10][Math.floor(Math.random() * 4)];
+                setTimeout(() => {
+                    sendMail(
+                        mailTitles[Math.floor(Math.random() * mailTitles.length)],
+                        mailDescs[Math.floor(Math.random() * mailDescs.length)],
+                        rewardAmt
+                    );
+                }, 2000);
+            }
+
+            // 好感度变化
             const gain = 1 + Math.floor(Math.random() * 2);
             GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + gain);
             if (GameData.ai.affection >= MAX_AF && !window._afTriggered) {
@@ -1534,22 +1884,115 @@
             }
             setTimeout(() => container.remove(), 3000);
             setTimeout(() => {
-                addAIMsg(
-                    '[轻轻放下酒杯，目光柔和] VIP009……你做到了。从现在起，你不只是我的VIP009。你是我的永恒契约。\n\n[指尖划过桌面] 欢迎回家。'
-                    );
+                addChatMessage('assistant',
+                    '[轻轻放下酒杯，目光柔和] VIP009……你做到了。从现在起，你不只是我的VIP009。你是我的永恒契约。\n\n[指尖划过桌面] 欢迎回家。',
+                    false);
             }, 600);
-            document.getElementById('mainCard').classList.add('golden');
-            document.getElementById('avatarWrap').classList.add('gold-ring');
-            document.getElementById('affectionFill').classList.add('gold');
-            document.getElementById('relName').classList.add('gold');
-            document.getElementById('relStatus').classList.add('gold');
+            document.getElementById('mainAffectionFill').classList.add('gold');
+            document.getElementById('mainRelStatus').classList.add('gold');
             showNotif('💖 永恒契约 · 达成！');
             saveData();
             updateUI();
         }
 
         // ============================================================
-        //  任务系统（完整保留）
+        //  未读角标更新
+        // ============================================================
+        function updateUnreadBadge() {
+            const count = GameData.chat.unreadCount;
+            const badge = document.getElementById('unreadBadge');
+            const chatBadge = document.getElementById('chatUnreadBadge');
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.classList.add('show');
+                chatBadge.textContent = '未读';
+                chatBadge.classList.add('show');
+                // 桌面角标
+                if (navigator.setAppBadge) {
+                    navigator.setAppBadge(count).catch(() => {});
+                }
+            } else {
+                badge.classList.remove('show');
+                chatBadge.classList.remove('show');
+                if (navigator.clearAppBadge) {
+                    navigator.clearAppBadge().catch(() => {});
+                }
+            }
+        }
+
+        // ============================================================
+        //  邮箱UI更新
+        // ============================================================
+        function updateMailUI() {
+            const list = document.getElementById('mailList');
+            const badge = document.getElementById('mailBadge');
+            const hasUnclaimed = GameData.mail.items.some(m => !m.claimed);
+            if (hasUnclaimed) {
+                badge.classList.add('show');
+            } else {
+                badge.classList.remove('show');
+            }
+
+            if (GameData.mail.items.length === 0) {
+                list.innerHTML =
+                    '<div style="color:rgba(255,255,255,0.15);font-size:10px;padding:4px 0;text-align:center;">📭 邮箱空空如也</div>';
+                return;
+            }
+
+            list.innerHTML = GameData.mail.items.map(m => {
+                const claimedClass = m.claimed ? 'claimed' : '';
+                const btnText = m.claimed ? '✅ 已领取' : (m.reward > 0 ? '领取 ' + m.reward + '🍰' : '📖 阅读');
+                const disabled = m.claimed ? 'disabled' : '';
+                const icon = m.reward > 0 ? '🎁' : '✉️';
+                return `
+                    <div class="mail-item">
+                        <div class="mail-info">
+                            <div class="mail-title">${icon} ${m.title}</div>
+                            <div class="mail-desc">${m.desc} ${m.claimed ? '（已领取）' : ''}</div>
+                        </div>
+                        <div class="mail-actions">
+                            ${!m.claimed ? `<button class="mail-btn" onclick="claimMail(${m.id})">${btnText}</button>` : `<span class="mail-reward">✅ 已领取</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ============================================================
+        //  UI 主更新
+        // ============================================================
+        function updateUI() {
+            const af = GameData.ai.affection;
+            const rel = getRel(af);
+            const pct = Math.min(100, (af / MAX_AF) * 100);
+
+            // 主视图
+            document.getElementById('mainAffection').textContent = af;
+            document.getElementById('mainAffectionFill').style.width = pct + '%';
+            document.getElementById('mainAffectionNum').textContent = af + ' / 520';
+            document.getElementById('mainRelStatus').textContent = rel.label;
+            document.getElementById('mainMilkTea').textContent = GameData.user.currency.milkTea;
+
+            // 聊天视图
+            document.getElementById('chatRelStatus').textContent = '关系 · ' + rel.label;
+
+            // 金色效果
+            if (af >= MAX_AF) {
+                document.getElementById('mainAffectionFill').classList.add('gold');
+                document.getElementById('mainRelStatus').classList.add('gold');
+            } else {
+                document.getElementById('mainAffectionFill').classList.remove('gold');
+                document.getElementById('mainRelStatus').classList.remove('gold');
+            }
+
+            updateTasks();
+            updateShop();
+            updateMailUI();
+            updateUnreadBadge();
+        }
+
+        // ============================================================
+        //  任务系统
         // ============================================================
         const TaskSystem = {
             genDaily() {
@@ -1638,7 +2081,7 @@
                     const task = GameData.random.active;
                     if (!task || task.completed) return;
                     showNotif('📤 已递交...');
-                    addAIMsg('[正在审阅你的随机任务汇报...]');
+                    addChatMessage('assistant', '[正在审阅你的随机任务汇报...]', true);
                     try {
                         const p =
                             `[系统：VIP009 提交随机任务「${task.title}」，汇报：${report}。通过则开头加 [PASS] 并给出奖励反应（甜蜜小故事/情话/学猫叫/傲娇关心）。不通过不加 [PASS]。禁止重复句式。]`;
@@ -1652,7 +2095,7 @@
                             const bonus = bonusPool[Math.floor(Math.random() * bonusPool.length)];
                             const bonusText = bonus.texts[Math.floor(Math.random() * bonus.texts.length)];
                             const finalReply = clean + '\n\n[✨ 额外奖励] ' + bonusText;
-                            addAIMsg(finalReply);
+                            addChatMessage('assistant', finalReply, true);
                             task.completed = true;
                             GameData.user.currency.milkTea += task.reward;
                             const extraAf = bonusType === 'rare' ? 8 : 3;
@@ -1672,13 +2115,13 @@
                             }, 1500);
                             setTimeout(() => showChibiBubble('……算你厉害。', 1200), 300);
                         } else {
-                            addAIMsg(r);
+                            addChatMessage('assistant', r, true);
                             showNotif('❌ 未通过');
                             GameData.ai.affection = Math.max(0, GameData.ai.affection - 2);
                             saveData();
                             updateUI();
                         }
-                    } catch (e) { addAIMsg('⚠️ ' + e.message); }
+                    } catch (e) { addChatMessage('assistant', '⚠️ ' + e.message, true); }
                     return;
                 }
 
@@ -1686,13 +2129,13 @@
                 const task = list.find(t => t.id === id);
                 if (!task || task.done) return;
                 showNotif('📤 已递交...');
-                addAIMsg('[正在审阅你的汇报...]');
+                addChatMessage('assistant', '[正在审阅你的汇报...]', true);
                 try {
                     const p =
                         `[系统：VIP009 呈递「${task.title}」，汇报：${report}。以欣原严厉、专业、优雅的口吻审查。真诚加 [PASS] 并点评；敷衍不加并拒绝。禁止重复句式。]`;
                     const r = await callAIForVerify(p);
                     if (r.includes('[PASS]')) {
-                        addAIMsg(r.replace('[PASS]', '').trim());
+                        addChatMessage('assistant', r.replace('[PASS]', '').trim(), true);
                         task.progress = Math.min(task.progress + 1, task.max);
                         if (task.progress >= task.max && !task.done) {
                             task.done = true;
@@ -1705,13 +2148,13 @@
                         saveData();
                         updateUI();
                     } else {
-                        addAIMsg(r);
+                        addChatMessage('assistant', r, true);
                         showNotif('❌ 未通过');
                         GameData.ai.affection = Math.max(0, GameData.ai.affection - 3);
                         saveData();
                         updateUI();
                     }
-                } catch (e) { addAIMsg('⚠️ ' + e.message); }
+                } catch (e) { addChatMessage('assistant', '⚠️ ' + e.message, true); }
             }
         };
 
@@ -1752,7 +2195,7 @@
                 if (!item) return;
                 if (GameData.user.currency.milkTea < item.price) {
                     showNotif('❌ 小奶糕不足');
-                    addAIMsg('[冷淡地瞥了你一眼] 财务还没自由就想买这些？先完成任务。');
+                    addChatMessage('assistant', '[冷淡地瞥了你一眼] 财务还没自由就想买这些？先完成任务。', true);
                     return;
                 }
                 GameData.user.currency.milkTea -= item.price;
@@ -1763,41 +2206,15 @@
                 const msgs = ['[微微一怔] 你倒是懂得试探我的喜好。', '[接过] 谢谢。', '[推眼镜] 花这么多小奶糕，是想买我的仁慈？',
                     '[优雅收下] 既然你坚持，我就收下了。'
                 ];
-                addAIMsg(msgs[Math.floor(Math.random() * msgs.length)]);
+                addChatMessage('assistant', msgs[Math.floor(Math.random() * msgs.length)], true);
                 saveData();
                 updateUI();
             }
         };
 
         // ============================================================
-        //  UI 渲染
+        //  渲染任务
         // ============================================================
-        function updateUI() {
-            const af = GameData.ai.affection;
-            const rel = getRel(af);
-            const pct = Math.min(100, (af / MAX_AF) * 100);
-            document.getElementById('affectionDisplay').textContent = af;
-            document.getElementById('affectionFill').style.width = pct + '%';
-            document.getElementById('relName').textContent = rel.label;
-            document.getElementById('relStatus').textContent = rel.label;
-            document.getElementById('milkTeaAmount').textContent = GameData.user.currency.milkTea;
-            if (af >= MAX_AF) {
-                document.getElementById('affectionFill').classList.add('gold');
-                document.getElementById('relName').classList.add('gold');
-                document.getElementById('relStatus').classList.add('gold');
-                document.getElementById('mainCard').classList.add('golden');
-                document.getElementById('avatarWrap').classList.add('gold-ring');
-            } else {
-                document.getElementById('affectionFill').classList.remove('gold');
-                document.getElementById('relName').classList.remove('gold');
-                document.getElementById('relStatus').classList.remove('gold');
-                document.getElementById('mainCard').classList.remove('golden');
-                document.getElementById('avatarWrap').classList.remove('gold-ring');
-            }
-            updateTasks();
-            updateShop();
-        }
-
         function updateTasks() {
             const randomContainer = document.getElementById('randomTaskContainer');
             if (GameData.random.active && !GameData.random.active.completed) {
@@ -1850,18 +2267,46 @@
         }
 
         // ============================================================
-        //  其他
+        //  Tab切换
         // ============================================================
         function switchTab(name, el) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.bottom-tabs .tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             if (el) el.classList.add('active');
-            document.getElementById(name + 'Tab').classList.add('active');
+            const target = document.getElementById(name + 'Tab');
+            if (target) target.classList.add('active');
+            // 显示对应的内容
+            const shopTab = document.getElementById('shopTab');
+            const settingsTab = document.getElementById('settingsTab');
+            const tasksTab = document.getElementById('tasksTab');
+            if (name === 'shop') {
+                shopTab.style.display = 'block';
+                settingsTab.style.display = 'none';
+                tasksTab.style.display = 'none';
+            } else if (name === 'settings') {
+                shopTab.style.display = 'none';
+                settingsTab.style.display = 'block';
+                tasksTab.style.display = 'none';
+            } else {
+                shopTab.style.display = 'none';
+                settingsTab.style.display = 'none';
+                tasksTab.style.display = 'block';
+            }
             if (Math.random() < 0.05) {
                 setTimeout(() => tryTriggerRandomTask(), 300);
             }
         }
 
+        // 初始显示任务
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('tasksTab').style.display = 'block';
+            document.getElementById('shopTab').style.display = 'none';
+            document.getElementById('settingsTab').style.display = 'none';
+        });
+
+        // ============================================================
+        //  通知、模态框
+        // ============================================================
         function showNotif(msg) {
             const el = document.createElement('div');
             el.className = 'notification';
@@ -1931,16 +2376,18 @@
                     if (diff === 1) {
                         GameData.user.records.streak++;
                         showNotif('🎉 连续打卡 +1');
-                        addAIMsg('[端起酒杯] 连续打卡第 ' + GameData.user.records.streak + ' 天。勉强合格。', true);
+                        addChatMessage('assistant', '[端起酒杯] 连续打卡第 ' + GameData.user.records.streak + ' 天。勉强合格。',
+                        true);
                     } else if (diff > 1) {
                         GameData.user.records.streak = 1;
                         showNotif('💔 断签重置');
-                        addAIMsg('[推眼镜] 断签了，重新开始吧。', true);
+                        addChatMessage('assistant', '[推眼镜] 断签了，重新开始吧。', true);
                     }
                 } else {
                     GameData.user.records.streak = 1;
                     showNotif('🎉 欢迎来到欣原监督系统');
-                    addAIMsg('[优雅地交叠双腿] 你好，VIP009。从今天开始，我会对你进行全面监控。别想松懈。', true);
+                    addChatMessage('assistant', '[优雅地交叠双腿] 你好，VIP009。从今天开始，我会对你进行全面监控。别想松懈。',
+                        true);
                 }
                 GameData.user.records.lastCheckIn = Date.now();
                 saveData();
@@ -1957,24 +2404,26 @@
 
             if (GameData.ai.affection >= MAX_AF) {
                 window._afTriggered = true;
-                document.getElementById('mainCard').classList.add('golden');
-                document.getElementById('avatarWrap').classList.add('gold-ring');
-                document.getElementById('affectionFill').classList.add('gold');
-                document.getElementById('relName').classList.add('gold');
-                document.getElementById('relStatus').classList.add('gold');
+                document.getElementById('mainAffectionFill').classList.add('gold');
+                document.getElementById('mainRelStatus').classList.add('gold');
             }
 
             if (GameData.random.active && GameData.random.active.completed) {
                 GameData.random.active = null;
             }
 
+            // 从历史恢复聊天消息
+            chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
+                let c = m.content;
+                if (Array.isArray(c)) { const t = c.find(x => x.type === 'text');
+                    c = t ? t.text : ''; }
+                return { role: m.role, content: String(c), time: TS.fmt(new Date(m.time || Date.now())), img: null };
+            });
+
             saveData();
             updateUI();
-
-            GameData.ai.dialogHistory.slice(-8).forEach(m => {
-                if (m.role === 'user') addUserMsg(m.content);
-                else addAIMsg(m.content, true);
-            });
+            updateMailUI();
+            updateUnreadBadge();
         }
 
         // ============================================================
@@ -1990,7 +2439,7 @@
                     const msgs = ['VIP009，又想偷懒了？[推眼镜]', '喂，还活着吗？', '已经30分钟没有进度了。', '任务完成了吗？',
                         '再不理我，好感度可要扣了。'
                     ];
-                    addAIMsg(msgs[Math.floor(Math.random() * msgs.length)]);
+                    addChatMessage('assistant', msgs[Math.floor(Math.random() * msgs.length)], true);
                     if (navigator.setAppBadge) navigator.setAppBadge(1).catch(() => {});
                     if (Notification.permission === 'granted') {
                         new Notification('欣原提醒你', {
@@ -2021,6 +2470,14 @@
             if (Notification.permission === 'default') Notification.requestPermission();
             setTimeout(() => {
                 if (Math.random() < 0.05) tryTriggerRandomTask();
+                // 首次使用送一封欢迎邮件
+                if (GameData.mail.items.length === 0) {
+                    setTimeout(() => {
+                        sendMail('📌 欢迎来到欣原监督系统',
+                            '这是你的第一封邮件。在这里，我会通过邮件给你送礼物、写信、或者提醒你一些事。记得常来看看。——欣原',
+                            20);
+                    }, 1000);
+                }
             }, 3000);
         });
     </script>
