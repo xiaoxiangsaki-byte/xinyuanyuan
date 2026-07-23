@@ -34,7 +34,7 @@
             max-width: 400px;
             width: 100%;
             min-height: 620px;
-            max-height: 90vh;
+            max-height: 92vh;
             background: rgba(18, 10, 30, 0.75);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
@@ -53,7 +53,6 @@
             box-shadow: 0 0 40px rgba(255, 213, 79, 0.06);
         }
 
-        /* 环境光晕 */
         .glass-card::before {
             content: '';
             position: absolute;
@@ -80,38 +79,37 @@
             position: relative;
             z-index: 1;
         }
-        /* 头像框 - 使用用户提供的图片 */
+        /* 头像框 + 头像 叠加方案 */
         .avatar-wrap {
+            position: relative;
             width: 60px;
             height: 60px;
             flex-shrink: 0;
             border-radius: 50%;
-            position: relative;
-            transition: box-shadow 0.6s;
         }
-        .avatar-wrap img {
+        .avatar-wrap .avatar-img {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
             display: block;
+            position: relative;
+            z-index: 1;
         }
-        /* 头像框框架（图片边框） - 用头像框图片作为背景覆盖 */
-        .avatar-wrap .frame-overlay {
+        .avatar-wrap .avatar-frame {
             position: absolute;
-            top: -8px;
-            left: -8px;
-            width: calc(100% + 16px);
-            height: calc(100% + 16px);
+            top: -6px;
+            left: -6px;
+            width: calc(100% + 12px);
+            height: calc(100% + 12px);
             border-radius: 50%;
             pointer-events: none;
             z-index: 2;
-            background-image: url('https://i.postimg.cc/6qRTvf3j/wei-xin-tu-pian-20260723025523-113-1.jpg');
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
+            object-fit: contain;
+            display: block;
+            background: transparent;
         }
-        .avatar-wrap.gold-ring .frame-overlay {
+        .avatar-wrap.gold-ring .avatar-frame {
             filter: drop-shadow(0 0 20px rgba(255, 213, 79, 0.3));
         }
 
@@ -139,7 +137,7 @@
         }
         .currency-display span { color: #fff; font-weight: 600; }
 
-        /* ===== 好感度条 ===== */
+        /* ===== 好感度 ===== */
         .affection-wrap {
             background: rgba(0,0,0,0.25);
             border-radius: 10px;
@@ -189,8 +187,8 @@
             flex-direction: column;
             gap: 8px;
             flex: 1;
-            min-height: 120px;
-            max-height: 220px;
+            min-height: 100px;
+            max-height: 180px;
             overflow-y: auto;
             padding-right: 4px;
             margin-bottom: 8px;
@@ -249,10 +247,10 @@
         }
         .msg.user .time { text-align: left; }
 
-        /* 续写按钮 - 放在每条AI消息下方最左侧 */
+        /* 续写按钮 - 每条AI消息下方最左侧 */
         .msg .continue-msg-btn {
             font-size: 11px;
-            color: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.12);
             background: transparent;
             border: none;
             cursor: pointer;
@@ -263,10 +261,7 @@
             letter-spacing: 0.3px;
         }
         .msg .continue-msg-btn:hover {
-            color: rgba(197, 163, 255, 0.4);
-        }
-        .msg.ai .continue-msg-btn {
-            margin-left: 0;
+            color: rgba(197, 163, 255, 0.35);
         }
 
         /* ===== 输入区域 ===== */
@@ -363,17 +358,22 @@
             color: #fff;
         }
 
-        /* ===== Tab内容 - 任务栏恢复以前规格（取消高度限制，全部展开） ===== */
+        /* ===== Tab内容 - 任务完全展开，加滚动 ===== */
         .tab-content {
             display: none;
             padding: 4px 0;
             flex: 1;
-            overflow-y: visible;
+            overflow-y: auto;
+            min-height: 0;
+            max-height: 260px;
         }
         .tab-content.active { display: block; animation: fadeIn 0.25s; }
+        .tab-content::-webkit-scrollbar { width: 3px; }
+        .tab-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 2px; }
+        .tab-content::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 2px; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* ===== 任务（完整展开，不压缩） ===== */
+        /* ===== 任务（完整展开） ===== */
         .task-category {
             background: rgba(0,0,0,0.12);
             border-radius: 12px;
@@ -423,6 +423,20 @@
         .task-item .t-btn:hover { background: rgba(197, 163, 255, 0.12); }
         .task-item.completed .t-title { opacity: 0.4; }
         .task-item .done { color: #69f0ae; font-size: 11px; margin-top: 3px; }
+
+        /* 随机任务特殊样式 */
+        .task-item.random-task {
+            border-left: 2px solid var(--gold);
+            background: rgba(255, 213, 79, 0.04);
+        }
+        .task-item.random-task .t-title {
+            color: var(--gold);
+        }
+        .task-item.random-task .t-btn {
+            color: var(--gold);
+            background: rgba(255, 213, 79, 0.08);
+        }
+        .task-item.random-task .t-btn:hover { background: rgba(255, 213, 79, 0.15); }
 
         /* ===== 商店 ===== */
         .shop-grid {
@@ -523,6 +537,15 @@
         }
         .modal .content h3 { color: var(--primary); margin-bottom: 6px; font-size: 15px; }
         .modal .content .desc { font-size: 12px; color: rgba(255,255,255,0.35); margin-bottom: 8px; }
+        .modal .content .random-reward-preview {
+            font-size: 11px;
+            color: var(--gold);
+            background: rgba(255, 213, 79, 0.06);
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255, 213, 79, 0.06);
+        }
         .modal .content textarea {
             width: 100%;
             height: 80px;
@@ -558,7 +581,7 @@
             color: rgba(255,255,255,0.3);
         }
 
-        /* ===== Q版人物（使用用户提供的图片） ===== */
+        /* ===== Q版人物 ===== */
         #chibi {
             position: fixed;
             bottom: 100px;
@@ -573,7 +596,7 @@
             backdrop-filter: blur(4px);
             border: 1px solid rgba(197, 163, 255, 0.05);
             box-shadow: 0 4px 24px rgba(0,0,0,0.2);
-            transition: transform 0.2s, border-color 0.3s;
+            transition: transform 0.2s, border-color 0.3s, box-shadow 0.3s;
             overflow: hidden;
         }
         #chibi:hover { transform: scale(1.04); border-color: rgba(197, 163, 255, 0.08); }
@@ -586,7 +609,7 @@
             border-radius: 50%;
         }
 
-        /* Q版独立气泡 - 跟随QQ人位置 */
+        /* Q版气泡 - 跟随QQ人 */
         .chibi-bubble {
             position: fixed;
             z-index: 99999;
@@ -623,21 +646,87 @@
             border-top: 7px solid rgba(18, 10, 30, 0.85);
         }
 
+        /* ===== 随机任务通知弹窗 ===== */
+        .random-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(18, 10, 30, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 213, 79, 0.15);
+            border-radius: 20px;
+            padding: 24px 28px;
+            z-index: 99997;
+            max-width: 340px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        .random-notification .icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        .random-notification .title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 6px;
+        }
+        .random-notification .desc {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 6px;
+            line-height: 1.5;
+        }
+        .random-notification .reward-hint {
+            font-size: 11px;
+            color: var(--gold);
+            opacity: 0.6;
+            margin-bottom: 12px;
+        }
+        .random-notification .btn {
+            padding: 8px 24px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #ffd54f, #ffaa00);
+            color: #000;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .random-notification .btn:hover { transform: scale(1.02); }
+        .random-notification .btn-secondary {
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.3);
+            margin-left: 8px;
+        }
+
         /* ===== 响应式 ===== */
         @media (max-width: 480px) {
             .glass-card { padding: 14px 12px; min-height: 540px; }
             .avatar-wrap { width: 50px; height: 50px; }
-            .avatar-wrap .frame-overlay { top: -6px; left: -6px; width: calc(100% + 12px); height: calc(100% + 12px); }
+            .avatar-wrap .avatar-frame { top: -4px; left: -4px; width: calc(100% + 8px); height: calc(100% + 8px); }
             .info h3 { font-size: 15px; }
-            .messages { min-height: 100px; max-height: 180px; }
+            .messages { min-height: 80px; max-height: 150px; }
+            .tab-content { max-height: 200px; }
             #chibi { width: 56px; height: 56px; bottom: 80px; right: 10px; }
             .chibi-bubble { font-size: 11px; padding: 4px 10px; }
+            .random-notification { padding: 18px 20px; max-width: 300px; }
+            .random-notification .icon { font-size: 36px; }
         }
         @media (max-width: 380px) {
             .glass-card { min-height: 480px; padding: 10px 8px; }
-            .messages { min-height: 80px; max-height: 140px; }
+            .messages { min-height: 60px; max-height: 120px; }
+            .tab-content { max-height: 160px; }
             #chibi { width: 48px; height: 48px; bottom: 70px; right: 8px; }
-            .chibi-bubble { font-size: 10px; padding: 3px 8px; }
+            .random-notification { padding: 14px 16px; max-width: 260px; }
         }
     </style>
 </head>
@@ -646,13 +735,13 @@
     <!-- ===== 主卡片 ===== -->
     <div class="glass-card" id="mainCard">
 
-        <!-- 头部 -->
+        <!-- 头部 - 头像框+头像叠加 -->
         <div class="chat-header">
             <div class="avatar-wrap" id="avatarWrap">
-                <!-- 头像本身（图片） -->
-                <img src="https://i.postimg.cc/6qRTvf3j/wei-xin-tu-pian-20260723025523-113-1.jpg" alt="欣原头像" id="avatarImg">
-                <!-- 头像框覆盖层（图片） -->
-                <div class="frame-overlay" id="frameOverlay"></div>
+                <!-- 内层：头像 -->
+                <img class="avatar-img" id="avatarImg" src="https://i.postimg.cc/85Yt5NJz/wei-xin-tu-pian-20260723051447-419-40.jpg" alt="欣原头像">
+                <!-- 外层：头像框（透明PNG覆盖） -->
+                <img class="avatar-frame" id="avatarFrame" src="https://i.postimg.cc/6qRTvf3j/wei-xin-tu-pian-20260723025523-113-1.jpg" alt="头像框">
             </div>
             <div class="info">
                 <h3>欣原</h3>
@@ -679,7 +768,7 @@
         <!-- 消息 -->
         <div class="messages" id="chatMessages"></div>
 
-        <!-- 输入区域 -->
+        <!-- 输入 -->
         <div class="input-area">
             <label class="file-label" title="上传图片">📷
                 <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImage(this)">
@@ -689,15 +778,16 @@
             <button class="send" onclick="sendMessage()">▶</button>
         </div>
 
-        <!-- 底部标签 -->
+        <!-- 标签 -->
         <div class="tabs">
             <div class="tab active" onclick="switchTab('tasks', this)">📋 任务</div>
             <div class="tab" onclick="switchTab('shop', this)">🛍️ 商店</div>
             <div class="tab" onclick="switchTab('settings', this)">⚙️ 设置</div>
         </div>
 
-        <!-- 任务 - 完全展开，不压缩 -->
+        <!-- 任务 - 完全展开，加滚动 -->
         <div id="tasksTab" class="tab-content active">
+            <div id="randomTaskContainer"></div>
             <div class="task-category">
                 <div class="category-title">⏰ 每日任务</div>
                 <div id="dailyTasksList"></div>
@@ -740,12 +830,12 @@
         </div>
     </div>
 
-    <!-- ===== Q版人物（使用用户提供的图片） ===== -->
+    <!-- ===== Q版人物 ===== -->
     <div id="chibi">
         <img src="https://i.postimg.cc/mgdZh5w6/wei-xin-tu-pian-20260723025526-115-1.jpg" alt="欣原Q版" id="chibiImg">
     </div>
 
-    <!-- ===== Q版独立气泡（跟随QQ人） ===== -->
+    <!-- ===== Q版气泡（跟随QQ人） ===== -->
     <div class="chibi-bubble" id="chibiBubble"></div>
 
     <!-- ===== 模态框 ===== -->
@@ -753,6 +843,7 @@
         <div class="content">
             <h3 id="modalTitle">📋 任务呈递</h3>
             <div class="desc" id="modalDesc">描述</div>
+            <div class="random-reward-preview" id="modalRewardPreview" style="display:none;"></div>
             <textarea id="evidenceReport" placeholder="输入你的成果汇报..."></textarea>
             <div class="actions">
                 <button class="btn secondary" onclick="closeModal()">取消</button>
@@ -760,6 +851,9 @@
             </div>
         </div>
     </div>
+
+    <!-- ===== 随机任务通知弹窗（动态生成） ===== -->
+    <div id="randomNotificationContainer"></div>
 
     <script>
         // ============================================================
@@ -787,7 +881,246 @@
             user: { currency: { milkTea: 0 }, records: { streak: 0, lastCheckIn: null, lastActiveTime: Date.now() } },
             ai: { affection: 0, dialogHistory: [] },
             tasks: { daily: [], mainQuests: [], sideQuests: [] },
-            settings: { apiKey: '', autoPushEnabled: true }
+            settings: { apiKey: '', autoPushEnabled: true },
+            random: {
+                active: null, // 当前活跃的随机任务 { id, title, desc, reward, type, evidence }
+                cooldown: 0, // 冷却截止时间
+                lastTrigger: 0,
+                mood: 50 // 心情值 0-100，影响触发概率
+            }
+        };
+
+        // ============================================================
+        //  随机任务系统
+        // ============================================================
+        const RANDOM_TASKS = {
+            // 地狱任务
+            hell: [
+                { title: '🔥 午夜地狱：50个仰卧起坐', desc: '今晚12点前完成50个仰卧起坐，拍照为证。少一个都不算。', reward: 200 },
+                { title: '🔥 暗夜写作：500字反思', desc: '写一篇500字的自我反思，全文不许出现"我"字。', reward: 250 },
+                { title: '🔥 极限专注：1小时无手机', desc: '连续1小时不看手机，截图屏幕使用时间证明。', reward: 180 },
+                { title: '🔥 破晓挑战：6点起床打卡', desc: '明天早上6点前起床，拍照窗外天色为证。', reward: 220 },
+                { title: '🔥 语言炼狱：英文日记500字', desc: '用英文写一篇500字的今日总结，语法错误超过3个算失败。', reward: 300 },
+                { title: '🔥 体能试炼：平板支撑5分钟', desc: '完成5分钟平板支撑（可分段，总时长达标即可），录视频为证。', reward: 280 },
+            ],
+            // 娱乐任务
+            fun: [
+                { title: '😄 讲个冷笑话', desc: '给欣原讲一个冷笑话，她笑了就算过。', reward: 30 },
+                { title: '😄 三个成语形容自己', desc: '用三个成语形容今天的自己，必须准确。', reward: 40 },
+                { title: '😄 土味情话攻击', desc: '对欣原说一句土味情话，不能重复之前说过的。', reward: 30 },
+                { title: '😄 模仿欣原的语气', desc: '模仿欣原的语气说一句话，截图发过来。', reward: 50 },
+                { title: '😄 今日三件好事', desc: '写下今天发生的三件好事，每件不少于20字。', reward: 45 },
+                { title: '😄 自拍一张微笑照', desc: '拍一张微笑的自拍，发给欣原。', reward: 40 },
+            ],
+            // 挑战任务
+            challenge: [
+                { title: '⚡ 10分钟冥想', desc: '完成10分钟正念冥想，记录感受（不少于50字）。', reward: 100 },
+                { title: '⚡ 读一章书并写总结', desc: '读任何一本书的一章，写一篇100字以上的总结。', reward: 120 },
+                { title: '⚡ 整理房间并拍照', desc: '整理你的书桌或房间，拍前后对比照。', reward: 110 },
+                { title: '⚡ 学一个新单词', desc: '学一个英语新单词，用它在造句（句子不少于15字）。', reward: 80 },
+                { title: '⚡ 制定明日计划', desc: '为明天制定一份详细的时间计划表（至少6项）。', reward: 130 },
+                { title: '⚡ 感恩三件事', desc: '写下今天值得感恩的三件事，每件不少于30字。', reward: 90 },
+            ],
+            // 互动任务
+            social: [
+                { title: '💬 说一句夸欣原的话', desc: '真诚地夸一句欣原，不能是"你好美"这种敷衍的。', reward: 50 },
+                { title: '💬 问欣原一个问题', desc: '问欣原一个关于她自己的问题，不能是任务相关的。', reward: 40 },
+                { title: '💬 分享一首歌', desc: '分享一首你现在在听的歌，并说一句推荐理由。', reward: 45 },
+                { title: '💬 今天最开心的事', desc: '跟欣原分享你今天最开心的一件事（不少于30字）。', reward: 55 },
+                { title: '💬 给欣原起个外号', desc: '给欣原起一个外号，并解释为什么。', reward: 35 },
+                { title: '💬 模仿一个表情包', desc: '用文字描述一个表情包并模仿它发给欣原。', reward: 40 },
+            ]
+        };
+
+        // 奖励反应池
+        const REWARD_REACTIONS = [
+            // 甜蜜小故事
+            {
+                type: 'story',
+                texts: [
+                    '从前有个笨蛋，总是熬夜赶工，有天她遇到了一个紫色眼睛的监护人。后来的故事你知道了。',
+                    '传说在极夜的尽头，有一盏灯永远不会熄灭——那是我等你的位置。',
+                    '有一个女孩，她在深渊里种了一朵花，花开了，她才发现深渊早就变成了花园。',
+                    '听说星星坠落的时候会许愿，我许的是：希望VIP009今晚能早点睡。'
+                ]
+            },
+            // 情话攻击
+            {
+                type: 'love',
+                texts: [
+                    'VIP009……你知不知道，你认真做任务的样子，还挺好看的。',
+                    '我见过很多笨蛋，但你是最让我愿意浪费时间的那个。',
+                    '你以为我在监督你？其实我只是想多看你一会儿。',
+                    '别说话，听我说。你比那些任务重要。……就这一次。',
+                    '你知道吗，我记住你所有的习惯，比记住我自己的还多。'
+                ]
+            },
+            // 学猫叫
+            {
+                type: 'cat',
+                texts: [
+                    '……喵。',
+                    '喵。（别过脸去）你什么都没听见。',
+                    '……喵。可以了吧？再得寸进尺就扣你小奶糕。',
+                    '喵……行了吗？快去完成任务。'
+                ]
+            },
+            // 傲娇关心
+            {
+                type: 'tsundere',
+                texts: [
+                    '[把一杯热牛奶推到你面前] 不是特意给你热的……顺便而已。',
+                    '你手怎么这么凉？……别多想，我只是怕你打字慢影响效率。',
+                    '又熬夜了？……关我什么事。但如果你明天起不来，任务可不会等你。',
+                    '衣服穿这么少……行吧，你感冒了我不负责。……啧。'
+                ]
+            },
+            // 稀有奖励（好感度额外+5~10）
+            {
+                type: 'rare',
+                texts: [
+                    '……今天破例，允许你叫我一声"姐姐"。就一声。',
+                    '你通过了。……夸你？行，你很棒。满意了？',
+                    'VIP009，你好像……比昨天顺眼了一点。',
+                    '……算了，今天心情好，不训你了。',
+                    '这个任务完成的还不错。……我很少说这种话。'
+                ]
+            }
+        ];
+
+        // 随机触发概率基数（每次操作 5%~8%）
+        const RANDOM_TRIGGER_BASE = 0.06;
+
+        function getRandomTask() {
+            const types = ['hell', 'fun', 'challenge', 'social'];
+            const weights = { hell: 20, fun: 30, challenge: 30, social: 20 };
+            let total = 0;
+            for (let t of types) total += weights[t];
+            let r = Math.random() * total;
+            let selected = 'fun';
+            for (let t of types) {
+                r -= weights[t];
+                if (r <= 0) { selected = t; break; }
+            }
+            const pool = RANDOM_TASKS[selected];
+            const task = pool[Math.floor(Math.random() * pool.length)];
+            const rewardMod = selected === 'hell' ? 1.0 : selected === 'challenge' ? 0.7 : 0.4;
+            return {
+                ...task,
+                type: selected,
+                reward: Math.round(task.reward * (0.8 + Math.random() * 0.4)),
+                // 额外奖励类型
+                bonusType: selected === 'hell' ? 'rare' : (['story', 'love', 'cat', 'tsundere'][Math.floor(Math.random() *
+                    4)])
+            };
+        }
+
+        function tryTriggerRandomTask() {
+            const now = Date.now();
+            // 冷却检查（2~4小时）
+            if (now < GameData.random.cooldown) return false;
+            // 每天最多触发2次
+            const todayStart = new Date().setHours(0, 0, 0, 0);
+            const triggerCount = GameData.random.lastTrigger > todayStart ? 1 : 0;
+            if (triggerCount >= 2) return false;
+            // 心情值影响概率
+            const moodFactor = GameData.random.mood / 50; // 0~2
+            const prob = RANDOM_TRIGGER_BASE * moodFactor;
+            if (Math.random() > prob) return false;
+
+            // 触发！
+            const task = getRandomTask();
+            GameData.random.active = {
+                id: 'rand_' + Date.now(),
+                title: task.title,
+                desc: task.desc,
+                reward: task.reward,
+                type: task.type,
+                bonusType: task.bonusType || 'story',
+                completed: false,
+                evidence: null
+            };
+            GameData.random.lastTrigger = now;
+            GameData.random.cooldown = now + (2 + Math.random() * 2) * 3600000;
+            // 心情波动
+            GameData.random.mood = Math.max(10, Math.min(90, GameData.random.mood + (Math.random() - 0.5) * 20));
+            saveData();
+            showRandomNotification(GameData.random.active);
+            return true;
+        }
+
+        function showRandomNotification(task) {
+            const container = document.getElementById('randomNotificationContainer');
+            const typeLabels = {
+                hell: '🔥 地狱任务',
+                fun: '😄 娱乐任务',
+                challenge: '⚡ 挑战任务',
+                social: '💬 互动任务'
+            };
+            const html = `
+                <div class="random-notification" id="randomNotif">
+                    <div class="icon">${task.type === 'hell' ? '💀' : task.type === 'fun' ? '🎭' : task.type === 'challenge' ? '⚡' : '💬'}</div>
+                    <div class="title">${typeLabels[task.type] || '✨ 随机任务'}</div>
+                    <div class="desc">${task.title}</div>
+                    <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:4px;">${task.desc}</div>
+                    <div class="reward-hint">🎁 奖励：${task.reward} 🍰 + 欣原的特别反应</div>
+                    <div>
+                        <button class="btn" onclick="acceptRandomTask()">⚡ 接受挑战</button>
+                        <button class="btn btn-secondary" onclick="dismissRandomTask()">稍后</button>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+            // 3秒后自动淡出提醒（但保留任务）
+            setTimeout(() => {
+                const el = document.getElementById('randomNotif');
+                if (el) {
+                    el.style.transition = 'opacity 0.5s';
+                    el.style.opacity = '0.5';
+                }
+            }, 5000);
+        }
+
+        function acceptRandomTask() {
+            document.getElementById('randomNotificationContainer').innerHTML = '';
+            showNotif('⚡ 随机任务已接受！去任务中心查看');
+            // 在任务中心显示随机任务
+            updateUI();
+            // 表情反应
+            const chibi = document.getElementById('chibi');
+            chibi.style.borderColor = 'rgba(255,213,79,0.3)';
+            chibi.style.boxShadow = '0 0 20px rgba(255,213,79,0.1)';
+            setTimeout(() => {
+                chibi.style.borderColor = 'rgba(197,163,255,0.05)';
+                chibi.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
+            }, 1500);
+            showChibiBubble('……算你有胆量。', 1500);
+        }
+
+        function dismissRandomTask() {
+            document.getElementById('randomNotificationContainer').innerHTML = '';
+            // 任务保留在后台，但不再弹窗打扰
+            showNotif('⏳ 任务已保存，随时可以在任务中心查看');
+        }
+
+        // ============================================================
+        //  时间
+        // ============================================================
+        const TS = {
+            now() {
+                const d = new Date();
+                return new Date(d.getTime() + d.getTimezoneOffset() * 60000 + 8 * 3600000);
+            },
+            fmt(d) {
+                return String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0') + ' ' +
+                    String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+            },
+            isNewDay(last) {
+                if (!last) return true;
+                const a = new Date(last - 3 * 3600000);
+                const b = new Date(this.now().getTime() - 3 * 3600000);
+                return a.toDateString() !== b.toDateString();
+            }
         };
 
         // ============================================================
@@ -824,26 +1157,6 @@
         function shufflePick(arr, n = 1) { const s = [...arr].sort(() => Math.random() - 0.5); return s.slice(0, n); }
 
         // ============================================================
-        //  时间
-        // ============================================================
-        const TS = {
-            now() {
-                const d = new Date();
-                return new Date(d.getTime() + d.getTimezoneOffset() * 60000 + 8 * 3600000);
-            },
-            fmt(d) {
-                return String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0') + ' ' +
-                    String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-            },
-            isNewDay(last) {
-                if (!last) return true;
-                const a = new Date(last - 3 * 3600000);
-                const b = new Date(this.now().getTime() - 3 * 3600000);
-                return a.toDateString() !== b.toDateString();
-            }
-        };
-
-        // ============================================================
         //  Q版人物 - 气泡跟随
         // ============================================================
         let bubbleTimer = null;
@@ -852,17 +1165,20 @@
             const chibi = document.getElementById('chibi');
             const bubble = document.getElementById('chibiBubble');
             const rect = chibi.getBoundingClientRect();
-            // 气泡显示在QQ人左上方
-            const left = rect.left - bubble.offsetWidth - 12;
-            const top = rect.top - bubble.offsetHeight + 10;
+            let left = rect.left - bubble.offsetWidth - 12;
+            let top = rect.top - bubble.offsetHeight + 10;
+            // 确保不超出屏幕
+            if (left < 8) {
+                left = rect.right + 8;
+                // 调整三角方向
+                bubble.style.setProperty('--arrow-right', 'auto');
+                bubble.style.setProperty('--arrow-left', '18px');
+            } else {
+                bubble.style.setProperty('--arrow-right', '18px');
+                bubble.style.setProperty('--arrow-left', 'auto');
+            }
             bubble.style.left = Math.max(8, left) + 'px';
             bubble.style.top = Math.max(8, top) + 'px';
-            // 调整小三角方向
-            if (left < 8) {
-                bubble.style.right = 'auto';
-                bubble.style.left = rect.right + 8 + 'px';
-                bubble.querySelector('::after') && bubble.style.setProperty('--arrow-right', 'auto');
-            }
         }
 
         function showChibiBubble(text, dur = 1600) {
@@ -876,7 +1192,6 @@
             }, dur);
         }
 
-        // 窗口变化时更新气泡位置
         window.addEventListener('resize', () => {
             const el = document.getElementById('chibiBubble');
             if (el.classList.contains('show')) {
@@ -884,7 +1199,7 @@
             }
         });
 
-        // 根据AI回复情绪切换QQ人效果（由于是图片，用边框光效代替表情变化）
+        // 根据AI回复情绪切换QQ人效果
         function reactToReply(text) {
             const chibi = document.getElementById('chibi');
             if (text.includes('训') || text.includes('警告') || text.includes('不合格') || text.includes('敷衍')) {
@@ -903,7 +1218,7 @@
                     chibi.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
                 }, 1500);
                 setTimeout(() => showChibiBubble('……勉强认可你。', 1200), 300);
-            } else if (text.includes('🥰') || text.includes('喜欢') || text.includes('温柔')) {
+            } else if (text.includes('🥰') || text.includes('喜欢') || text.includes('温柔') || text.includes('故事')) {
                 chibi.style.borderColor = 'rgba(255,213,79,0.3)';
                 chibi.style.boxShadow = '0 0 20px rgba(255,213,79,0.1)';
                 setTimeout(() => {
@@ -917,7 +1232,7 @@
             }
         }
 
-        // Q版人物拖动 + 点击互动
+        // Q版人物拖动 + 点击
         (function initChibi() {
             const el = document.getElementById('chibi');
             let drag = false,
@@ -940,7 +1255,6 @@
                 el.style.top = y + 'px';
                 el.style.right = 'auto';
                 el.style.bottom = 'auto';
-                // 拖动时更新气泡位置
                 const bubble = document.getElementById('chibiBubble');
                 if (bubble.classList.contains('show')) {
                     updateChibiBubblePosition();
@@ -949,7 +1263,6 @@
             document.addEventListener('mouseup', () => { if (drag) { drag = false;
                     el.style.cursor = 'grab'; } });
 
-            // 点击 → 独立气泡
             el.addEventListener('click', () => {
                 const lines = [
                     '少来。', '别碰了。', '上瘾了是吧？', '手拿开。', '你以为你是谁？',
@@ -959,7 +1272,6 @@
                     '哼。', '……烦。', '离我远点。'
                 ];
                 showChibiBubble(lines[Math.floor(Math.random() * lines.length)], 1600);
-                // 闪一下边框
                 el.style.borderColor = 'rgba(197,163,255,0.2)';
                 el.style.boxShadow = '0 0 20px rgba(197,163,255,0.05)';
                 setTimeout(() => {
@@ -1003,7 +1315,7 @@
         }
 
         // ============================================================
-        //  聊天 - 每条AI消息下方带续写按钮
+        //  聊天
         // ============================================================
         function addUserMsg(text, img) {
             const t = TS.fmt(TS.now());
@@ -1017,7 +1329,6 @@
 
         function addAIMsg(text, push = false) {
             const t = TS.fmt(TS.now());
-            // 生成唯一ID用于续写按钮关联
             const msgId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
             const html = `
                 <div class="msg ai" id="${msgId}">
@@ -1034,6 +1345,12 @@
                 GameData.ai.dialogHistory.push({ role: 'assistant', content: text, time: Date.now() });
                 saveData();
                 reactToReply(text);
+                // 每次AI回复后尝试触发随机任务
+                setTimeout(() => {
+                    if (Math.random() < 0.15) { // 15%概率在回复后触发
+                        tryTriggerRandomTask();
+                    }
+                }, 500);
             }
         }
 
@@ -1043,7 +1360,7 @@
         }
 
         // ============================================================
-        //  续写功能（从消息按钮触发）
+        //  续写功能
         // ============================================================
         async function handleContinueFromMsg(msgId) {
             const msgEl = document.getElementById(msgId);
@@ -1054,10 +1371,8 @@
                 btn.style.color = 'rgba(197,163,255,0.3)';
             }
 
-            // 获取上下文
             const history = GameData.ai.dialogHistory;
             let context = '';
-            // 取最后3条对话作为上下文
             const recent = history.slice(-5);
             for (let m of recent) {
                 let c = m.content;
@@ -1091,10 +1406,8 @@
                 const data = await res.json();
                 const reply = data.choices[0].message.content;
 
-                // 在原消息下方追加续写内容（作为新AI消息）
                 addAIMsg('✉ [续写] ' + reply);
 
-                // 好感度微量增加
                 GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 1);
                 if (GameData.ai.affection >= MAX_AF && !window._afTriggered) {
                     window._afTriggered = true;
@@ -1139,6 +1452,11 @@
                 }
                 saveData();
                 updateUI();
+            }
+
+            // 发送消息时尝试触发随机任务
+            if (Math.random() < 0.08) {
+                tryTriggerRandomTask();
             }
 
             try { await callAI(text, img); } catch (e) { addAIMsg('⚠️ ' + (e.message || '请求失败')); }
@@ -1276,7 +1594,7 @@
         }
 
         // ============================================================
-        //  任务系统
+        //  任务系统（含随机任务）
         // ============================================================
         const TaskSystem = {
             genDaily() {
@@ -1326,6 +1644,21 @@
             },
             triggerVerify(id) {
                 let list;
+                let isRandom = false;
+                if (id === 'random' && GameData.random.active && !GameData.random.active.completed) {
+                    isRandom = true;
+                    const task = GameData.random.active;
+                    document.getElementById('modalTitle').textContent = '🎲 随机任务：' + task.title;
+                    document.getElementById('modalDesc').textContent = task.desc;
+                    document.getElementById('modalRewardPreview').style.display = 'block';
+                    document.getElementById('modalRewardPreview').textContent = '🎁 奖励：' + task.reward + ' 🍰 + 欣原的特别反应';
+                    document.getElementById('evidenceReport').value = '';
+                    document.getElementById('modal').dataset.taskId = 'random';
+                    document.getElementById('modal').dataset.taskList = 'random';
+                    document.getElementById('modal').classList.add('active');
+                    return;
+                }
+                document.getElementById('modalRewardPreview').style.display = 'none';
                 if (id.startsWith('d')) list = GameData.tasks.daily;
                 else if (id.startsWith('m')) list = GameData.tasks.mainQuests;
                 else if (id.startsWith('s')) list = GameData.tasks.sideQuests;
@@ -1345,6 +1678,64 @@
                 const report = document.getElementById('evidenceReport').value.trim();
                 if (report.length < 10) { showNotif('❌ 报告太短'); return; }
                 closeModal();
+
+                // 处理随机任务
+                if (id === 'random' && key === 'random') {
+                    const task = GameData.random.active;
+                    if (!task || task.completed) return;
+                    showNotif('📤 已递交随机任务证据...');
+                    addAIMsg('[正在审阅你的随机任务汇报...]');
+                    try {
+                        const p =
+                            `[系统：VIP009 正在提交随机任务「${task.title}」，汇报：${report}。请以欣原的口吻审查。如果通过，在回复开头加上 [PASS]，然后给出奖励反应（可以是甜蜜小故事、情话、学猫叫、傲娇关心等）。如果不通过，不加 [PASS] 并严厉拒绝。]`;
+                        const r = await callAIForVerify(p);
+                        if (r.includes('[PASS]')) {
+                            const clean = r.replace('[PASS]', '').trim();
+                            // 提取奖励反应
+                            const bonusReactions = REWARD_REACTIONS;
+                            const bonusType = task.bonusType || 'story';
+                            let bonusPool = bonusReactions.filter(b => b.type === bonusType);
+                            if (!bonusPool.length) bonusPool = bonusReactions;
+                            const bonus = bonusPool[Math.floor(Math.random() * bonusPool.length)];
+                            const bonusText = bonus.texts[Math.floor(Math.random() * bonus.texts.length)];
+                            const finalReply = clean + '\n\n[✨ 额外奖励] ' + bonusText;
+                            addAIMsg(finalReply);
+
+                            task.completed = true;
+                            GameData.user.currency.milkTea += task.reward;
+                            // 额外好感度
+                            const extraAf = bonusType === 'rare' ? 8 : 3;
+                            GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + extraAf);
+                            if (GameData.ai.affection >= MAX_AF && !window._afTriggered) {
+                                window._afTriggered = true;
+                                triggerMax();
+                            }
+                            showNotif('✅ 随机任务完成！+' + task.reward + '🍰 好感+' + extraAf);
+                            // 清空随机任务
+                            GameData.random.active = null;
+                            saveData();
+                            updateUI();
+                            // Q版反应
+                            const chibi = document.getElementById('chibi');
+                            chibi.style.borderColor = 'rgba(255,213,79,0.3)';
+                            chibi.style.boxShadow = '0 0 20px rgba(255,213,79,0.1)';
+                            setTimeout(() => {
+                                chibi.style.borderColor = 'rgba(197,163,255,0.05)';
+                                chibi.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
+                            }, 1500);
+                            setTimeout(() => showChibiBubble('……算你厉害。', 1200), 300);
+                        } else {
+                            addAIMsg(r);
+                            showNotif('❌ 未通过');
+                            GameData.ai.affection = Math.max(0, GameData.ai.affection - 2);
+                            saveData();
+                            updateUI();
+                        }
+                    } catch (e) { addAIMsg('⚠️ ' + e.message); }
+                    return;
+                }
+
+                // 普通任务
                 const list = GameData.tasks[key];
                 const task = list.find(t => t.id === id);
                 if (!task || task.done) return;
@@ -1389,8 +1780,8 @@
                         { role: 'system', content: '你是欣原，高冷、专业、严厉的监护人。' },
                         { role: 'user', content: p }
                     ],
-                    max_tokens: 300,
-                    temperature: 0.5
+                    max_tokens: 350,
+                    temperature: 0.6
                 })
             });
             if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -1462,6 +1853,31 @@
         }
 
         function updateTasks() {
+            // 先渲染随机任务（如果有）
+            const randomContainer = document.getElementById('randomTaskContainer');
+            if (GameData.random.active && !GameData.random.active.completed) {
+                const task = GameData.random.active;
+                const typeLabels = {
+                    hell: '🔥 地狱任务',
+                    fun: '😄 娱乐任务',
+                    challenge: '⚡ 挑战任务',
+                    social: '💬 互动任务'
+                };
+                randomContainer.innerHTML = `
+                    <div class="task-category" style="border-color:rgba(255,213,79,0.2);">
+                        <div class="category-title" style="color:var(--gold);">🎲 随机任务 · 进行中</div>
+                        <div class="task-item random-task">
+                            <div class="t-title">${typeLabels[task.type] || '✨ 随机'}：${task.title}</div>
+                            <div class="t-desc">${task.desc}</div>
+                            <div class="t-progress">🎁 奖励：${task.reward} 🍰 + 特别反应</div>
+                            <button class="t-btn" onclick="TaskSystem.triggerVerify('random')">📝 提交成果报告</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                randomContainer.innerHTML = '';
+            }
+
             const render = (list, id) => {
                 const el = document.getElementById(id);
                 if (!el) return;
@@ -1501,6 +1917,10 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             if (el) el.classList.add('active');
             document.getElementById(name + 'Tab').classList.add('active');
+            // 切换Tab时尝试触发随机任务
+            if (Math.random() < 0.05) {
+                setTimeout(() => tryTriggerRandomTask(), 300);
+            }
         }
 
         function showNotif(msg) {
@@ -1605,6 +2025,11 @@
                 document.getElementById('relStatus').classList.add('gold');
             }
 
+            // 恢复随机任务状态（如果未完成）
+            if (GameData.random.active && GameData.random.active.completed) {
+                GameData.random.active = null;
+            }
+
             saveData();
             updateUI();
 
@@ -1652,10 +2077,17 @@
             showNotif('✅ API Key已保存');
         });
 
+        // 页面加载完成后尝试触发一次随机任务（概率5%）
         document.addEventListener('DOMContentLoaded', function() {
             loadData();
             startPush();
             if (Notification.permission === 'default') Notification.requestPermission();
+            // 延迟3秒尝试触发随机任务
+            setTimeout(() => {
+                if (Math.random() < 0.05) {
+                    tryTriggerRandomTask();
+                }
+            }, 3000);
         });
     </script>
 </body>
