@@ -69,7 +69,7 @@
             100% { transform: translate(25px, 15px); opacity: 0.9; }
         }
 
-        /* ===== 头部 - 头像（已替换为合成好的带头像框的图片） ===== */
+        /* ===== 头部 - 头像 ===== */
         .chat-header {
             display: flex;
             align-items: center;
@@ -218,8 +218,7 @@
             border-top-right-radius: 3px;
             box-shadow: 0 4px 16px rgba(156, 100, 255, 0.10);
         }
-        .msg .bubble img,
-        .msg .bubble video {
+        .msg .bubble img {
             max-width: 100%;
             max-height: 200px;
             border-radius: 8px;
@@ -722,10 +721,10 @@
     <!-- ===== 主卡片 ===== -->
     <div class="glass-card" id="mainCard">
 
-        <!-- 头部 - 使用你合成好的带头像框的图片 -->
+        <!-- 头部 - 使用你指定的头像 -->
         <div class="chat-header">
             <div class="avatar-wrap" id="avatarWrap">
-                <img id="avatarImg" src="https://i.postimg.cc/bwgz5NBd/wei-xin-tu-pian-20260723060413-420-40.jpg" alt="欣原头像">
+                <img id="avatarImg" src="https://i.postimg.cc/85Yt5NJz/wei-xin-tu-pian-20260723051447-419-40.jpg" alt="欣原头像">
             </div>
             <div class="info">
                 <h3>欣原</h3>
@@ -754,8 +753,8 @@
 
         <!-- 输入 -->
         <div class="input-area">
-            <label class="file-label" title="上传图片或视频">📷
-                <input type="file" id="imageInput" accept="image/*,video/*" style="display:none" onchange="handleFile(this)">
+            <label class="file-label" title="上传图片">📷
+                <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImage(this)">
             </label>
             <img id="imgPreview" src="">
             <input type="text" id="chatInput" placeholder="输入消息..." onkeypress="if(event.key==='Enter') sendMessage()">
@@ -1203,48 +1202,41 @@
         })();
 
         // ============================================================
-        //  文件上传（支持图片+视频）
+        //  图片上传（仅图片，移除视频）
         // ============================================================
-        let uploadedFile = null; // 存储 base64
-        let uploadedFileType = null; // 'image' 或 'video'
+        let uploadedImage = null;
 
-        function handleFile(input) {
+        function handleImage(input) {
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
-            const isVideo = file.type.startsWith('video/');
+            // 只处理图片
+            if (!file.type.startsWith('image/')) {
+                showNotif('⚠️ 仅支持图片文件');
+                input.value = '';
+                return;
+            }
             const reader = new FileReader();
             reader.onload = function(e) {
-                const dataUrl = e.target.result;
-                if (isVideo) {
-                    uploadedFile = dataUrl;
-                    uploadedFileType = 'video';
+                const img = new Image();
+                img.onload = function() {
+                    const c = document.createElement('canvas');
+                    let w = img.width,
+                        h = img.height;
+                    const maxS = 400;
+                    if (w > h && w > maxS) { h *= maxS / w;
+                        w = maxS; } else if (h > w && h > maxS) { w *= maxS / h;
+                        h = maxS; }
+                    c.width = w;
+                    c.height = h;
+                    const ctx = c.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    uploadedImage = c.toDataURL('image/jpeg', 0.6).split(',')[1];
                     const preview = document.getElementById('imgPreview');
-                    preview.style.display = 'none'; // 视频不预览缩略图
-                    showNotif('🎬 视频已就绪');
-                } else {
-                    // 图片压缩
-                    const img = new Image();
-                    img.onload = function() {
-                        const c = document.createElement('canvas');
-                        let w = img.width,
-                            h = img.height;
-                        const maxS = 400;
-                        if (w > h && w > maxS) { h *= maxS / w;
-                            w = maxS; } else if (h > w && h > maxS) { w *= maxS / h;
-                            h = maxS; }
-                        c.width = w;
-                        c.height = h;
-                        const ctx = c.getContext('2d');
-                        ctx.drawImage(img, 0, 0, w, h);
-                        uploadedFile = c.toDataURL('image/jpeg', 0.6).split(',')[1];
-                        uploadedFileType = 'image';
-                        const preview = document.getElementById('imgPreview');
-                        preview.src = 'data:image/jpeg;base64,' + uploadedFile;
-                        preview.style.display = 'inline-block';
-                        showNotif('📷 照片已就绪');
-                    };
-                    img.src = dataUrl;
-                }
+                    preview.src = 'data:image/jpeg;base64,' + uploadedImage;
+                    preview.style.display = 'inline-block';
+                    showNotif('📷 照片已就绪');
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
@@ -1252,19 +1244,14 @@
         // ============================================================
         //  聊天
         // ============================================================
-        function addUserMsg(text, fileData, fileType) {
+        function addUserMsg(text, img) {
             const t = TS.fmt(TS.now());
-            let mediaHtml = '';
-            if (fileData) {
-                if (fileType === 'video') {
-                    mediaHtml =
-                        `<video controls style="max-width:100%;max-height:200px;border-radius:8px;margin-bottom:3px;display:block;"><source src="${fileData}" type="video/mp4">您的浏览器不支持视频播放。</video>`;
-                } else if (fileType === 'image') {
-                    mediaHtml = `<img src="data:image/jpeg;base64,${fileData}" style="max-width:100%;max-height:200px;border-radius:8px;margin-bottom:3px;display:block;">`;
-                }
+            let imgHtml = '';
+            if (img) {
+                imgHtml = `<img src="data:image/jpeg;base64,${img}" alt="上传图片">`;
             }
             const html =
-                `<div class="msg user"><div class="bubble">${mediaHtml}${text}<div class="time">${t}</div></div></div>`;
+                `<div class="msg user"><div class="bubble">${imgHtml}${text}<div class="time">${t}</div></div></div>`;
             document.getElementById('chatMessages').insertAdjacentHTML('beforeend', html);
             scrollChat();
         }
@@ -1354,15 +1341,13 @@
         async function sendMessage() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
-            const hasFile = uploadedFile !== null;
-            if (!text && !hasFile) return;
-            const fileData = uploadedFile;
-            const fileType = uploadedFileType;
-            uploadedFile = null;
-            uploadedFileType = null;
+            const hasImg = uploadedImage !== null;
+            if (!text && !hasImg) return;
+            const img = uploadedImage;
+            uploadedImage = null;
             document.getElementById('imgPreview').style.display = 'none';
             document.getElementById('imgPreview').src = '';
-            addUserMsg(text || (fileType === 'video' ? '🎬 [视频]' : '📷 [图片]'), fileData, fileType);
+            addUserMsg(text || '📷 [图片]', img);
             input.value = '';
             GameData.user.records.lastActiveTime = Date.now();
 
@@ -1381,16 +1366,7 @@
             if (Math.random() < 0.08) tryTriggerRandomTask();
 
             try {
-                // 如果有视频，需要特殊处理：视频不能直接给VL模型看，需要额外说明
-                let aiMsg = text;
-                let aiFile = null;
-                if (fileType === 'video') {
-                    aiMsg = (text || '') + ' [用户发送了一个视频，请根据上下文回应]';
-                    aiFile = null;
-                } else if (fileType === 'image') {
-                    aiFile = fileData;
-                }
-                await callAI(aiMsg, aiFile);
+                await callAI(text, img);
             } catch (e) { addAIMsg('⚠️ ' + (e.message || '请求失败')); }
         }
 
