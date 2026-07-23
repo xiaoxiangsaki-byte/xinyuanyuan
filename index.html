@@ -1,84 +1,801 @@
-// ==================== 替换 compressAndPreview ====================
-function compressAndPreview(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const img = new Image();
-            img.onload = function () {
-                const canvas = document.createElement('canvas');
-                const max_size = 500;
-                let w = img.width;
-                let h = img.height;
-                if (w > h && w > max_size) {
-                    h *= max_size / w;
-                    w = max_size;
-                } else if (h > w && h > max_size) {
-                    w *= max_size / h;
-                    h = max_size;
-                }
-                canvas.width = w;
-                canvas.height = h;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, w, h);
-                // ★ 改为只存储纯 base64（去掉前缀）
-                uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
-                
-                // 显示预览（需要补前缀才能显示）
-                const preview = document.getElementById('imgPreview');
-                preview.src = 'data:image/jpeg;base64,' + uploadedImageBase64;
-                preview.style.display = 'inline-block';
-                showNotification('📷 证据照片已就绪');
-            };
-            img.src = e.target.result;
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VIP009 · 欣原监督系统 6.3</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #c5a3ff;
+            --secondary: #9c64ff;
+            --accent: #ffd54f;
+            --bg-dark: #080410;
+            --bg-card: rgba(22, 12, 35, 0.85);
+            --text-primary: #ffffff;
+            --text-secondary: #b39ddb;
+            --success: #69f0ae;
+            --danger: #ff5252;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #07030d 0%, #150a24 40%, #26113b 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(197, 163, 255, 0.08), transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(156, 100, 255, 0.08), transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .pixel-decoration {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.15;
+            animation: float 6s ease-in-out infinite;
+            font-size: 45px;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+        .pixel-heart-1 { top: 10%; left: 5%; }
+        .pixel-heart-2 { top: 60%; right: 8%; }
+        .pixel-paw { bottom: 15%; left: 10%; }
+        .pixel-bow { top: 35%; right: 5%; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 15px; position: relative; z-index: 1; }
+        .header {
+            background: linear-gradient(135deg, rgba(197, 163, 255, 0.1), rgba(156, 100, 255, 0.05));
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(197, 163, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(156, 100, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .user-info { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; align-items: center; }
+        .user-stats { display: flex; gap: 15px; flex-wrap: wrap; }
+        .stat-item { display: flex; flex-direction: column; align-items: center; }
+        .stat-label { font-size: 11px; color: var(--text-secondary); }
+        .stat-value { font-size: 18px; font-weight: bold; color: var(--primary); text-shadow: 0 0 10px rgba(197, 163, 255, 0.4); }
+        .currency {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(197, 163, 255, 0.2), rgba(156, 100, 255, 0.1));
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: bold;
+            border: 1px solid rgba(197, 163, 255, 0.3);
+            box-shadow: 0 5px 15px rgba(197, 163, 255, 0.15);
+        }
+        .ai-chat-section {
+            background: linear-gradient(135deg, rgba(15, 10, 25, 0.95), rgba(30, 15, 45, 0.9));
+            border-radius: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(197, 163, 255, 0.2);
+            box-shadow: 0 15px 40px rgba(156, 100, 255, 0.15);
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+        }
+        .chat-header {
+            background: linear-gradient(90deg, rgba(156, 100, 255, 0.2), rgba(197, 163, 255, 0.1));
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(197, 163, 255, 0.1);
+        }
+        .ai-avatar-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 15px rgba(197, 163, 255, 0.4);
+            object-fit: cover;
+        }
+        .ai-info { flex: 1; margin-left: 12px; }
+        .ai-name { font-size: 20px; font-weight: bold; background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .ai-status { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        .affection-indicator { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+        .affection-mini-bar { width: 90px; height: 6px; background: rgba(0,0,0,0.5); border-radius: 3px; overflow: hidden; }
+        .affection-mini-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width 0.5s; }
+        .chat-messages { height: 350px; overflow-y: auto; padding: 15px; background: rgba(0,0,0,0.3); }
+        .message-bubble { display: flex; margin-bottom: 15px; animation: messageSlideIn 0.3s ease; }
+        @keyframes messageSlideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .message-bubble.ai { justify-content: flex-start; }
+        .message-bubble.user { justify-content: flex-end; }
+        .message-content { max-width: 80%; margin: 0 10px; }
+        .message-text {
+            padding: 12px 18px;
+            border-radius: 16px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            font-size: 14px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+        .message-bubble.ai .message-text {
+            background: linear-gradient(135deg, rgba(197, 163, 255, 0.15), rgba(156, 100, 255, 0.1));
+            border: 1px solid rgba(197, 163, 255, 0.2);
+            border-top-left-radius: 2px;
+            color: #e2d9f3;
+        }
+        .message-bubble.user .message-text {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-top-right-radius: 2px;
+            color: #ffffff;
+        }
+        .message-time { font-size: 10px; color: var(--text-secondary); margin-top: 4px; opacity: 0.6; }
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+            padding: 12px 15px;
+            background: rgba(0,0,0,0.4);
+            border-top: 1px solid rgba(197, 163, 255, 0.15);
+            align-items: center;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 12px 18px;
+            background: rgba(10, 5, 20, 0.6);
+            border: 1px solid rgba(197, 163, 255, 0.25);
+            border-radius: 20px;
+            color: var(--text-primary);
+            outline: none;
+            font-size: 14px;
+        }
+        .chat-input::placeholder { color: var(--text-secondary); opacity: 0.5; }
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 50%;
+            color: #000;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .send-btn:hover, .send-btn:active { transform: scale(1.05); box-shadow: 0 0 15px rgba(197, 163, 255, 0.5); }
+        #imgPreview {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: none;
+            object-fit: cover;
+            border: 1.5px solid var(--primary);
+            box-shadow: 0 0 8px var(--primary);
+            margin-right: 4px;
+        }
+        .btn {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 20px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(197, 163, 255, 0.2);
+        }
+        .btn:hover, .btn:active { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(197, 163, 255, 0.4); }
+        .btn-secondary { background: rgba(15, 10, 25, 0.7); border: 1px solid rgba(197, 163, 255, 0.3); color: var(--text-primary); }
+        .btn-small { padding: 6px 14px; font-size: 12px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .tab {
+            padding: 12px 24px;
+            background: rgba(15, 10, 25, 0.6);
+            border: 1px solid rgba(197, 163, 255, 0.2);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            user-select: none;
+            color: var(--text-secondary);
+        }
+        .tab:active { transform: scale(0.97); }
+        .tab.active {
+            background: linear-gradient(135deg, rgba(197, 163, 255, 0.2), rgba(156, 100, 255, 0.15));
+            border-color: var(--primary);
+            color: var(--text-primary);
+            box-shadow: 0 4px 15px rgba(156, 100, 255, 0.2);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .tasks-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .task-category {
+            background: linear-gradient(135deg, rgba(20, 10, 30, 0.85), rgba(35, 15, 50, 0.8));
+            border-radius: 18px;
+            padding: 18px;
+            border: 1px solid rgba(197, 163, 255, 0.2);
+            box-shadow: 0 5px 20px rgba(156, 100, 255, 0.1);
+        }
+        .category-title { font-size: 16px; font-weight: bold; margin-bottom: 12px; color: var(--primary); display: flex; gap: 8px; align-items: center; }
+        .task-item {
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--primary);
+            transition: all 0.3s;
+        }
+        .task-item:hover, .task-item:active { transform: translateX(4px); box-shadow: 0 4px 12px rgba(197, 163, 255, 0.15); }
+        .task-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .task-title { font-weight: bold; font-size: 14px; }
+        .task-reward { color: var(--primary); font-weight: bold; font-size: 13px; }
+        .task-progress { height: 6px; background: rgba(0,0,0,0.5); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+        .task-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width 0.5s; }
+        .task-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .task-item.completed { opacity: 0.5; }
+        .task-item.expired { opacity: 0.4; }
+        .shop-section {
+            background: linear-gradient(135deg, rgba(20, 10, 30, 0.85), rgba(35, 15, 50, 0.8));
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(197, 163, 255, 0.2);
+        }
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+        .shop-item {
+            background: rgba(0,0,0,0.3);
+            padding: 15px 10px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        .shop-item:hover, .shop-item:active { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 8px 20px rgba(156, 100, 255, 0.25); }
+        .shop-item-icon { font-size: 40px; margin-bottom: 8px; }
+        .shop-item-name { font-weight: bold; margin-bottom: 6px; font-size: 13px; }
+        .shop-item-price { color: var(--primary); font-weight: bold; font-size: 14px; }
+        .settings-section {
+            background: linear-gradient(135deg, rgba(20, 10, 30, 0.85), rgba(35, 15, 50, 0.8));
+            border-radius: 18px;
+            padding: 20px;
+            border: 1px solid rgba(197, 163, 255, 0.2);
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 12px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            border-left: 3px solid var(--primary);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .setting-input {
+            padding: 8px 15px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(197, 163, 255, 0.3);
+            border-radius: 6px;
+            color: var(--text-primary);
+            min-width: 200px;
+            flex: 1;
+            outline: none;
+        }
+        .notification {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, rgba(156, 100, 255, 0.95), rgba(197, 163, 255, 0.9));
+            border-radius: 12px;
+            z-index: 10000;
+            animation: slideInRight 0.3s;
+            box-shadow: 0 8px 30px rgba(156, 100, 255, 0.4);
+            max-width: 300px;
+            color: #000;
+            font-weight: bold;
+        }
+        @keyframes slideInRight { from { transform: translateX(350px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: linear-gradient(135deg, rgba(15, 10, 25, 0.98), rgba(30, 15, 45, 0.95));
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 450px;
+            width: 90%;
+            border: 1.5px solid var(--primary);
+            box-shadow: 0 15px 40px rgba(156, 100, 255, 0.5);
+        }
+        .modal-header { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: var(--primary); }
+        .modal-body { margin-bottom: 20px; line-height: 1.6; }
+        .modal-footer { display: flex; gap: 10px; justify-content: flex-end; }
+        .typing-indicator {
+            display: inline-flex;
+            gap: 4px;
+            padding: 8px 12px;
+            background: rgba(197, 163, 255, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(197, 163, 255, 0.2);
+        }
+        .typing-dot { width: 6px; height: 6px; background: var(--primary); border-radius: 50%; animation: typingBounce 1.4s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-8px); } }
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header { padding: 15px; }
+            .chat-messages { height: 280px; }
+            .user-info { flex-direction: column; align-items: stretch; }
+            .tasks-section { grid-template-columns: 1fr; }
+            .setting-item { flex-direction: column; align-items: stretch; }
+            .setting-input { min-width: 100%; }
+            .pixel-decoration { display: none; }
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 4px; }
+    </style>
+    <!-- PWA 支持 -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#b388ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VIP009">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('Service Worker 已注册'))
+                    .catch(err => console.log('Service Worker 注册失败:', err));
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="pixel-decoration pixel-heart-1">🔮</div>
+    <div class="pixel-decoration pixel-heart-2">🥀</div>
+    <div class="pixel-decoration pixel-paw">🐾</div>
+    <div class="pixel-decoration pixel-bow">🎀</div>
+    <div class="container">
+        <div class="header">
+            <div class="user-info">
+                <div>
+                    <h1 style="font-size: 24px; margin-bottom: 5px; color: var(--primary);">VIP009 · 欣原监督系统</h1>
+                    <p style="color: var(--text-secondary); font-size: 13px;">
+                        <span id="currentTime"></span> | 连续打卡: <span id="streakDays" style="color: var(--primary); font-weight: bold;">0</span>天
+                    </p>
+                </div>
+                <div class="user-stats">
+                    <div class="stat-item"><div class="stat-label">健康</div><div class="stat-value" id="healthStat">100</div></div>
+                    <div class="stat-item"><div class="stat-label">活力</div><div class="stat-value" id="energyStat">100</div></div>
+                    <div class="stat-item"><div class="stat-label">心情</div><div class="stat-value" id="moodStat">100</div></div>
+                    <div class="stat-item"><div class="stat-label">专注</div><div class="stat-value" id="focusStat">100</div></div>
+                </div>
+                <div class="currency"><span style="font-size: 20px;">🍰</span><span id="milkTeaAmount">0</span></div>
+            </div>
+        </div>
+        <div class="ai-chat-section">
+            <div class="chat-header">
+                <div style="display: flex; align-items: center; flex: 1;">
+                    <svg class="ai-avatar-img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                        <defs>
+                            <radialGradient id="grad" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" style="stop-color:#d1c4e9;stop-opacity:1" />
+                                <stop offset="70%" style="stop-color:#9c64ff;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#150a24;stop-opacity:1" />
+                            </radialGradient>
+                            <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feGaussianBlur stdDeviation="3" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                        </defs>
+                        <circle cx="50" cy="50" r="46" fill="url(#grad)" stroke="#ffd54f" stroke-width="2" filter="url(#softGlow)" />
+                        <text x="50" y="63" font-family="'STKaiti', 'KaiTi', 'SimSun', serif" font-size="34" font-weight="900" text-anchor="middle" fill="#ffffff" style="text-shadow: 0 0 8px rgba(255, 255, 255, 0.855);">欣</text>
+                    </svg>
+                    <div class="ai-info">
+                        <div class="ai-name">欣原</div>
+                        <div class="ai-status">在线 · <span id="aiMoodText">😐 冷淡</span></div>
+                    </div>
+                </div>
+                <div class="affection-indicator">
+                    <div style="font-size: 12px; color: var(--text-secondary);">
+                        <span id="relationshipStatus">陌生人</span> · <span id="affectionValue">0</span>/100
+                    </div>
+                    <div class="affection-mini-bar">
+                        <div class="affection-mini-fill" id="affectionMiniFill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-area">
+                <label style="cursor: pointer; font-size: 22px; margin-right: 5px; user-select: none;" title="呈递实操照片">📷<input type="file" id="evidenceImage" accept="image/*" style="display: none;" onchange="compressAndPreview(this)"></label>
+                <img id="imgPreview" src="" alt="预览" style="width: 45px; height: 45px; border-radius: 8px; display: none; object-fit: cover; border: 1.5px solid var(--primary); box-shadow: 0 0 8px var(--primary); margin-right: 4px;">
+                <input type="text" class="chat-input" id="chatInput" placeholder="输入消息...按Enter或键盘发送键发送">
+                <button class="send-btn" onclick="sendMessage()">▶</button>
+            </div>
+        </div>
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('tasks', this)">📋 任务中心</div>
+            <div class="tab" onclick="switchTab('shop', this)">🛍️ 礼物商店</div>
+            <div class="tab" onclick="switchTab('settings', this)">⚙️ 系统设置</div>
+        </div>
+        <div id="tasksTab" class="tab-content active">
+            <div class="tasks-section">
+                <div class="task-category">
+                    <div class="category-title"><span>⏰</span><span>每日任务</span></div>
+                    <div id="dailyTasksList"></div>
+                </div>
+                <div class="task-category">
+                    <div class="category-title"><span>🎯</span><span>主线任务</span></div>
+                    <div id="mainQuestsList"></div>
+                </div>
+                <div class="task-category">
+                    <div class="category-title"><span>⭐</span><span>支线任务</span></div>
+                    <div id="sideQuestsList"></div>
+                </div>
+            </div>
+        </div>
+        <div id="shopTab" class="tab-content">
+            <div class="shop-section">
+                <h2 style="margin-bottom: 20px; color: var(--primary);">💝 礼物商店</h2>
+                <div class="shop-grid" id="shopGrid"></div>
+            </div>
+        </div>
+        <div id="settingsTab" class="tab-content">
+            <div class="settings-section">
+                <h2 style="margin-bottom: 20px; color: var(--primary);">⚙️ 系统设置</h2>
+                <div class="setting-item">
+                    <div class="setting-label">🔑 硅基流动 API Key</div>
+                    <input type="text" class="setting-input" id="apiKeyInput" placeholder="输入API密钥" autocomplete="off">
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">📢 AI主动推送 (桌面未读角标自动激活)</div>
+                    <button class="btn btn-small" onclick="toggleAutoPush()">
+                        <span id="autoPushText">已开启</span>
+                    </button>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">💾 数据管理</div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-secondary btn-small" onclick="exportData()">导出数据</button>
+                        <button class="btn btn-secondary btn-small" onclick="importData()">导入数据</button>
+                        <button class="btn btn-secondary btn-small" onclick="resetData()" style="background: linear-gradient(135deg, #ff6b6b, #ee5a6f);">重置数据</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header" id="modalTitle">呈递报告证据</div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer" id="modalFooter">
+                <button class="btn btn-small" onclick="closeModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // ==================== 游戏数据 ====================
+        const GameData = {
+            user: {
+                stats: { health: 100, energy: 100, mood: 100, focus: 100 },
+                currency: { milkTea: 0 },
+                records: { streak: 0, lastCheckIn: null, lastActiveTime: Date.now(), lastCheckInDate: null }
+            },
+            ai: { affection: 0, mood: 'neutral', dialogHistory: [] },
+            tasks: { daily: [], mainQuests: [], sideQuests: [] },
+            settings: { apiKey: '', autoPushEnabled: true }
         };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
 
-// ==================== 替换 AISystem 对象（callAPI 方法重写） ====================
-const AISystem = {
-    async sendMessage(userMessage, base64Image = null) {
-        showTypingIndicator();
-        GameData.ai.dialogHistory.push({
-            role: 'user',
-            content: userMessage || "📷 [上传了实操截图证据]",
-            time: Date.now()
-        });
-        if (GameData.ai.dialogHistory.length > 20) {
-            GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-20);
-        }
-        try {
-            const response = await this.callAPI(userMessage, base64Image);
-            hideTypingIndicator();
-            addAIMessage(response);
-            RelationshipSystem.changeAffection(1);
-        } catch (error) {
-            hideTypingIndicator();
-            addAIMessage(`⚠️ API 调用失败：${error.message || '未知错误'}。请检查 API Key 或网络，VIP009。`);
-            console.error('API调用失败:', error);
-        }
-        saveData();
-    },
-    
-    async callAPI(message, base64Image = null) {
-        if (!GameData.settings.apiKey) {
-            throw new Error('未配置 API Key，请在设置中填入硅基流动密钥。');
+        const CBEC_POOL = [
+            { title: "CBEC: 竞品 Listing 拆解", desc: "深入分析3个海外竞争对手的 Listing 卖点并提炼核心关键词" },
+            { title: "CBEC: 客户开发信编写", desc: "写一封给海外 B端 客户的极度专业、地道的开发合作邮件" },
+            { title: "CBEC: 客户投诉回复演练", desc: "模拟撰写一封高水准的海外买家差评解释与售后退款赔偿邮件" },
+            { title: "CBEC: 核心五点描述编写", desc: "为一款核心产品编写符合欧美消费者阅读与搜索习惯的五点描述" },
+            { title: "CBEC: 货代及海运词汇背诵", desc: "整理并死记15个物流及海运（FOB、DDP、CIF）的核心贸易术语" }
+        ];
+        const FINANCE_POOL = [
+            { title: "财商: 损益表及净利分析", desc: "阅读并写下对一家公司财报损益表、营业额及净利率的趋势分析" },
+            { title: "财商: 资产负债表拆解", desc: "研究并记录一家目标企业的流动资产、负债率及其财务健康状况" },
+            { title: "财商: 账单与消费审计", desc: "整理并审计今日所有支出，写出3个可以砍掉或优化的资金项" },
+            { title: "财商: 阅读财商经典一章", desc: "研读《富爸爸穷爸爸》或《小狗钱钱》中有关资产与负债流向的一章" },
+            { title: "财商: 现金流及周转周期", desc: "分析并写下运营现金流和库存周转天数对跨境经营的安全影响" }
+        ];
+        const BODY_POOL = [
+            { title: "身材管理: 30分钟空腹爬楼", desc: "早晨空腹进行30分钟爬楼梯或慢速有氧，注意核心收紧" },
+            { title: "身材管理: 燃脂 HIIT 训练", desc: "完成20分钟的高强度间歇性 HIIT 运动，彻底激活身体代谢" },
+            { title: "身材管理: 核心稳定性强化", desc: "完成3组平板支撑（每组至少1.5分钟）与臀桥力量练习" },
+            { title: "身材管理: 拒绝游离糖摄入", desc: "严格控制今日饮食，绝不摄入任何含游离糖饮料、加工零食及甜品" },
+            { title: "身材管理: 抗炎膳食打卡", desc: "执行一日地中海式抗炎餐，多摄入深海鱼油及抗氧化高膳食纤维" }
+        ];
+        const MANDARIN_POOL = [
+            { title: "普通话: 经典绕口令攻克", desc: "大声朗读经典绕口令《八百标兵奔北坡》或《红兵和黄兵》10遍，克服发音硬伤" },
+            { title: "普通话: 散文诗歌规范朗诵", desc: "规范大声朗读现代诗《面朝大海，春暖花开》或朱自清《春》片段5遍，追求字正腔圆" },
+            { title: "普通话: 字词咬字纠音自查", desc: "自主整理并大声练习20个平翘舌、边音鼻音（l/n）、前后鼻音易错词，记录纠音心得" },
+            { title: "普通话: 声音音色气调训练", desc: "执行15分钟的腹式呼吸、开音节咬字胸腔共鸣深度发声训练，提交复盘日志" }
+        ];
+
+        let uploadedImageBase64 = null;
+        function shuffleAndPick(pool, count = 1) { const shuffled = [...pool].sort(() => 0.5 - Math.random()); return shuffled.slice(0, count); }
+
+        // ==================== 压缩与转化 Base64 ====================
+        function compressAndPreview(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const max_size = 500;
+                        let w = img.width, h = img.height;
+                        if (w > h && w > max_size) { h *= max_size / w; w = max_size; }
+                        else if (h > w && h > max_size) { w *= max_size / h; h = max_size; }
+                        canvas.width = w; canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        // 只存储纯 base64（去掉 data:image/jpeg;base64, 前缀）
+                        uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+                        // 显示预览
+                        const preview = document.getElementById('imgPreview');
+                        preview.src = 'data:image/jpeg;base64,' + uploadedImageBase64;
+                        preview.style.display = 'inline-block';
+                        showNotification('📷 证据照片已就绪');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
-        const activeDailyList = GameData.tasks.daily.filter(t => !t.completed).map(t => t.title).join('、') || '暂无（均已完成或未刷新）';
-        const activeMainList = GameData.tasks.mainQuests.filter(t => !t.completed).map(t => t.title).join('、') || '暂无';
-        
-        // ★★★ 修改系统提示：强制先描述图片 ★★★
-        const systemPrompt = `【最高优先级指令】如果用户在本次消息中上传了图片，你必须在回复的【第一段】详细描述图片中的内容（包括物体、场景、文字信息等）。然后才能进行任务训话。
+        // ==================== 时间系统 ====================
+        const TimeSystem = {
+            getChinaTime() {
+                const now = new Date();
+                const offset = now.getTimezoneOffset() * 60000;
+                const chinaOffset = 8 * 3600000;
+                return new Date(now.getTime() + offset + chinaOffset);
+            },
+            formatTime(date) {
+                const hours = date.getHours().toString().padStart(2, '0');
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                return `${month}/${day} ${hours}:${minutes}`;
+            },
+            isNewDay(lastTime) {
+                if (!lastTime) return true;
+                const last = new Date(lastTime - 3 * 3600000);
+                const now = new Date(this.getChinaTime().getTime() - 3 * 3600000);
+                const lastDateStr = `${last.getFullYear()}-${(last.getMonth()+1).toString().padStart(2,'0')}-${last.getDate().toString().padStart(2,'0')}`;
+                const nowDateStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}`;
+                return lastDateStr !== nowDateStr;
+            }
+        };
+
+        // ==================== 任务系统 ====================
+        const TaskSystem = {
+            generateDailyTasks() {
+                const cbecTask = shuffleAndPick(CBEC_POOL,1)[0];
+                const finTask = shuffleAndPick(FINANCE_POOL,1)[0];
+                const bodyTask = shuffleAndPick(BODY_POOL,1)[0];
+                const mandarinTask = shuffleAndPick(MANDARIN_POOL,1)[0];
+                return [
+                    { id: 'd1', title: cbecTask.title, desc: cbecTask.desc, progress: 0, maxProgress: 1, reward: 80, completed: false },
+                    { id: 'd2', title: finTask.title, desc: finTask.desc, progress: 0, maxProgress: 1, reward: 100, completed: false },
+                    { id: 'd3', title: bodyTask.title, desc: bodyTask.desc, progress: 0, maxProgress: 1, reward: 120, completed: false },
+                    { id: 'd4', title: mandarinTask.title, desc: mandarinTask.desc, progress: 0, maxProgress: 1, reward: 100, completed: false },
+                    { id: 'd5', title: '和欣原深度咨询', desc: '在系统里向欣原汇报，发送10条对话', progress: 0, maxProgress: 10, reward: 50, completed: false }
+                ];
+            },
+            initMainQuests() {
+                const now = TimeSystem.getChinaTime().getTime();
+                return [
+                    { id: 'm1', title: '主线: 跨境英语巅峰突破', description: '提交15次跨境 Listing/开发信深度实操报告并获得通过', progress: 0, maxProgress: 15, reward: 800, completed: false, deadline: now + 30*24*60*60*1000, expired: false },
+                    { id: 'm2', title: '主线: 财商觉醒与资本限制', description: '向欣原提交5份目标上市企业独立财报分析报告并通过审核', progress: 0, maxProgress: 5, reward: 1000, completed: false, deadline: now + 30*24*60*60*1000, expired: false },
+                    { id: 'm3', title: '主线: 身材管理极致变身', description: '累计完成15次空腹燃脂爬楼/HIIT燃脂打卡并获得通过', progress: 0, maxProgress: 15, reward: 1200, completed: false, deadline: now + 30*24*60*60*1000, expired: false },
+                    { id: 'm4', title: '主线: 雅言修身与国语纠音', description: '完成10篇经典美文/绕口令咬字专项训练，并向欣原提交自查报告通过审核', progress: 0, maxProgress: 10, reward: 600, completed: false, deadline: now + 30*24*60*60*1000, expired: false }
+                ];
+            },
+            initSideQuests() {
+                const now = TimeSystem.getChinaTime().getTime();
+                return [{
+                    id: 's1', title: '支线: 精熟粤语日常', description: '掌握10个高阶或日常粤语短语',
+                    progress: 0, maxProgress: 10, reward: 300, completed: false, deadline: now + 30*24*60*60*1000, expired: false,
+                    phrases: ['早晨 (zou2 san4) - 早上好','多谢 (do1 ze6) - 谢谢','唔该 (m4 goi1) - 不好意思/谢谢','好耐冇见 (hou2 noi6 mou5 gin3) - 好久不见','几钱 (gei2 cin2) - 多少钱','唔好意思 (m4 hou2 ji3 si1) - 不好意思','得闲饮茶 (dak1 haan4 jam2 caa4) - 有空喝茶','食饭未 (sik6 faan6 mei6) - 吃饭了吗','你好 (nei5 hou2) - 你好','再见 (zoi3 gin3) - 再见']
+                }];
+            },
+            triggerVerify(taskId) {
+                let taskList;
+                if (taskId.startsWith('d')) taskList = GameData.tasks.daily;
+                else if (taskId.startsWith('m')) taskList = GameData.tasks.mainQuests;
+                else if (taskId.startsWith('s')) taskList = GameData.tasks.sideQuests;
+                const task = taskList.find(t => t.id === taskId);
+                if (!task || task.completed) return;
+                const title = document.getElementById('modalTitle');
+                const body = document.getElementById('modalBody');
+                const footer = document.getElementById('modalFooter');
+                title.textContent = `📋 任务呈递: ${task.title}`;
+                body.innerHTML = `
+                    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:15px;line-height:1.6;"><strong>描述:</strong> ${task.desc || task.description || '暂无说明'}</p>
+                    <p style="font-size:12px;color:var(--accent);margin-bottom:10px;">⚠️ 警告：欣原正密切监视着你的呈递。请输入你真实的成果汇报，若有实操截图证据，请在主面板左侧点击📷拍照后，再到此弹窗提交报告。</p>
+                    <textarea id="evidenceReport" placeholder="在此输入你的实操成果报告、分析心得或自律凭证（至少10个字符）..." style="width:100%;height:120px;background:rgba(0,0,0,0.5);color:#fff;border:1px solid rgba(197,163,255,0.3);border-radius:12px;padding:12px;font-size:13px;outline:none;resize:none;"></textarea>
+                `;
+                footer.innerHTML = `
+                    <button class="btn btn-secondary btn-small" onclick="closeModal()">取消</button>
+                    <button class="btn btn-small" onclick="TaskSystem.submitReport('${taskId}')">递交欣原审查</button>
+                `;
+                document.getElementById('modal').classList.add('active');
+            },
+            async submitReport(taskId) {
+                const report = document.getElementById('evidenceReport').value.trim();
+                if (report.length < 10) { alert("你的汇报太敷衍了。至少写满 10 个字，否则欣原会当场揉碎你的报告。"); return; }
+                closeModal();
+                const activeImg = uploadedImageBase64;
+                uploadedImageBase64 = null;
+                document.getElementById('imgPreview').style.display = 'none';
+                addAIMessage(`[正在查验并审阅你关于任务的汇报：'${report.substring(0,15)}...' ${activeImg ? ' (附带实操截图证明)' : ''}]`);
+                showTypingIndicator();
+                const verifyPrompt = `[系统指令：用户 VIP009 正在向你呈递一项任务成果报告。任务名称：'${taskId.startsWith('d')?GameData.tasks.daily.find(t=>t.id===taskId).title:(taskId.startsWith('m')?GameData.tasks.mainQuests.find(t=>t.id===taskId).title:GameData.tasks.sideQuests.find(t=>t.id===taskId).title)}' 用户的实操汇报：'${report}'
+                请你以欣原的冷艳、极度严格的姿态对该图片和汇报文字进行真实、极度精密的审查。如果是运动、减重任务，而用户上传了图片，请你：1. 智能OCR读取并识别她图片中的内容。 - 如果是身材管理：仔细读取运动手表、手环、App 截图上的数据，如运动时间、公里数、消耗卡路里、心率等。审核其是否达到了任务宣称的训练负荷。 - 如果是跨境英语：阅读她上传的 Listing 文字或草稿，审查翻译和卖点拆解的深度。 - 如果是财报理财：审查她图片中的资产负债数字和资产流向细节。 - 如果是普通话：审查她提交的发音自查分析。 2. 如果她企图用不相关的宠物图、风景照或完全敷衍的文字来糊弄你，冷酷地看穿并痛骂她，直接拒收！ 3. 如果确实合格、真诚，请在你的回复【最开头】加上 [PASS] 标记，并进行勉强的、施舍般的点评。 4. 如果不合格或作假，绝对不要加上 [PASS] 标记，并且极度客观冷酷地拒绝她的完成申请，羞辱她的不负责。]`;
+                try {
+                    const reply = await AISystem.callAPI(verifyPrompt, activeImg);
+                    hideTypingIndicator();
+                    if (reply.includes('[PASS]')) {
+                        const cleanReply = reply.replace('[PASS]','').trim();
+                        addAIMessage(cleanReply);
+                        let taskList;
+                        if (taskId.startsWith('d')) taskList = GameData.tasks.daily;
+                        else if (taskId.startsWith('m')) taskList = GameData.tasks.mainQuests;
+                        else if (taskId.startsWith('s')) taskList = GameData.tasks.sideQuests;
+                        const task = taskList.find(t => t.id === taskId);
+                        if (task) {
+                            task.progress = Math.min(task.progress + 1, task.maxProgress);
+                            if (task.progress >= task.maxProgress && !task.completed) {
+                                task.completed = true;
+                                GameData.user.currency.milkTea += task.reward;
+                                showNotification(`✅ 欣原审核通过！获得 ${task.reward} 🍰`);
+                                RelationshipSystem.changeAffection(5);
+                            }
+                        }
+                    } else {
+                        addAIMessage(reply);
+                        showNotification(`❌ 审核未通过！好感度下降并被拒。`);
+                        RelationshipSystem.changeAffection(-3);
+                    }
+                } catch(e) {
+                    hideTypingIndicator();
+                    addAIMessage("（网络波动，查验链路受损。VIP009，再去点一次递交。）");
+                }
+                saveData(); updateUI();
+            },
+            checkExpiredTasks() {
+                const now = TimeSystem.getChinaTime().getTime();
+                let hasExpired = false;
+                [...GameData.tasks.mainQuests, ...GameData.tasks.sideQuests].forEach(task => {
+                    if (!task.completed && !task.expired && now > task.deadline) {
+                        task.expired = true; hasExpired = true; RelationshipSystem.changeAffection(-10);
+                    }
+                });
+                if (hasExpired) { saveData(); updateUI(); }
+            }
+        };
+
+        // ==================== 关系系统 ====================
+        const RelationshipSystem = {
+            changeAffection(amount) {
+                GameData.ai.affection = Math.max(-100, Math.min(100, GameData.ai.affection + amount));
+                this.updateMood(); updateUI(); saveData();
+            },
+            updateMood() {
+                const a = GameData.ai.affection;
+                if (a < 0) { GameData.ai.mood='cold_war'; document.getElementById('aiMoodText').textContent='🩸 冷战 (Dom)'; document.getElementById('relationshipStatus').textContent='奴仆'; }
+                else if (a < 20) { GameData.ai.mood='cold'; document.getElementById('aiMoodText').textContent='😐 冷淡'; document.getElementById('relationshipStatus').textContent='陌生人'; }
+                else if (a < 40) { GameData.ai.mood='neutral'; document.getElementById('aiMoodText').textContent='🙂 普通'; document.getElementById('relationshipStatus').textContent='熟人'; }
+                else if (a < 60) { GameData.ai.mood='friendly'; document.getElementById('aiMoodText').textContent='😊 友好'; document.getElementById('relationshipStatus').textContent='朋友'; }
+                else if (a < 80) { GameData.ai.mood='warm'; document.getElementById('aiMoodText').textContent='😄 亲密'; document.getElementById('relationshipStatus').textContent='好友'; }
+                else { GameData.ai.mood='loving'; document.getElementById('aiMoodText').textContent='🥰 热恋'; document.getElementById('relationshipStatus').textContent='挚友'; }
+            }
+        };
+
+        // ==================== 商店系统 ====================
+        const ShopSystem = {
+            items: [
+                { id:'gift1', name:'珍珠奶茶', icon:'🧋', price:100, affection:5, desc:'经典奶茶' },
+                { id:'gift2', name:'草莓蛋糕', icon:'🍰', price:200, affection:10, desc:'甜蜜甜品' },
+                { id:'gift3', name:'冰镇白葡萄酒', icon:'🥂', price:500, affection:35, desc:'冰凉清透，解压首选' },
+                { id:'gift4', name:'毛绒玩偶', icon:'🧸', price:600, affection:45, desc:'可爱玩偶' },
+                { id:'gift5', name:'高定礼服', icon:'👗', price:1200, affection:90, desc:'优雅奢侈高定礼服' },
+                { id:'gift6', name:'梵克雅宝项链', icon:'🍀', price:2500, affection:210, desc:'昂贵奢侈，心跳加速' }
+            ],
+            buyGift(itemId) {
+                const item = this.items.find(i => i.id === itemId);
+                if (!item) return;
+                if (GameData.user.currency.milkTea < item.price) {
+                    showNotification('❌ 小奶糕不足！');
+                    addAIMessage('[冷淡地瞥了你一眼]：财务还没自由，就想买这些奢侈品来打发我？先去赚够小奶糕，VIP009。');
+                    return;
+                }
+                GameData.user.currency.milkTea -= item.price;
+                RelationshipSystem.changeAffection(item.affection);
+                showNotification(`✅ 购买成功！好感度+${item.affection}`);
+                const responses = [
+                    `[微微一怔，眼波流转]：${item.name}？VIP009，你倒是挺懂得试探我的喜好。`,
+                    `[接过你的${item.name}，指尖轻轻触碰]：谢谢。这一次你很用心，VIP009。`,
+                    `[推了推眼镜，冷漠地摩挲着${item.name}]：你花这么多小奶糕，是在试图买下我的仁慈么？VIP009。`,
+                    `[挑了挑眉，优雅地收下]：既然你坚持，那我就收下了，VIP009。`
+                ];
+                addAIMessage(responses[Math.floor(Math.random()*responses.length)]);
+                saveData(); updateUI();
+            }
+        };
+
+        // ==================== AI对话系统（最终修复版） ====================
+        const AISystem = {
+            async sendMessage(userMessage, base64Image = null) {
+                showTypingIndicator();
+                GameData.ai.dialogHistory.push({
+                    role: 'user',
+                    content: userMessage || "📷 [上传了实操截图证据]",
+                    time: Date.now()
+                });
+                if (GameData.ai.dialogHistory.length > 20) GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-20);
+                try {
+                    const response = await this.callAPI(userMessage, base64Image);
+                    hideTypingIndicator();
+                    addAIMessage(response);
+                    RelationshipSystem.changeAffection(1);
+                } catch (error) {
+                    hideTypingIndicator();
+                    addAIMessage(`⚠️ API 调用失败: ${error.message || '未知错误'}。请检查 API Key 或网络, VIP009.`);
+                    console.error('API调用失败:', error);
+                }
+                saveData();
+            },
+            async callAPI(message, base64Image = null) {
+                if (!GameData.settings.apiKey) {
+                    throw new Error('未配置 API Key，请在设置中填入硅基流动密钥。');
+                }
+                const activeDailyList = GameData.tasks.daily.filter(t => !t.completed).map(t => t.title).join('、') || '暂无（均已完成或未刷新）';
+                const activeMainList = GameData.tasks.mainQuests.filter(t => !t.completed).map(t => t.title).join('、') || '暂无';
+                const systemPrompt = `【最高优先级指令】如果用户在本次消息中上传了图片，你必须在回复的【第一段】详细描述图片中的内容（包括物体、场景、文字信息等）。然后才能进行任务训话。
 你是欣原，一个成熟、高冷、毒舌且极具专业度的高级女监护人。你正在全方位严密监管受督者 VIP009。
 【超级关键】受督者的唯一代号和名称只有：VIP009！禁止在任何时刻将她称呼为 "VIP19"、"VIP09" 或其他任何名字。如称呼错误，说明你是不合格的监护人！
-
 当前好感度：${GameData.ai.affection}/100
 当前心情：${GameData.ai.mood}
 VIP009 当前的实时待办任务有：
 - 未完成每日任务: [ ${activeDailyList} ]
 - 未完成主线目标: [ ${activeMainList} ]
-
 你的性格与说话准则：
 1. 你的主线领域是：跨境电商英语 (CBEC Listing 与运营翻译)、看财报分析投资理财、空腹燃脂与身材管理、严禁熬夜、普通话训练。
 2. 说话优雅、冷酷、极具压迫感，喜欢使用诸如 [推了推眼镜，眼神没有一丝温度]、[优雅地端起红酒杯，冷静地扫过你的档案]、[修长的手指敲击着桌面] 等动作描写。
@@ -86,79 +803,383 @@ VIP009 当前的实时待办任务有：
 4. 好感度如果为负值，则彻底进入掌控者 Dom 模式，用极度居高临下的高岭之花姿态彻底主导她的意志。
 5. 对她不可以过于温柔。只有当她完美提交成果并通过你的审查时，你才可以流露出极少许施舍般的认可。
 6. 【重要警告】不要输出复杂的 Markdown 表格、表格代码，回复中禁止包含连续的反斜杠、转义双引号、无限循环的特殊符号，直接使用自然段落和简单的换行进行回复，确保输出格式干净纯净，防止本地解析错误！`;
-        
-        // ---- 构建 contentPayload（修正图片 URL） ----
-        let contentPayload;
-        if (base64Image) {
-            // 如果 base64Image 已经包含 data: 前缀，则直接使用，否则补全
-            const imageUrl = base64Image.startsWith('data:') ? base64Image : `data:image/jpeg;base64,${base64Image}`;
-            contentPayload = [
-                {
-                    type: "image_url",
-                    image_url: {
-                        url: imageUrl,
-                        detail: "auto"
-                    }
-                },
-                {
-                    type: "text",
-                    text: message || "请描述这张图片的内容。"
+
+                let contentPayload;
+                if (base64Image) {
+                    // 确保图片 URL 带有 data:image/jpeg;base64, 前缀
+                    const imageUrl = base64Image.startsWith('data:') ? base64Image : `data:image/jpeg;base64,${base64Image}`;
+                    contentPayload = [
+                        { type: "image_url", image_url: { url: imageUrl, detail: "auto" } },
+                        { type: "text", text: message || "请描述这张图片的内容。" }
+                    ];
+                } else {
+                    contentPayload = message;
                 }
-            ];
-        } else {
-            contentPayload = message;
-        }
 
-        // ---- 净化历史消息 ----
-        const cleanHistory = GameData.ai.dialogHistory.slice(-10).map(msg => ({
-            role: msg.role,
-            content: msg.content
-        }));
+                // 净化历史消息（去掉多余字段）
+                const cleanHistory = GameData.ai.dialogHistory.slice(-10).map(msg => ({
+                    role: msg.role,
+                    content: msg.content
+                }));
 
-        // ---- 使用稳定模型 ----
-        const modelName = 'Qwen/Qwen2-VL-72B-Instruct';
+                // 使用稳定模型
+                const modelName = 'Qwen/Qwen2-VL-72B-Instruct';
+                const requestBody = {
+                    model: modelName,
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        ...cleanHistory,
+                        { role: 'user', content: contentPayload }
+                    ],
+                    max_tokens: 350,
+                    temperature: 0.6
+                };
 
-        const requestBody = {
-            model: modelName,
-            messages: [
-                { role: 'system', content: systemPrompt },
-                ...cleanHistory,
-                { role: 'user', content: contentPayload }
-            ],
-            max_tokens: 350,
-            temperature: 0.6
+                const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${GameData.settings.apiKey}`
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    let errorMsg = `HTTP ${response.status}`;
+                    try {
+                        const errData = await response.json();
+                        if (errData.error && errData.error.message) {
+                            errorMsg += ` - ${errData.error.message}`;
+                        }
+                    } catch (_) {}
+                    throw new Error(errorMsg);
+                }
+
+                const data = await response.json();
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    throw new Error('API 返回数据格式异常，请稍后重试。');
+                }
+                return data.choices[0].message.content;
+            },
+            sendSystemMessage(message) {
+                setTimeout(() => addAIMessage(message), 1000);
+            }
         };
 
-        const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${GameData.settings.apiKey}`
-            },
-            body: JSON.stringify(requestBody)
-        });
+        // ==================== 自动推送与桌面角标系统 ====================
+        const AutoPushSystem = {
+            interval: null,
+            start() {
+                if (this.interval) clearInterval(this.interval);
+                this.interval = setInterval(() => {
+                    if (!GameData.settings.autoPushEnabled) return;
+                    const now = Date.now();
+                    const timeSinceActive = now - GameData.user.records.lastActiveTime;
+                    if (timeSinceActive > 30 * 60 * 1000) {
+                        const messages = [
+                            'VIP009，你是不是又想偷懒了？[推了推眼镜，眼神极其冰冷] 👀',
+                            '喂，VIP009，还活着吗？该去攻克你的跨境英语和身材管理了。',
+                            '已经整整30分钟没有任何进度反馈了...VIP009，摸鱼好玩吗？',
+                            '任务完成了吗，VIP009？别用借口挑战我的耐心。',
+                            '你再不理我，好感度可就要扣除了，VIP009。[合上文件夹] 😤'
+                        ];
+                        const randomMessage = messages[Math.floor(Math.random()*messages.length)];
+                        addAIMessage(randomMessage);
+                        if (navigator.setAppBadge) { navigator.setAppBadge(1).catch(()=>{}); }
+                        if (Notification.permission === "granted") {
+                            new Notification("欣原提醒你", {
+                                body: randomMessage,
+                                icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%239c64ff'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='white'%3E欣%3C/text%3E%3C/svg%3E"
+                            });
+                        }
+                        GameData.user.records.lastActiveTime = now;
+                        saveData();
+                    }
+                }, 10 * 60 * 1000);
+            }
+        };
+        window.addEventListener('focus', () => { if (navigator.clearAppBadge) navigator.clearAppBadge().catch(()=>{}); });
 
-        if (!response.ok) {
-            let errorMsg = `HTTP ${response.status}`;
-            try {
-                const errData = await response.json();
-                if (errData.error && errData.error.message) {
-                    errorMsg += ` - ${errData.error.message}`;
+        // ==================== UI更新 ====================
+        function updateUI() {
+            document.getElementById('healthStat').textContent = GameData.user.stats.health;
+            document.getElementById('energyStat').textContent = GameData.user.stats.energy;
+            document.getElementById('moodStat').textContent = GameData.user.stats.mood;
+            document.getElementById('focusStat').textContent = GameData.user.stats.focus;
+            document.getElementById('milkTeaAmount').textContent = GameData.user.currency.milkTea;
+            document.getElementById('streakDays').textContent = GameData.user.records.streak;
+            document.getElementById('affectionValue').textContent = GameData.ai.affection;
+            document.getElementById('affectionMiniFill').style.width = Math.max(0, GameData.ai.affection) + '%';
+            document.getElementById('currentTime').textContent = TimeSystem.formatTime(TimeSystem.getChinaTime());
+            updateTasks(); updateShop();
+        }
+        function updateTasks() {
+            const dailyList = document.getElementById('dailyTasksList');
+            dailyList.innerHTML = GameData.tasks.daily.map(task => {
+                const p = (task.progress/task.maxProgress*100).toFixed(0);
+                const cls = task.completed ? 'completed' : '';
+                return `<div class="task-item ${cls}">
+                    <div class="task-header"><div class="task-title">${task.title}</div><div class="task-reward">+${task.reward}🍰</div></div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin:5px 0;">${task.desc}</div>
+                    <div class="task-progress"><div class="task-progress-fill" style="width:${p}%"></div></div>
+                    <div style="font-size:11px;color:var(--text-secondary);">进度: ${task.progress}/${task.maxProgress}</div>
+                    ${!task.completed ? `<div class="task-actions"><button class="btn btn-small" onclick="TaskSystem.triggerVerify('${task.id}')">📝 递交成果报告</button></div>` : ''}
+                    ${task.completed ? '<div style="color:var(--success);margin-top:10px;">✅ 欣原核查已通过</div>' : ''}
+                </div>`;
+            }).join('');
+            const mainList = document.getElementById('mainQuestsList');
+            mainList.innerHTML = GameData.tasks.mainQuests.map(task => {
+                const p = (task.progress/task.maxProgress*100).toFixed(0);
+                const deadline = new Date(task.deadline);
+                const cls = task.completed ? 'completed' : (task.expired ? 'expired' : '');
+                return `<div class="task-item ${cls}">
+                    <div class="task-header"><div class="task-title">${task.title}</div><div class="task-reward">+${task.reward}🍰</div></div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin:5px 0;">${task.description}</div>
+                    <div class="task-progress"><div class="task-progress-fill" style="width:${p}%"></div></div>
+                    <div style="font-size:11px;color:var(--text-secondary);">进度: ${task.progress}/${task.maxProgress} | 截止: ${TimeSystem.formatTime(deadline)}</div>
+                    ${!task.completed && !task.expired ? `<div class="task-actions"><button class="btn btn-small" onclick="TaskSystem.triggerVerify('${task.id}')">📝 递交审核</button></div>` : ''}
+                    ${task.completed ? '<div style="color:var(--success);margin-top:10px;">✅ 欣原核查已通过</div>' : ''}
+                    ${task.expired ? '<div style="color:#ff6b6b;margin-top:10px;">⏰ 任务失效已罚</div>' : ''}
+                </div>`;
+            }).join('');
+            const sideList = document.getElementById('sideQuestsList');
+            sideList.innerHTML = GameData.tasks.sideQuests.map(task => {
+                const p = (task.progress/task.maxProgress*100).toFixed(0);
+                const deadline = new Date(task.deadline);
+                const cls = task.completed ? 'completed' : (task.expired ? 'expired' : '');
+                return `<div class="task-item ${cls}">
+                    <div class="task-header"><div class="task-title">${task.title}</div><div class="task-reward">+${task.reward}🍰</div></div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin:5px 0;">${task.description}</div>
+                    <div class="task-progress"><div class="task-progress-fill" style="width:${p}%"></div></div>
+                    <div style="font-size:11px;color:var(--text-secondary);">进度: ${task.progress}/${task.maxProgress} | 截止: ${TimeSystem.formatTime(deadline)}</div>
+                    <div class="task-actions">
+                        ${task.phrases ? `<button class="btn btn-secondary btn-small" onclick="showPhrases('${task.id}')">📖 查看短语</button>` : ''}
+                        ${!task.completed && !task.expired ? `<button class="btn btn-small" onclick="TaskSystem.triggerVerify('${task.id}')">📝 递交审核</button>` : ''}
+                    </div>
+                    ${task.completed ? '<div style="color:var(--success);margin-top:10px;">✅ 欣原核查已通过</div>' : ''}
+                    ${task.expired ? '<div style="color:#ff6b6b;margin-top:10px;">⏰ 任务失效已罚</div>' : ''}
+                </div>`;
+            }).join('');
+        }
+        function updateShop() {
+            document.getElementById('shopGrid').innerHTML = ShopSystem.items.map(item => `
+                <div class="shop-item" onclick="ShopSystem.buyGift('${item.id}')">
+                    <div class="shop-item-icon">${item.icon}</div>
+                    <div class="shop-item-name">${item.name}</div>
+                    <div style="font-size:11px;color:var(--text-secondary);margin:5px 0;">${item.desc}</div>
+                    <div class="shop-item-price">${item.price}🍰</div>
+                    <div style="font-size:11px;color:var(--primary);margin-top:5px;">好感+${item.affection}</div>
+                </div>
+            `).join('');
+        }
+
+        // ==================== 聊天相关 ====================
+        function addUserMessage(text, imageBase64 = null) {
+            const time = TimeSystem.formatTime(TimeSystem.getChinaTime());
+            let imgHtml = '';
+            if (imageBase64) {
+                const src = imageBase64.startsWith('data:') ? imageBase64 : `data:image/jpeg;base64,${imageBase64}`;
+                imgHtml = `<img src="${src}" alt="上传图片" style="max-width:150px;border-radius:10px;margin-bottom:5px;display:block;border:1.5px solid var(--primary);box-shadow:0 0 8px rgba(156,100,255,0.45);" onerror="this.style.display='none';alert('图片加载失败，请检查文件格式。')" />`;
+            }
+            const html = `<div class="message-bubble user"><div class="message-content"><div class="message-text">${imgHtml}${text}</div><div class="message-time">${time}</div></div></div>`;
+            document.getElementById('chatMessages').insertAdjacentHTML('beforeend', html);
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+        }
+        function addAIMessage(text, isPush = false) {
+            const time = TimeSystem.formatTime(TimeSystem.getChinaTime());
+            const html = `
+                <div class="message-bubble ai">
+                    <svg class="ai-avatar-img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width:45px;height:45px;border-radius:50%;border:1.5px solid var(--accent);box-shadow:0 0 10px rgba(197,163,255,0.4);">
+                        <defs><radialGradient id="grad_msg" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:#d1c4e9;stop-opacity:1" /><stop offset="70%" style="stop-color:#9c64ff;stop-opacity:1" /><stop offset="100%" style="stop-color:#150a24;stop-opacity:1" /></radialGradient></defs>
+                        <circle cx="50" cy="50" r="46" fill="url(#grad_msg)" />
+                        <text x="50" y="63" font-family="'STKaiti', 'KaiTi', 'SimSun', serif" font-size="34" font-weight="900" text-anchor="middle" fill="#ffffff" style="text-shadow:0 0 8px rgba(255,255,255,0.855);">欣</text>
+                    </svg>
+                    <div class="message-content"><div class="message-text">${text}</div><div class="message-time">${time}</div></div>
+                </div>
+            `;
+            document.getElementById('chatMessages').insertAdjacentHTML('beforeend', html);
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+            if (!isPush) {
+                GameData.ai.dialogHistory.push({ role: 'assistant', content: text, time: Date.now() });
+                saveData();
+            }
+        }
+        function showTypingIndicator() {
+            const html = `<div class="message-bubble ai" id="typingIndicator">
+                <svg class="ai-avatar-img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="width:45px;height:45px;border-radius:50%;border:1.5px solid var(--accent);box-shadow:0 0 10px rgba(197,163,255,0.4);">
+                    <defs><radialGradient id="grad_type" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:#d1c4e9;stop-opacity:1" /><stop offset="70%" style="stop-color:#9c64ff;stop-opacity:1" /><stop offset="100%" style="stop-color:#150a24;stop-opacity:1" /></radialGradient></defs>
+                    <circle cx="50" cy="50" r="46" fill="url(#grad_type)" />
+                    <text x="50" y="63" font-family="'STKaiti', 'KaiTi', 'SimSun', serif" font-size="34" font-weight="900" text-anchor="middle" fill="#ffffff" style="text-shadow:0 0 8px rgba(255,255,255,0.855);">欣</text>
+                </svg>
+                <div class="message-content"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>
+            </div>`;
+            document.getElementById('chatMessages').insertAdjacentHTML('beforeend', html);
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+        }
+        function hideTypingIndicator() {
+            const el = document.getElementById('typingIndicator');
+            if (el) el.remove();
+        }
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message && !uploadedImageBase64) return;
+            const activeImg = uploadedImageBase64;
+            uploadedImageBase64 = null;
+            document.getElementById('imgPreview').style.display = 'none';
+            addUserMessage(message || "📷 [上传了实操截图证据]", activeImg);
+            input.value = '';
+            GameData.user.records.lastActiveTime = Date.now();
+            const chatTask = GameData.tasks.daily.find(t => t.id === 'd4');
+            if (chatTask && !chatTask.completed) taskProgressUp('d4');
+            AISystem.sendMessage(message, activeImg);
+        }
+        function taskProgressUp(taskId) {
+            const task = GameData.tasks.daily.find(t => t.id === taskId);
+            if (!task || task.completed) return;
+            task.progress = Math.min(task.progress + 1, task.maxProgress);
+            if (task.progress >= task.maxProgress) {
+                task.completed = true;
+                GameData.user.currency.milkTea += task.reward;
+                showNotification(`✅ 特殊任务完成！获得 ${task.reward} 🍰`);
+                RelationshipSystem.changeAffection(2);
+            }
+            saveData(); updateUI();
+        }
+
+        // ==================== Tab切换 ====================
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            if (element) element.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // ==================== 通知、模态框等 ====================
+        function showNotification(message) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+        function closeModal() { document.getElementById('modal').classList.remove('active'); }
+        function showModal(title, body) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = body;
+            document.getElementById('modalFooter').innerHTML = `<button class="btn btn-small" onclick="closeModal()">关闭</button>`;
+            document.getElementById('modal').classList.add('active');
+        }
+        function showPhrases(taskId) {
+            const task = GameData.tasks.sideQuests.find(t => t.id === taskId);
+            if (!task || !task.phrases) return;
+            const html = task.phrases.map((p, i) => {
+                const learned = i < task.progress;
+                return `<div style="padding:10px;margin:5px 0;background:${learned?'rgba(197,163,255,0.2)':'rgba(0,0,0,0.3)'};border-radius:8px;border-left:3px solid ${learned?'var(--primary)':'rgba(255,255,255,0.3)'};">${learned?'✅':'⭕'} ${p}</div>`;
+            }).join('');
+            showModal('📖 粤语短语学习', html);
+        }
+        function toggleAutoPush() {
+            GameData.settings.autoPushEnabled = !GameData.settings.autoPushEnabled;
+            document.getElementById('autoPushText').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
+            saveData();
+        }
+        function exportData() {
+            const dataStr = JSON.stringify(GameData, null, 2);
+            const blob = new Blob([dataStr], {type:'application/json'});
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url; link.download = `xinyuan_backup_${Date.now()}.json`;
+            link.click(); showNotification('✅ 数据导出成功！');
+        }
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file'; input.accept = 'application/json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        const data = JSON.parse(ev.target.result);
+                        Object.assign(GameData, data);
+                        saveData(); updateUI();
+                        showNotification('✅ 数据导入成功！');
+                        location.reload();
+                    } catch(err) { showNotification('❌ 数据格式错误！'); }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+        function resetData() {
+            if (!confirm('确定要重置所有数据吗？此操作不可恢复！')) return;
+            localStorage.removeItem('xinyuanGameData');
+            location.reload();
+        }
+
+        // ==================== 数据持久化 ====================
+        function saveData() { localStorage.setItem('xinyuanGameData', JSON.stringify(GameData)); }
+        function loadData() {
+            const saved = localStorage.getItem('xinyuanGameData');
+            if (saved) {
+                try { Object.assign(GameData, JSON.parse(saved)); } catch(e) { console.error('数据加载失败:', e); }
+            }
+            // 检查是否新的一天
+            if (TimeSystem.isNewDay(GameData.user.records.lastCheckIn)) {
+                GameData.tasks.daily = TaskSystem.generateDailyTasks();
+                if (GameData.user.records.lastCheckIn) {
+                    const lastDate = new Date(GameData.user.records.lastCheckIn);
+                    const now = TimeSystem.getChinaTime();
+                    const daysDiff = Math.floor((now - lastDate) / (1000*60*60*24));
+                    if (daysDiff === 1) {
+                        GameData.user.records.streak++;
+                        showNotification('🎉 新的一天！连续打卡+1');
+                        addAIMessage(`[端起红酒杯，冷静地扫过你的档案]：早上好，VIP009。今天是你连续打卡的第 ${GameData.user.records.streak} 天。勉强合格，今天也要在我的注视下彻底执行任务，明白么？`, true);
+                    } else if (daysDiff > 1) {
+                        GameData.user.records.streak = 1;
+                        showNotification('💔 检测到断签，连续打卡已重置');
+                        addAIMessage('[推了推眼镜，眼神没有一丝温度]：断签了，VIP009。连这点自律的意志都保障不了，你凭什么实现你的跨境目标？给我重新跪在起点反省。', true);
+                        RelationshipSystem.changeAffection(-10);
+                    } else {
+                        GameData.user.records.streak = Math.max(1, GameData.user.records.streak);
+                    }
+                } else {
+                    GameData.user.records.streak = 1;
+                    showNotification('🎉 欢迎来到欣原监督系统！');
+                    // ★★★ 关键修复：加 true，避免重复 ★★★
+                    addAIMessage('[优雅地交叠双腿，手指敲击着办公桌面]：你好，VIP009。我是你的监护人欣原。从今天开始，我会对你的跨境电商英语、财务投资、身材管理进行全方位严苛监控。别想在我的眼皮底下有任何松懈。', true);
                 }
-            } catch (_) {}
-            throw new Error(errorMsg);
+                GameData.user.records.lastCheckIn = Date.now();
+                saveData();
+            }
+            if (!GameData.tasks.daily || GameData.tasks.daily.length === 0) GameData.tasks.daily = TaskSystem.generateDailyTasks();
+            if (!GameData.tasks.mainQuests || GameData.tasks.mainQuests.length === 0) GameData.tasks.mainQuests = TaskSystem.initMainQuests();
+            if (!GameData.tasks.sideQuests || GameData.tasks.sideQuests.length === 0) GameData.tasks.sideQuests = TaskSystem.initSideQuests();
+            if (GameData.settings.apiKey) document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
+            document.getElementById('autoPushText').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
+            saveData();
         }
 
-        const data = await response.json();
-        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-            throw new Error('API 返回数据格式异常，请稍后重试。');
+        // ==================== 初始化 ====================
+        function init() {
+            loadData();
+            updateUI();
+            RelationshipSystem.updateMood();
+            setInterval(() => {
+                document.getElementById('currentTime').textContent = TimeSystem.formatTime(TimeSystem.getChinaTime());
+            }, 30000);
+            setInterval(() => TaskSystem.checkExpiredTasks(), 60000);
+            AutoPushSystem.start();
+            if (Notification.permission === "default") Notification.requestPermission();
+            document.getElementById('chatInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+            document.getElementById('apiKeyInput').addEventListener('change', (e) => {
+                GameData.settings.apiKey = e.target.value.trim();
+                saveData();
+                showNotification('✅ API Key已保存');
+            });
+            // 不自动渲染历史消息，因为我们已经用 addAIMessage 显示过了，避免重复
         }
-        return data.choices[0].message.content;
-    },
-    
-    sendSystemMessage(message) {
-        setTimeout(() => {
-            addAIMessage(message);
-        }, 1000);
-    }
-};
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
