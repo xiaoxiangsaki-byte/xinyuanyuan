@@ -3138,3 +3138,24 @@ ${sleepContext ? '- ' + sleepContext : ''}
     </script>
 </body>
 </html>
+<script>
+    // ============================================================
+    //  初始化（补全）
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        loadData();
+        startPush();
+        if (Notification.permission === 'default') Notification.requestPermission();
+        if (GameData.mail.items.length === 0) {
+            setTimeout(function() {
+                sendMail('📌 欢迎来到欣原监督系统 V2.0',
+                    '欢迎回来，VIP009。日记、彩蛋、成长印记——我都准备好了。\n\n慢慢变强，我在看着你。\n\n——欣原 (｡•̀ᴗ-)✧',
+                    30, 'gift');
+            }, 1500);
+        }
+        document.getElementById('tabShop').addEventListener('click', function(e) { e.stopPropagation(); openShopView(); });
+        document.getElementById('tabSettings').addEventListener('click', function(e) { e.stopPropagation(); openSettingsView(); });
+        document.getElementById('shopView').classList.remove('active');
+        document.getElementById('settingsView').classList.remove('active');
+    });
+</script>
