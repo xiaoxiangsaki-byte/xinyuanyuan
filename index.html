@@ -8,14 +8,14 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         :root {
-            --primary: #c5a3ff; /* 荧光柔紫 */
-            --secondary: #9c64ff; /* 皇家幽紫 */
-            --accent: #ffd54f; /* 尊贵暗金 */
-            --bg-dark: #080410; /* 极夜深渊 */
-            --bg-card: rgba(22, 12, 35, 0.85); /* 磨砂半透紫 */
+            --primary: #c5a3ff;
+            --secondary: #9c64ff;
+            --accent: #ffd54f;
+            --bg-dark: #080410;
+            --bg-card: rgba(22, 12, 35, 0.85);
             --text-primary: #ffffff;
-            --text-secondary: #b39ddb; /* 优雅薰衣草 */
-            --success: #69f0ae; /* 盎然翡绿 */
+            --text-secondary: #b39ddb;
+            --success: #69f0ae;
             --danger: #ff5252;
         }
         
@@ -598,7 +598,6 @@
                     <div class="stat-item"><div class="stat-label">心情</div><div class="stat-value" id="moodStat">100</div></div>
                     <div class="stat-item"><div class="stat-label">专注</div><div class="stat-value" id="focusStat">100</div></div>
                 </div>
-                <!-- 货币改为：小奶糕 🍰 -->
                 <div class="currency"><span style="font-size: 20px;">🍰</span><span id="milkTeaAmount">0</span></div>
             </div>
         </div>
@@ -607,7 +606,6 @@
         <div class="ai-chat-section">
             <div class="chat-header">
                 <div style="display: flex; align-items: center; flex: 1;">
-                    <!-- 软化高阶美感的KaiTi行楷SVG头像 -->
                     <svg class="ai-avatar-img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
                         <defs>
                             <radialGradient id="grad" cx="50%" cy="50%" r="50%">
@@ -640,10 +638,7 @@
             
             <div class="chat-messages" id="chatMessages"></div>
             
-            <!-- 移除了原有的 quick-replies 快捷消息区域 -->
-            
             <div class="chat-input-area">
-                <!-- 预留证据图片上传按钮 -->
                 <label style="cursor: pointer; font-size: 22px; margin-right: 5px; user-select: none;" title="呈递实操照片">📷<input type="file" id="evidenceImage" accept="image/*" style="display: none;" onchange="compressAndPreview(this)"></label>
                 <img id="imgPreview" src="" alt="预览" style="width: 45px; height: 45px; border-radius: 8px; display: none; object-fit: cover; border: 1.5px solid var(--primary); box-shadow: 0 0 8px var(--primary); margin-right: 4px;">
                 <input type="text" class="chat-input" id="chatInput" placeholder="输入消息...按Enter或键盘发送键发送">
@@ -651,7 +646,7 @@
             </div>
         </div>
         
-        <!-- Tab导航 (显式传递 this 解决点击穿透失效问题) -->
+        <!-- Tab导航 -->
         <div class="tabs">
             <div class="tab active" onclick="switchTab('tasks', this)">📋 任务中心</div>
             <div class="tab" onclick="switchTab('shop', this)">🛍️ 礼物商店</div>
@@ -710,12 +705,11 @@
         </div>
     </div>
 
-    <!-- 呈报验证弹窗 (防误触及深度审核) -->
+    <!-- 呈报验证弹窗 -->
     <div id="modal" class="modal" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header" id="modalTitle">呈递报告证据</div>
             <div class="modal-body" id="modalBody">
-                <!-- 动态验证主体 -->
             </div>
             <div class="modal-footer" id="modalFooter">
                 <button class="btn btn-small" onclick="closeModal()">关闭</button>
@@ -777,7 +771,6 @@
             { title: "身材管理: 抗炎膳食打卡", desc: "执行一日地中海式抗炎餐，多摄入深海鱼油及抗氧化高膳食纤维" }
         ];
 
-        // 新增：普通话主线任务池
         const MANDARIN_POOL = [
             { title: "普通话: 经典绕口令攻克", desc: "大声朗读经典绕口令《八百标兵奔北坡》或《红兵和黄兵》10遍，克服发音硬伤" },
             { title: "普通话: 散文诗歌规范朗诵", desc: "规范大声朗读现代诗《面朝大海，春暖花开》或朱自清《春》片段5遍，追求字正腔圆" },
@@ -785,14 +778,14 @@
             { title: "普通话: 声音音色气调训练", desc: "执行15分钟的腹式呼吸、开音节咬字胸腔共鸣深度发声训练，提交复盘日志" }
         ];
 
-        let uploadedImageBase64 = null; // 用于存放用户拍照/上传压缩后的 base64 数据
+        let uploadedImageBase64 = null;
 
         function shuffleAndPick(pool, count = 1) {
             const shuffled = [...pool].sort(() => 0.5 - Math.random());
             return shuffled.slice(0, count);
         }
 
-        // ==================== 压缩与转化 Base64 (前端优化) ====================
+        // ==================== 压缩与转化 Base64 ====================
         function compressAndPreview(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -800,7 +793,7 @@
                     const img = new Image();
                     img.onload = function () {
                         const canvas = document.createElement('canvas');
-                        const max_size = 500; // 高压缩极限防传输重置
+                        const max_size = 500;
                         let w = img.width;
                         let h = img.height;
                         if (w > h && w > max_size) {
@@ -816,7 +809,6 @@
                         ctx.drawImage(img, 0, 0, w, h);
                         uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
                         
-                        // 显示微缩预览
                         const preview = document.getElementById('imgPreview');
                         preview.src = uploadedImageBase64;
                         preview.style.display = 'inline-block';
@@ -828,7 +820,7 @@
             }
         }
 
-        // ==================== 时间系统 (中国标准时间 3:00 AM 重置) ====================
+        // ==================== 时间系统 ====================
         const TimeSystem = {
             getChinaTime() {
                 const now = new Date();
@@ -847,19 +839,15 @@
             
             isNewDay(lastTime) {
                 if (!lastTime) return true;
-                
-                // 3:00 AM CST 刷新每日任务机制：往回平移3个小时判断
                 const last = new Date(lastTime - 3 * 3600000);
                 const now = new Date(this.getChinaTime().getTime() - 3 * 3600000);
-                
                 const lastDateStr = `${last.getFullYear()}-${(last.getMonth() + 1).toString().padStart(2, '0')}-${last.getDate().toString().padStart(2, '0')}`;
                 const nowDateStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-                
                 return lastDateStr !== nowDateStr;
             }
         };
 
-        // ==================== 任务系统 (更新为主线：跨境英语、财商、身材管理、普通话) ====================
+        // ==================== 任务系统 ====================
         const TaskSystem = {
             generateDailyTasks() {
                 const cbecTask = shuffleAndPick(CBEC_POOL, 1)[0];
@@ -957,7 +945,6 @@
                 ];
             },
 
-            // 呈报审核窗口：防止误触、需要提交理由、欣原实时严格判定
             triggerVerify(taskId) {
                 let taskList;
                 if (taskId.startsWith('d')) taskList = GameData.tasks.daily;
@@ -999,7 +986,6 @@
 
                 closeModal();
                 
-                // 将准备好的图片转为本次审查数据并清空页面预览
                 const activeImg = uploadedImageBase64;
                 uploadedImageBase64 = null;
                 document.getElementById('imgPreview').style.display = 'none';
@@ -1008,7 +994,6 @@
                 
                 showTypingIndicator();
                 
-                // 深度审核Prompt，教她读取运动设备/Listing文字/财报指标，严格打假
                 const verifyPrompt = `[系统指令：用户 VIP009 正在向你呈递一项任务成果报告。
                 任务名称：'${taskId.startsWith('d') ? GameData.tasks.daily.find(t => t.id === taskId).title : (taskId.startsWith('m') ? GameData.tasks.mainQuests.find(t => t.id === taskId).title : GameData.tasks.sideQuests.find(t => t.id === taskId).title)}'
                 用户的实操汇报：'${report}'
@@ -1185,7 +1170,8 @@
                     RelationshipSystem.changeAffection(1);
                 } catch (error) {
                     hideTypingIndicator();
-                    addAIMessage('抱歉，我现在有点累...你去设置里检查下API Key吧，VIP009。');
+                    // 显示更详细的错误信息
+                    addAIMessage(`⚠️ API 调用失败：${error.message || '未知错误'}。请检查 API Key 或网络，VIP009。`);
                     console.error('API调用失败:', error);
                 }
                 
@@ -1194,7 +1180,7 @@
             
             async callAPI(message, base64Image = null) {
                 if (!GameData.settings.apiKey) {
-                    return '你还没配置API Key呢！去设置里配置一下吧~';
+                    throw new Error('未配置 API Key，请在设置中填入硅基流动密钥。');
                 }
 
                 const activeDailyList = GameData.tasks.daily.filter(t => !t.completed).map(t => t.title).join('、') || '暂无（均已完成或未刷新）';
@@ -1217,6 +1203,7 @@ VIP009 当前的实时待办任务有：
 5. 对她不可以过于温柔。只有当她完美提交成果并通过你的审查时，你才可以流露出极少许施舍般的认可。
 6. 【重要警告】不要输出复杂的 Markdown 表格、表格代码，回复中禁止包含连续的反斜杠、转义双引号、无限循环的特殊符号，直接使用自然段落和简单的换行进行回复，确保输出格式干净纯净，防止本地解析错误！`;
                 
+                // ---- 修改点 1：构建 contentPayload（不变，但确保格式正确） ----
                 let contentPayload;
                 if (base64Image) {
                     contentPayload = [
@@ -1236,25 +1223,54 @@ VIP009 当前的实时待办任务有：
                     contentPayload = message;
                 }
 
+                // ---- 修改点 2：净化历史消息，剔除多余的 time 字段 ----
+                const cleanHistory = GameData.ai.dialogHistory.slice(-10).map(msg => ({
+                    role: msg.role,
+                    content: msg.content   // 只保留 role 和 content
+                }));
+
+                // ---- 修改点 3：换用稳定可靠的 VL 模型 ----
+                const modelName = 'Qwen/Qwen2-VL-72B-Instruct';  // 久经考验，识图稳定
+
+                const requestBody = {
+                    model: modelName,
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        ...cleanHistory,
+                        { role: 'user', content: contentPayload }
+                    ],
+                    max_tokens: 350,
+                    temperature: 0.6
+                };
+
+                // ---- 修改点 4：增强错误处理 ----
                 const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${GameData.settings.apiKey}`
                     },
-                    body: JSON.stringify({
-                        model: 'Qwen/Qwen3-VL-32B-Instruct', // 自动无缝升级至硅基流动最新的 Qwen3-VL 32B 旗舰视觉大模型！
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            ...GameData.ai.dialogHistory.slice(-10),
-                            { role: 'user', content: contentPayload }
-                        ],
-                        max_tokens: 350,
-                        temperature: 0.6
-                    })
+                    body: JSON.stringify(requestBody)
                 });
-                
+
+                if (!response.ok) {
+                    // 尝试读取错误详情
+                    let errorMsg = `HTTP ${response.status}`;
+                    try {
+                        const errData = await response.json();
+                        if (errData.error && errData.error.message) {
+                            errorMsg += ` - ${errData.error.message}`;
+                        }
+                    } catch (_) {
+                        // 忽略解析错误
+                    }
+                    throw new Error(errorMsg);
+                }
+
                 const data = await response.json();
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    throw new Error('API 返回数据格式异常，请稍后重试。');
+                }
                 return data.choices[0].message.content;
             },
             
@@ -1435,8 +1451,11 @@ VIP009 当前的实时待办任务有：
             const time = TimeSystem.formatTime(TimeSystem.getChinaTime());
             const messageId = 'msg_' + Date.now();
             
-            // 如果携带有图片，动态构建 img 元素渲染到气泡里（完美自研渲染逻辑）
-            const imgHtml = imageBase64 ? `<img src="${imageBase64}" style="max-width: 150px; border-radius: 10px; margin-bottom: 5px; display: block; border: 1.5px solid var(--primary); box-shadow: 0 0 8px rgba(156, 100, 255, 0.45);" />` : '';
+            // ---- 修改点 5：优化图片显示，增加 onerror 调试 ----
+            let imgHtml = '';
+            if (imageBase64) {
+                imgHtml = `<img src="${imageBase64}" alt="上传图片" style="max-width: 150px; border-radius: 10px; margin-bottom: 5px; display: block; border: 1.5px solid var(--primary); box-shadow: 0 0 8px rgba(156, 100, 255, 0.45);" onerror="this.style.display='none'; alert('图片加载失败，请检查文件格式。')" />`;
+            }
 
             const html = `
                 <div class="message-bubble user" id="${messageId}">
@@ -1533,7 +1552,7 @@ VIP009 当前的实时待办任务有：
             uploadedImageBase64 = null;
             document.getElementById('imgPreview').style.display = 'none';
 
-            // 修复渲染逻辑：传入本地 base64 并在气泡渲染图片，解决你聊天框里看不见图的问题！
+            // 显示用户消息（带图片）
             addUserMessage(message || "📷 [上传了实操截图证据]", activeImg);
             input.value = '';
             
@@ -1544,7 +1563,7 @@ VIP009 当前的实时待办任务有：
                 taskProgressUp('d4');
             }
             
-            // 修复参数链路：把 activeImg 作为第二个参数正式传递，确保图片数据不再丢失！
+            // 调用 API（传递图片）
             AISystem.sendMessage(message, activeImg);
         }
 
@@ -1604,7 +1623,6 @@ VIP009 当前的实时待办任务有：
             document.getElementById('modal').classList.add('active');
         }
 
-        // 覆盖关闭：确保不残留临时上传数据
         function closeModal() {
             document.getElementById('modal').classList.remove('active');
         }
@@ -1706,7 +1724,7 @@ VIP009 当前的实时待办任务有：
                         GameData.user.records.streak = 1;
                         showNotification('💔 检测到断签，连续打卡已重置');
                         addAIMessage('[推了推眼镜，眼神没有一丝温度]：断签了，VIP009。连这点自律的意志都保障不了，你凭什么实现你的跨境目标？给我重新跪在起点反省。');
-                        RelationshipSystem.changeAffection(-10); // 断签重罚
+                        RelationshipSystem.changeAffection(-10);
                     } else {
                         GameData.user.records.streak = Math.max(1, GameData.user.records.streak);
                     }
