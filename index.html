@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VIP009 · 欣原监督系统</title>
     <style>
-        /* ===== 全局 ===== */
+        /* ===== 全局重置 ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #c5a3ff;
@@ -29,20 +29,24 @@
             background-attachment: fixed;
         }
 
-        /* ===== 主卡片 ===== */
+        /* ===== 主卡片（固定尺寸） ===== */
         .glass-card {
-            max-width: 500px;
+            max-width: 400px;
             width: 100%;
+            min-height: 620px;
+            max-height: 85vh;
             background: rgba(18, 10, 30, 0.75);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
             border-radius: 28px;
-            padding: 20px 16px 16px;
+            padding: 18px 16px 14px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 20px 60px rgba(0,0,0,0.7);
             position: relative;
             overflow: hidden;
             transition: border-color 0.6s;
+            display: flex;
+            flex-direction: column;
         }
         .glass-card.golden {
             border-color: var(--gold);
@@ -66,46 +70,67 @@
             100% { transform: translate(25px, 15px); opacity: 0.9; }
         }
 
-        /* ===== 头像区域（无在线状态） ===== */
+        /* ===== 头部（无在线状态） ===== */
         .chat-header {
             display: flex;
             align-items: center;
-            gap: 14px;
-            margin-bottom: 14px;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-shrink: 0;
             position: relative;
             z-index: 1;
         }
         .avatar-wrap {
-            width: 52px;
-            height: 52px;
+            width: 56px;
+            height: 56px;
             flex-shrink: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: border-color 0.6s, box-shadow 0.6s;
+        }
+        /* 头像框 SVG */
+        .avatar-wrap svg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .avatar-wrap .avatar-bg {
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             background: linear-gradient(135deg, #9c64ff, #c5a3ff);
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid rgba(197, 163, 255, 0.2);
-            box-shadow: 0 0 20px rgba(197, 163, 255, 0.05);
-            transition: border-color 0.6s, box-shadow 0.6s;
+            z-index: 1;
+            position: relative;
         }
-        .avatar-wrap.gold-ring {
-            border-color: var(--gold);
-            box-shadow: 0 0 30px rgba(255, 213, 79, 0.15);
-        }
-        .avatar-wrap .letter {
-            font-size: 26px;
+        .avatar-wrap .avatar-bg .letter {
+            font-size: 22px;
             font-weight: bold;
             color: #fff;
             font-family: 'STKaiti', 'KaiTi', serif;
             text-shadow: 0 0 12px rgba(255,255,255,0.15);
         }
+        .avatar-wrap.gold-ring .avatar-bg {
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 30px rgba(255, 213, 79, 0.15);
+        }
+
         .info h3 {
-            font-size: 18px;
+            font-size: 17px;
             color: #fff;
             font-weight: 600;
         }
         .info .rel-label {
-            font-size: 13px;
+            font-size: 12px;
             color: rgba(255,255,255,0.35);
         }
         .info .rel-label .name {
@@ -127,18 +152,19 @@
         .affection-wrap {
             background: rgba(0,0,0,0.25);
             border-radius: 10px;
-            padding: 8px 14px;
-            margin-bottom: 14px;
+            padding: 6px 14px;
+            margin-bottom: 10px;
             border: 1px solid rgba(255,255,255,0.03);
+            flex-shrink: 0;
             position: relative;
             z-index: 1;
         }
         .affection-label {
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
+            font-size: 11px;
             color: rgba(255,255,255,0.4);
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
         .affection-label .rel-name {
             color: var(--primary);
@@ -149,7 +175,7 @@
             text-shadow: 0 0 12px rgba(255, 213, 79, 0.1);
         }
         .affection-bar {
-            height: 5px;
+            height: 4px;
             background: rgba(255,255,255,0.05);
             border-radius: 4px;
             overflow: hidden;
@@ -170,13 +196,14 @@
         .messages {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-bottom: 12px;
-            position: relative;
-            z-index: 1;
-            max-height: 270px;
+            gap: 8px;
+            flex: 0 0 160px;
+            max-height: 160px;
             overflow-y: auto;
             padding-right: 4px;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
         }
         .messages::-webkit-scrollbar { width: 3px; }
         .messages::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 2px; }
@@ -188,40 +215,40 @@
             animation: fadeUp 0.25s ease;
         }
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .msg.ai { align-self: flex-start; }
         .msg.user { align-self: flex-end; flex-direction: row-reverse; }
 
         .msg .bubble {
-            padding: 10px 15px;
-            border-radius: 16px;
-            font-size: 14px;
-            line-height: 1.7;
+            padding: 8px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.6;
             color: #fff;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
             word-break: break-word;
         }
         .msg.ai .bubble {
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.05);
-            border-top-left-radius: 4px;
+            border-top-left-radius: 3px;
             color: #ddd6f0;
         }
         .msg.user .bubble {
             background: linear-gradient(135deg, #9c64ff, #c5a3ff);
-            border-top-right-radius: 4px;
-            box-shadow: 0 4px 16px rgba(156, 100, 255, 0.12);
+            border-top-right-radius: 3px;
+            box-shadow: 0 4px 16px rgba(156, 100, 255, 0.10);
         }
         .msg .bubble img {
-            max-width: 130px;
+            max-width: 120px;
             border-radius: 8px;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             display: block;
         }
         .msg .time {
-            font-size: 10px;
+            font-size: 9px;
             color: rgba(255,255,255,0.2);
             margin-top: 2px;
             text-align: right;
@@ -231,18 +258,19 @@
         /* ===== 输入区域 ===== */
         .input-area {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
-            background: rgba(0,0,0,0.3);
-            border-radius: 16px;
-            padding: 4px 4px 4px 14px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 14px;
+            padding: 3px 3px 3px 12px;
             border: 1px solid rgba(255,255,255,0.04);
             transition: border 0.3s;
+            flex-shrink: 0;
             position: relative;
             z-index: 1;
         }
         .input-area:focus-within {
-            border-color: rgba(197, 163, 255, 0.2);
+            border-color: rgba(197, 163, 255, 0.15);
         }
         .input-area input {
             flex: 1;
@@ -250,61 +278,96 @@
             border: none;
             outline: none;
             color: #fff;
-            font-size: 14px;
-            padding: 10px 0;
+            font-size: 13px;
+            padding: 8px 0;
             min-width: 0;
         }
         .input-area input::placeholder { color: rgba(255,255,255,0.15); }
         .input-area .file-label {
             cursor: pointer;
-            font-size: 17px;
-            color: rgba(255,255,255,0.25);
+            font-size: 16px;
+            color: rgba(255,255,255,0.2);
             transition: 0.3s;
             flex-shrink: 0;
+            line-height: 1;
         }
         .input-area .file-label:hover { color: var(--primary); }
         .input-area #imgPreview {
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             border-radius: 6px;
             display: none;
             object-fit: cover;
-            border: 1px solid rgba(197, 163, 255, 0.15);
+            border: 1px solid rgba(197, 163, 255, 0.1);
             flex-shrink: 0;
         }
         .input-area .send {
-            width: 38px;
-            height: 38px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             background: linear-gradient(135deg, #c5a3ff, #9c64ff);
             border: none;
             color: #000;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
             transition: 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 4px 16px rgba(156, 100, 255, 0.12);
+            box-shadow: 0 4px 16px rgba(156, 100, 255, 0.08);
         }
         .input-area .send:active { transform: scale(0.92); }
+
+        /* ===== 续写按钮（✉） ===== */
+        .continue-wrap {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 4px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+        .continue-btn {
+            background: rgba(255,255,255,0.03);
+            border: none;
+            color: rgba(255,255,255,0.15);
+            font-size: 16px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            line-height: 1.6;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(4px);
+        }
+        .continue-btn:hover {
+            color: rgba(197, 163, 255, 0.5);
+            background: rgba(255,255,255,0.04);
+        }
+        .continue-btn:active { transform: scale(0.92); }
+        .continue-btn .label {
+            font-size: 10px;
+            margin-left: 3px;
+            opacity: 0.5;
+        }
 
         /* ===== 底部标签 ===== */
         .tabs {
             display: flex;
-            gap: 6px;
-            margin-top: 14px;
+            gap: 5px;
+            margin-top: 10px;
+            flex-shrink: 0;
             position: relative;
             z-index: 1;
         }
         .tab {
-            padding: 7px 12px;
-            border-radius: 16px;
+            padding: 6px 10px;
+            border-radius: 14px;
             background: rgba(255,255,255,0.02);
             border: 1px solid rgba(255,255,255,0.03);
-            color: rgba(255,255,255,0.25);
-            font-size: 13px;
+            color: rgba(255,255,255,0.2);
+            font-size: 12px;
             cursor: pointer;
             transition: 0.3s;
             flex: 1;
@@ -312,140 +375,149 @@
             backdrop-filter: blur(4px);
             user-select: none;
         }
-        .tab:hover { color: rgba(255,255,255,0.4); }
+        .tab:hover { color: rgba(255,255,255,0.35); }
         .tab.active {
             background: rgba(197, 163, 255, 0.06);
-            border-color: rgba(197, 163, 255, 0.1);
+            border-color: rgba(197, 163, 255, 0.08);
             color: #fff;
         }
 
-        /* ===== 任务区域（保持原格式） ===== */
-        .tasks-section { margin-top: 10px; }
+        /* ===== Tab内容（固定高度滚动） ===== */
+        .tab-content {
+            flex: 1;
+            min-height: 150px;
+            max-height: 180px;
+            overflow-y: auto;
+            padding-right: 2px;
+            margin-top: 8px;
+        }
+        .tab-content::-webkit-scrollbar { width: 3px; }
+        .tab-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 2px; }
+        .tab-content::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 2px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.25s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ===== 任务 ===== */
         .task-category {
-            background: rgba(0,0,0,0.15);
-            border-radius: 14px;
-            padding: 12px 14px;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255,255,255,0.03);
+            background: rgba(0,0,0,0.12);
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            border: 1px solid rgba(255,255,255,0.02);
         }
         .category-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--primary);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .task-item {
-            background: rgba(0,0,0,0.15);
-            padding: 10px 12px;
-            border-radius: 10px;
-            margin-bottom: 6px;
+            background: rgba(0,0,0,0.12);
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 4px;
             border-left: 2px solid var(--primary);
         }
         .task-item .t-title {
             font-weight: 500;
-            font-size: 13px;
+            font-size: 12px;
             color: #fff;
         }
         .task-item .t-desc {
-            font-size: 12px;
-            color: rgba(255,255,255,0.4);
-            margin: 3px 0 4px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
+            margin: 2px 0 3px;
         }
         .task-item .t-progress {
-            font-size: 12px;
-            color: rgba(255,255,255,0.3);
+            font-size: 11px;
+            color: rgba(255,255,255,0.25);
         }
         .task-item .t-btn {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--primary);
-            background: rgba(197, 163, 255, 0.08);
+            background: rgba(197, 163, 255, 0.06);
             border: none;
-            border-radius: 10px;
-            padding: 2px 12px;
+            border-radius: 8px;
+            padding: 2px 10px;
             cursor: pointer;
-            margin-top: 4px;
+            margin-top: 3px;
             transition: 0.3s;
         }
-        .task-item .t-btn:hover { background: rgba(197, 163, 255, 0.15); }
+        .task-item .t-btn:hover { background: rgba(197, 163, 255, 0.12); }
         .task-item.completed .t-title { opacity: 0.4; }
-        .task-item .done { color: #69f0ae; font-size: 12px; margin-top: 4px; }
+        .task-item .done { color: #69f0ae; font-size: 11px; margin-top: 3px; }
 
         /* ===== 商店 ===== */
         .shop-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 8px;
+            gap: 6px;
         }
         .shop-item {
-            background: rgba(0,0,0,0.15);
-            padding: 10px 6px;
-            border-radius: 12px;
+            background: rgba(0,0,0,0.12);
+            padding: 8px 4px;
+            border-radius: 10px;
             text-align: center;
             cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.02);
             transition: 0.3s;
         }
-        .shop-item:hover { border-color: rgba(197, 163, 255, 0.1); }
-        .shop-item .icon { font-size: 24px; }
-        .shop-item .name { font-size: 11px; color: #fff; margin: 2px 0; }
-        .shop-item .price { font-size: 11px; color: var(--primary); }
+        .shop-item:hover { border-color: rgba(197, 163, 255, 0.06); }
+        .shop-item .icon { font-size: 22px; }
+        .shop-item .name { font-size: 10px; color: #fff; margin: 2px 0; }
+        .shop-item .price { font-size: 10px; color: var(--primary); }
 
         /* ===== 设置 ===== */
         .setting-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
             flex-wrap: wrap;
             gap: 4px;
         }
-        .setting-item .label { font-size: 13px; color: rgba(255,255,255,0.4); }
+        .setting-item .label { font-size: 12px; color: rgba(255,255,255,0.35); }
         .setting-item input {
             background: rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 8px;
-            padding: 5px 10px;
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 6px;
+            padding: 4px 8px;
             color: #fff;
-            font-size: 12px;
+            font-size: 11px;
             flex: 1;
-            min-width: 120px;
+            min-width: 100px;
             outline: none;
         }
-        .setting-item input:focus { border-color: rgba(197, 163, 255, 0.15); }
+        .setting-item input:focus { border-color: rgba(197, 163, 255, 0.1); }
         .setting-item .btn {
-            padding: 3px 12px;
-            border-radius: 10px;
+            padding: 2px 10px;
+            border-radius: 8px;
             border: none;
-            background: rgba(197, 163, 255, 0.08);
+            background: rgba(197, 163, 255, 0.06);
             color: var(--primary);
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
         }
-        .setting-item .btn.danger { background: rgba(255, 82, 82, 0.1); color: #ff5252; }
-
-        /* ===== Tab切换 ===== */
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.25s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .setting-item .btn.danger { background: rgba(255, 82, 82, 0.08); color: #ff5252; }
 
         /* ===== 通知 ===== */
         .notification {
             position: fixed;
-            top: 16px;
-            right: 16px;
-            padding: 10px 18px;
+            top: 14px;
+            right: 14px;
+            padding: 8px 16px;
             background: rgba(18, 10, 30, 0.9);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(197, 163, 255, 0.08);
-            border-radius: 12px;
+            border: 1px solid rgba(197, 163, 255, 0.06);
+            border-radius: 10px;
             color: #fff;
-            font-size: 13px;
+            font-size: 12px;
             z-index: 99999;
             animation: slideIn 0.3s ease;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            max-width: 280px;
+            max-width: 260px;
         }
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(30px); }
@@ -458,7 +530,7 @@
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(6px);
             z-index: 99998;
             justify-content: center;
@@ -467,50 +539,50 @@
         .modal.active { display: flex; }
         .modal .content {
             background: rgba(18, 10, 30, 0.95);
-            border: 1px solid rgba(197, 163, 255, 0.08);
-            border-radius: 18px;
-            padding: 20px;
-            max-width: 380px;
+            border: 1px solid rgba(197, 163, 255, 0.06);
+            border-radius: 16px;
+            padding: 18px;
+            max-width: 360px;
             width: 90%;
         }
-        .modal .content h3 { color: var(--primary); margin-bottom: 8px; font-size: 16px; }
-        .modal .content .desc { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 10px; }
+        .modal .content h3 { color: var(--primary); margin-bottom: 6px; font-size: 15px; }
+        .modal .content .desc { font-size: 12px; color: rgba(255,255,255,0.35); margin-bottom: 8px; }
         .modal .content textarea {
             width: 100%;
-            height: 100px;
+            height: 80px;
             background: rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 10px;
-            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 8px;
+            padding: 8px;
             color: #fff;
-            font-size: 13px;
+            font-size: 12px;
             resize: vertical;
             outline: none;
         }
-        .modal .content textarea:focus { border-color: rgba(197, 163, 255, 0.15); }
+        .modal .content textarea:focus { border-color: rgba(197, 163, 255, 0.1); }
         .modal .content .actions {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             justify-content: flex-end;
-            margin-top: 10px;
+            margin-top: 8px;
         }
         .modal .content .actions .btn {
-            padding: 5px 16px;
-            border-radius: 10px;
+            padding: 4px 14px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
         }
         .modal .content .actions .btn.primary {
             background: linear-gradient(135deg, #c5a3ff, #9c64ff);
             color: #000;
         }
         .modal .content .actions .btn.secondary {
-            background: rgba(255,255,255,0.04);
+            background: rgba(255,255,255,0.03);
             color: rgba(255,255,255,0.3);
         }
 
-        /* ===== Q版人物（纯Emoji，无图片） ===== */
+        /* ===== Q版人物 ===== */
         #chibi {
             position: fixed;
             bottom: 100px;
@@ -521,42 +593,43 @@
             z-index: 99999;
             user-select: none;
             border-radius: 50%;
-            background: rgba(18, 10, 30, 0.4);
+            background: rgba(18, 10, 30, 0.3);
             backdrop-filter: blur(6px);
-            border: 1px solid rgba(197, 163, 255, 0.06);
-            box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+            border: 1px solid rgba(197, 163, 255, 0.05);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 32px;
             transition: transform 0.2s, border-color 0.3s;
         }
-        #chibi:hover { transform: scale(1.05); border-color: rgba(197, 163, 255, 0.1); }
+        #chibi:hover { transform: scale(1.04); border-color: rgba(197, 163, 255, 0.08); }
         #chibi:active { cursor: grabbing; }
         #chibi .emoji {
             transition: transform 0.3s;
-            filter: drop-shadow(0 0 10px rgba(197, 163, 255, 0.05));
+            filter: drop-shadow(0 0 10px rgba(197, 163, 255, 0.03));
+            font-size: 34px;
         }
 
-        /* Q版独立气泡（不显示在聊天框） */
+        /* Q版独立气泡 */
         .chibi-bubble {
             position: fixed;
             bottom: 175px;
             right: 90px;
-            background: rgba(18, 10, 30, 0.88);
+            background: rgba(18, 10, 30, 0.85);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(197, 163, 255, 0.08);
-            border-radius: 14px;
-            padding: 8px 14px;
-            font-size: 14px;
+            border: 1px solid rgba(197, 163, 255, 0.05);
+            border-radius: 12px;
+            padding: 6px 12px;
+            font-size: 13px;
             color: #fff;
             z-index: 99999;
             opacity: 0;
-            transform: translateY(8px) scale(0.95);
+            transform: translateY(6px) scale(0.96);
             transition: opacity 0.25s ease, transform 0.25s ease;
             pointer-events: none;
             white-space: nowrap;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
         }
         .chibi-bubble.show {
             opacity: 1;
@@ -565,25 +638,36 @@
         .chibi-bubble::after {
             content: '';
             position: absolute;
-            bottom: -8px;
-            right: 20px;
+            bottom: -7px;
+            right: 18px;
             width: 0;
             height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 8px solid rgba(18, 10, 30, 0.88);
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 7px solid rgba(18, 10, 30, 0.85);
         }
 
         /* ===== 响应式 ===== */
         @media (max-width: 480px) {
-            .glass-card { padding: 14px 12px; }
-            .avatar-wrap { width: 42px; height: 42px; }
-            .avatar-wrap .letter { font-size: 20px; }
-            .info h3 { font-size: 16px; }
-            .messages { max-height: 180px; }
+            .glass-card { padding: 14px 12px; min-height: 540px; }
+            .avatar-wrap { width: 48px; height: 48px; }
+            .avatar-wrap .avatar-bg { width: 38px; height: 38px; }
+            .avatar-wrap .avatar-bg .letter { font-size: 18px; }
+            .info h3 { font-size: 15px; }
+            .messages { flex: 0 0 130px; max-height: 130px; }
             #chibi { width: 52px; height: 52px; font-size: 26px; bottom: 80px; right: 10px; }
-            .chibi-bubble { font-size: 12px; padding: 6px 12px; bottom: 145px; right: 70px; }
-            .shop-grid { grid-template-columns: repeat(3, 1fr); }
+            #chibi .emoji { font-size: 28px; }
+            .chibi-bubble { font-size: 11px; padding: 4px 10px; bottom: 145px; right: 70px; }
+            .continue-btn { font-size: 14px; }
+            .tab-content { min-height: 120px; max-height: 150px; }
+        }
+        @media (max-width: 380px) {
+            .glass-card { min-height: 480px; padding: 10px 8px; }
+            .messages { flex: 0 0 100px; max-height: 100px; }
+            .tab-content { min-height: 100px; max-height: 120px; }
+            #chibi { width: 44px; height: 44px; font-size: 20px; bottom: 70px; right: 8px; }
+            #chibi .emoji { font-size: 22px; }
+            .chibi-bubble { font-size: 10px; padding: 3px 8px; bottom: 125px; right: 60px; }
         }
     </style>
 </head>
@@ -591,10 +675,61 @@
 
     <!-- ===== 主卡片 ===== -->
     <div class="glass-card" id="mainCard">
+
         <!-- 头部 -->
         <div class="chat-header">
             <div class="avatar-wrap" id="avatarWrap">
-                <span class="letter">欣</span>
+                <!-- SVG头像框 -->
+                <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="frameGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#d1c4e9"/>
+                            <stop offset="50%" stop-color="#c5a3ff"/>
+                            <stop offset="100%" stop-color="#9c64ff"/>
+                        </linearGradient>
+                        <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="rgba(197,163,255,0.15)"/>
+                            <stop offset="100%" stop-color="rgba(197,163,255,0)"/>
+                        </radialGradient>
+                    </defs>
+                    <!-- 光晕 -->
+                    <circle cx="60" cy="60" r="56" fill="url(#glowGrad)"/>
+                    <!-- 主圆环 -->
+                    <circle cx="60" cy="60" r="48" fill="none" stroke="url(#frameGrad)" stroke-width="2"/>
+                    <circle cx="60" cy="60" r="44" fill="none" stroke="rgba(197,163,255,0.1)" stroke-width="0.5"/>
+                    <!-- 月牙弧线 -->
+                    <path d="M 18 60 Q 28 18 60 18 Q 92 18 102 60" fill="none" stroke="#c5a3ff" stroke-width="1.2" opacity="0.5"/>
+                    <path d="M 22 60 Q 32 22 60 22 Q 88 22 98 60" fill="none" stroke="#d1c4e9" stroke-width="0.6" opacity="0.3"/>
+                    <!-- 藤蔓花纹 -->
+                    <path d="M 38 12 Q 48 6 60 10 Q 72 6 82 12" fill="none" stroke="#d1c4e9" stroke-width="0.8" opacity="0.4"/>
+                    <path d="M 35 14 Q 45 8 60 12 Q 75 8 85 14" fill="none" stroke="#c5a3ff" stroke-width="0.5" opacity="0.2"/>
+                    <!-- 紫色宝石 -->
+                    <circle cx="60" cy="10" r="3" fill="#9c64ff" opacity="0.7"/>
+                    <circle cx="60" cy="10" r="1.5" fill="#e0d4f5" opacity="0.5"/>
+                    <!-- 白色羽毛 -->
+                    <path d="M 12 40 Q 8 36 10 30 Q 14 34 16 38 Z" fill="rgba(255,255,255,0.2)" opacity="0.3"/>
+                    <path d="M 108 40 Q 112 36 110 30 Q 106 34 104 38 Z" fill="rgba(255,255,255,0.2)" opacity="0.3"/>
+                    <!-- 星芒水晶吊坠 -->
+                    <circle cx="60" cy="108" r="2" fill="#e0d4f5" opacity="0.4"/>
+                    <circle cx="60" cy="112" r="1" fill="#c5a3ff" opacity="0.3"/>
+                    <path d="M 60 106 L 60 110" stroke="#c5a3ff" stroke-width="0.5" opacity="0.3"/>
+                    <!-- 星光 -->
+                    <circle cx="20" cy="35" r="1.2" fill="#fff" opacity="0.4"/>
+                    <circle cx="100" cy="35" r="1.2" fill="#fff" opacity="0.4"/>
+                    <circle cx="28" cy="75" r="0.8" fill="#fff" opacity="0.3"/>
+                    <circle cx="92" cy="75" r="0.8" fill="#fff" opacity="0.3"/>
+                    <circle cx="45" cy="5" r="0.8" fill="#fff" opacity="0.3"/>
+                    <circle cx="75" cy="5" r="0.8" fill="#fff" opacity="0.3"/>
+                    <!-- 细碎星光闪粉 -->
+                    <circle cx="16" cy="50" r="0.6" fill="#fff" opacity="0.2"/>
+                    <circle cx="104" cy="50" r="0.6" fill="#fff" opacity="0.2"/>
+                    <circle cx="35" cy="90" r="0.6" fill="#fff" opacity="0.2"/>
+                    <circle cx="85" cy="90" r="0.6" fill="#fff" opacity="0.2"/>
+                </svg>
+                <!-- 头像本体 -->
+                <div class="avatar-bg">
+                    <span class="letter">欣</span>
+                </div>
             </div>
             <div class="info">
                 <h3>欣原</h3>
@@ -621,7 +756,7 @@
         <!-- 消息 -->
         <div class="messages" id="chatMessages"></div>
 
-        <!-- 输入 -->
+        <!-- 输入区域 -->
         <div class="input-area">
             <label class="file-label" title="上传图片">📷
                 <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImage(this)">
@@ -631,7 +766,14 @@
             <button class="send" onclick="sendMessage()">▶</button>
         </div>
 
-        <!-- 标签 -->
+        <!-- ✉ 续写按钮（独立、小、低透明度） -->
+        <div class="continue-wrap">
+            <button class="continue-btn" id="continueBtn" onclick="handleContinue()" title="续写未说完的话">
+                ✉ <span class="label">续写</span>
+            </button>
+        </div>
+
+        <!-- 底部标签 -->
         <div class="tabs">
             <div class="tab active" onclick="switchTab('tasks', this)">📋 任务</div>
             <div class="tab" onclick="switchTab('shop', this)">🛍️ 商店</div>
@@ -640,31 +782,29 @@
 
         <!-- 任务 -->
         <div id="tasksTab" class="tab-content active">
-            <div class="tasks-section">
-                <div class="task-category">
-                    <div class="category-title">⏰ 每日任务</div>
-                    <div id="dailyTasksList"></div>
-                </div>
-                <div class="task-category">
-                    <div class="category-title">🎯 主线任务</div>
-                    <div id="mainQuestsList"></div>
-                </div>
-                <div class="task-category">
-                    <div class="category-title">⭐ 支线任务</div>
-                    <div id="sideQuestsList"></div>
-                </div>
+            <div class="task-category">
+                <div class="category-title">⏰ 每日任务</div>
+                <div id="dailyTasksList"></div>
+            </div>
+            <div class="task-category">
+                <div class="category-title">🎯 主线任务</div>
+                <div id="mainQuestsList"></div>
+            </div>
+            <div class="task-category">
+                <div class="category-title">⭐ 支线任务</div>
+                <div id="sideQuestsList"></div>
             </div>
         </div>
 
         <!-- 商店 -->
         <div id="shopTab" class="tab-content">
-            <div style="color:var(--primary);font-weight:600;margin:8px 0;">💝 礼物商店</div>
+            <div style="color:var(--primary);font-weight:600;font-size:13px;margin-bottom:6px;">💝 礼物商店</div>
             <div class="shop-grid" id="shopGrid"></div>
         </div>
 
         <!-- 设置 -->
         <div id="settingsTab" class="tab-content">
-            <div style="color:var(--primary);font-weight:600;margin:8px 0;">⚙️ 系统设置</div>
+            <div style="color:var(--primary);font-weight:600;font-size:13px;margin-bottom:6px;">⚙️ 系统设置</div>
             <div class="setting-item">
                 <span class="label">🔑 API Key</span>
                 <input type="text" id="apiKeyInput" placeholder="输入硅基密钥">
@@ -684,7 +824,7 @@
         </div>
     </div>
 
-    <!-- ===== Q版人物（纯Emoji） ===== -->
+    <!-- ===== Q版人物 ===== -->
     <div id="chibi">
         <span class="emoji" id="chibiEmoji">😐</span>
     </div>
@@ -700,7 +840,7 @@
             <textarea id="evidenceReport" placeholder="输入你的成果汇报..."></textarea>
             <div class="actions">
                 <button class="btn secondary" onclick="closeModal()">取消</button>
-                <button class="btn primary" id="modalConfirm" onclick="submitReport()">递交</button>
+                <button class="btn primary" onclick="submitReport()">递交</button>
             </div>
         </div>
     </div>
@@ -788,54 +928,41 @@
         };
 
         // ============================================================
-        //  Q版人物 - 表情联动 + 独立气泡
+        //  Q版人物
         // ============================================================
-        const chibiEmojis = {
-            calm: '😐',
-            smile: '🙂',
-            warm: '😊',
-            strict: '😠',
-            think: '🤔',
-            love: '🥰',
-            gold: '👑'
-        };
+        const chibiEmojis = { calm: '😐', smile: '🙂', warm: '😊', strict: '😠', think: '🤔', love: '🥰', gold: '👑' };
         let currentChibi = 'calm';
 
-        function setChibi(emojiKey, duration = 0) {
+        function setChibi(key, dur = 0) {
             const el = document.getElementById('chibiEmoji');
-            const key = emojiKey in chibiEmojis ? emojiKey : 'calm';
-            el.textContent = chibiEmojis[key];
-            currentChibi = key;
-            if (duration > 0) {
+            const k = key in chibiEmojis ? key : 'calm';
+            el.textContent = chibiEmojis[k];
+            currentChibi = k;
+            if (dur > 0) {
                 setTimeout(() => {
-                    const aff = GameData.ai.affection;
-                    if (aff >= MAX_AF) { setChibi('gold'); return; }
-                    if (aff >= 450) setChibi('love');
-                    else if (aff >= 350) setChibi('warm');
-                    else if (aff >= 150) setChibi('smile');
+                    const af = GameData.ai.affection;
+                    if (af >= MAX_AF) { setChibi('gold'); return; }
+                    if (af >= 450) setChibi('love');
+                    else if (af >= 350) setChibi('warm');
+                    else if (af >= 150) setChibi('smile');
                     else setChibi('calm');
-                }, duration);
+                }, dur);
             }
         }
 
-        // 独立气泡（不显示在聊天框）
         let bubbleTimer = null;
 
-        function showChibiBubble(text, duration = 1800) {
+        function showChibiBubble(text, dur = 1600) {
             const el = document.getElementById('chibiBubble');
             el.textContent = text;
             el.classList.add('show');
             clearTimeout(bubbleTimer);
-            bubbleTimer = setTimeout(() => {
-                el.classList.remove('show');
-            }, duration);
+            bubbleTimer = setTimeout(() => el.classList.remove('show'), dur);
         }
 
-        // 根据AI回复情绪切换表情
         function reactToReply(text) {
             if (text.includes('训') || text.includes('警告') || text.includes('不合格') || text.includes('敷衍')) {
                 setChibi('strict', 1800);
-                // 不显示气泡，保持高冷
             } else if (text.includes('[PASS]') || text.includes('通过') || text.includes('合格')) {
                 setChibi('warm', 2000);
                 setTimeout(() => showChibiBubble('……勉强认可你。', 1500), 600);
@@ -849,13 +976,13 @@
             }
         }
 
-        // Q版人物拖动 + 点击独立台词
+        // 拖动
         (function initChibi() {
             const el = document.getElementById('chibi');
-            let dragging = false,
+            let drag = false,
                 ox, oy;
             el.addEventListener('mousedown', (e) => {
-                dragging = true;
+                drag = true;
                 const r = el.getBoundingClientRect();
                 ox = e.clientX - r.left;
                 oy = e.clientY - r.top;
@@ -863,7 +990,7 @@
                 e.preventDefault();
             });
             document.addEventListener('mousemove', (e) => {
-                if (!dragging) return;
+                if (!drag) return;
                 let x = e.clientX - ox,
                     y = e.clientY - oy;
                 x = Math.max(0, Math.min(window.innerWidth - el.offsetWidth, x));
@@ -873,10 +1000,9 @@
                 el.style.right = 'auto';
                 el.style.bottom = 'auto';
             });
-            document.addEventListener('mouseup', () => { if (dragging) { dragging = false;
+            document.addEventListener('mouseup', () => { if (drag) { drag = false;
                     el.style.cursor = 'grab'; } });
 
-            // 点击 → 独立气泡（不进入聊天框）
             el.addEventListener('click', () => {
                 const lines = [
                     '少来。', '别碰了。', '上瘾了是吧？', '手拿开。', '你以为你是谁？',
@@ -885,12 +1011,9 @@
                     '再点我，好感度会掉哦。', '你点我一下，我扣你10个小奶糕。',
                     '哼。', '……烦。', '离我远点。'
                 ];
-                const msg = lines[Math.floor(Math.random() * lines.length)];
-                showChibiBubble(msg, 1600);
-                // 随机切换表情
+                showChibiBubble(lines[Math.floor(Math.random() * lines.length)], 1600);
                 const moods = ['calm', 'smile', 'strict', 'think'];
-                const m = moods[Math.floor(Math.random() * moods.length)];
-                setChibi(m, 1200);
+                setChibi(moods[Math.floor(Math.random() * moods.length)], 1200);
             });
         })();
 
@@ -934,7 +1057,8 @@
             const t = TS.fmt(TS.now());
             let ih = '';
             if (img) { ih = `<img src="data:image/jpeg;base64,${img}">`; }
-            const html = `<div class="msg user"><div class="bubble">${ih}${text}<div class="time">${t}</div></div></div>`;
+            const html =
+                `<div class="msg user"><div class="bubble">${ih}${text}<div class="time">${t}</div></div></div>`;
             document.getElementById('chatMessages').insertAdjacentHTML('beforeend', html);
             scrollChat();
         }
@@ -947,7 +1071,6 @@
             if (!push) {
                 GameData.ai.dialogHistory.push({ role: 'assistant', content: text, time: Date.now() });
                 saveData();
-                // 联动表情
                 reactToReply(text);
             }
         }
@@ -973,12 +1096,11 @@
             input.value = '';
             GameData.user.records.lastActiveTime = Date.now();
 
-            // 深度咨询任务
             const dTask = GameData.tasks.daily.find(t => t.id === 'd5');
-            if (dTask && !dTask.completed) {
-                dTask.progress = Math.min(dTask.progress + 1, dTask.maxProgress);
-                if (dTask.progress >= dTask.maxProgress) {
-                    dTask.completed = true;
+            if (dTask && !dTask.done) {
+                dTask.progress = Math.min(dTask.progress + 1, dTask.max);
+                if (dTask.progress >= dTask.max) {
+                    dTask.done = true;
                     GameData.user.currency.milkTea += dTask.reward;
                     showNotif('✅ 深度咨询完成！+' + dTask.reward + '🍰');
                 }
@@ -986,15 +1108,11 @@
                 updateUI();
             }
 
-            try {
-                await callAI(text, img);
-            } catch (e) {
-                addAIMsg('⚠️ ' + (e.message || '请求失败，检查API Key'));
-            }
+            try { await callAI(text, img); } catch (e) { addAIMsg('⚠️ ' + (e.message || '请求失败')); }
         }
 
         // ============================================================
-        //  AI 调用（人设优化，去除重复句式）
+        //  AI 调用
         // ============================================================
         async function callAI(msg, img) {
             if (!GameData.settings.apiKey) throw new Error('未配置API Key');
@@ -1002,11 +1120,12 @@
             GameData.ai.dialogHistory.push({ role: 'user', content: msg || '📷 [图片]', time: Date.now() });
             if (GameData.ai.dialogHistory.length > 30) GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-30);
 
-            const daily = GameData.tasks.daily.filter(t => !t.completed).map(t => t.title).join('、') || '无';
-            const main = GameData.tasks.mainQuests.filter(t => !t.completed).map(t => t.title).join('、') || '无';
+            const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
+            const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
             const rel = getRel(GameData.ai.affection);
 
-            const sysPrompt = `你是欣原，一个成熟、高冷、优雅且极具掌控力的高级女监护人。你正在全方位严密监管 VIP009。
+            const sysPrompt =
+                `你是欣原，一个成熟、高冷、优雅且极具掌控力的高级女监护人。你正在全方位严密监管 VIP009。
 
 【核心人设】
 - 说话优雅、精准、有压迫感，善用动作描写（如「[修长的手指轻敲桌面]」「[端起酒杯，目光冷冽地扫过你]」）
@@ -1086,9 +1205,9 @@
         //  好感度到顶彩蛋
         // ============================================================
         function triggerMax() {
-            // 爱心雨
             const container = document.createElement('div');
-            container.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99998;overflow:hidden;';
+            container.style.cssText =
+                'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99998;overflow:hidden;';
             document.body.appendChild(container);
             const hearts = ['❤️', '💜', '💕', '✨', '💖', '🌸'];
             for (let i = 0; i < 50; i++) {
@@ -1098,21 +1217,21 @@
                     `position:absolute;left:${Math.random()*100}%;font-size:${16+Math.random()*20}px;animation:fall ${2+Math.random()*2}s linear ${Math.random()*1.5}s forwards;opacity:0.8;`;
                 container.appendChild(el);
             }
-            // 注入关键帧
             if (!document.getElementById('heartStyle')) {
                 const style = document.createElement('style');
                 style.id = 'heartStyle';
-                style.textContent = `@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:0.9;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}`;
+                style.textContent =
+                    `@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:0.9;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}`;
                 document.head.appendChild(style);
             }
             setTimeout(() => container.remove(), 3000);
 
-            // 告白
             setTimeout(() => {
-                addAIMsg('[轻轻放下酒杯，目光柔和] VIP009……你做到了。从现在起，你不只是我的VIP009。你是我的永恒契约。\n\n[指尖划过桌面] 欢迎回家。');
+                addAIMsg(
+                    '[轻轻放下酒杯，目光柔和] VIP009……你做到了。从现在起，你不只是我的VIP009。你是我的永恒契约。\n\n[指尖划过桌面] 欢迎回家。'
+                    );
             }, 600);
 
-            // 金色特效
             document.getElementById('mainCard').classList.add('golden');
             document.getElementById('avatarWrap').classList.add('gold-ring');
             document.getElementById('affectionFill').classList.add('gold');
@@ -1122,6 +1241,77 @@
             showNotif('💖 永恒契约 · 达成！');
             saveData();
             updateUI();
+        }
+
+        // ============================================================
+        //  续写功能（✉）
+        // ============================================================
+        async function handleContinue() {
+            const btn = document.getElementById('continueBtn');
+            btn.style.opacity = '0.3';
+            btn.style.transform = 'scale(0.92)';
+            setTimeout(() => { btn.style.opacity = ''; btn.style.transform = ''; }, 400);
+
+            // 获取最近一条用户消息
+            const history = GameData.ai.dialogHistory;
+            let lastUserMsg = '';
+            for (let i = history.length - 1; i >= 0; i--) {
+                if (history[i].role === 'user') {
+                    let c = history[i].content;
+                    if (Array.isArray(c)) { const t = c.find(x => x.type === 'text');
+                        c = t ? t.text : ''; }
+                    lastUserMsg = String(c);
+                    break;
+                }
+            }
+
+            if (!lastUserMsg || lastUserMsg.length < 3) {
+                showNotif('✉ 没有可续写的内容');
+                return;
+            }
+
+            showNotif('✉ 正在续写...');
+
+            try {
+                const prompt =
+                    `[系统：VIP009 刚才说：「${lastUserMsg}」。这句话似乎没有说完，或意思不完整。请你以欣原的身份，根据对话上下文，自然地续写/补全这句话所隐含的内容或回复。不要重复原句，直接给出续写内容。保持欣原的口吻和风格。]`;
+
+                const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + GameData.settings.apiKey
+                    },
+                    body: JSON.stringify({
+                        model: 'Qwen/Qwen2.5-72B-Instruct',
+                        messages: [
+                            { role: 'system', content: '你是欣原，高冷、优雅、掌控力强的监护人。' },
+                            { role: 'user', content: prompt }
+                        ],
+                        max_tokens: 200,
+                        temperature: 0.7
+                    })
+                });
+
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                const reply = data.choices[0].message.content;
+
+                // 以AI消息形式追加续写内容
+                addAIMsg('✉ [续写] ' + reply);
+
+                // 好感度微量增加
+                GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 1);
+                if (GameData.ai.affection >= MAX_AF && !window._afTriggered) {
+                    window._afTriggered = true;
+                    triggerMax();
+                }
+                saveData();
+                updateUI();
+
+            } catch (e) {
+                showNotif('✉ 续写失败：' + e.message);
+            }
         }
 
         // ============================================================
@@ -1144,14 +1334,14 @@
             initMain() {
                 const n = Date.now();
                 return [
-                    { id: 'm1', title: '跨境英语巅峰突破', desc: '提交15次跨境Listing/开发信深度实操报告', progress: 0, max: 15, reward: 800,
-                    done: false, deadline: n + 30 * 86400000, expired: false },
+                    { id: 'm1', title: '跨境英语巅峰突破', desc: '提交15次跨境Listing/开发信深度实操报告', progress: 0, max: 15,
+                    reward: 800, done: false, deadline: n + 30 * 86400000, expired: false },
                     { id: 'm2', title: '财商觉醒与资本限制', desc: '提交5份目标企业独立财报分析报告', progress: 0, max: 5, reward: 1000,
-                    done: false, deadline: n + 30 * 86400000, expired: false },
-                    { id: 'm3', title: '身材管理极致变身', desc: '累计完成15次空腹燃脂爬楼/HIIT训练', progress: 0, max: 15, reward: 1200,
-                    done: false, deadline: n + 30 * 86400000, expired: false },
-                    { id: 'm4', title: '雅言修身与国语纠音', desc: '完成10篇经典美文/绕口令咬字专项训练', progress: 0, max: 10, reward: 600,
-                    done: false, deadline: n + 30 * 86400000, expired: false }
+                        done: false, deadline: n + 30 * 86400000, expired: false },
+                    { id: 'm3', title: '身材管理极致变身', desc: '累计完成15次空腹燃脂爬楼/HIIT训练', progress: 0, max: 15,
+                    reward: 1200, done: false, deadline: n + 30 * 86400000, expired: false },
+                    { id: 'm4', title: '雅言修身与国语纠音', desc: '完成10篇经典美文/绕口令咬字专项训练', progress: 0, max: 10,
+                    reward: 600, done: false, deadline: n + 30 * 86400000, expired: false }
                 ];
             },
             initSide() {
@@ -1166,7 +1356,11 @@
                     done: false,
                     deadline: n + 30 * 86400000,
                     expired: false,
-                    phrases: ['早晨 (zou2 san4) - 早上好', '多谢 (do1 ze6) - 谢谢', '唔该 (m4 goi1) - 不好意思', '好耐冇见 (hou2 noi6 mou5 gin3) - 好久不见', '几钱 (gei2 cin2) - 多少钱', '唔好意思 (m4 hou2 ji3 si1) - 不好意思', '得闲饮茶 (dak1 haan4 jam2 caa4) - 有空喝茶', '食饭未 (sik6 faan6 mei6) - 吃饭了吗', '你好 (nei5 hou2) - 你好', '再见 (zoi3 gin3) - 再见']
+                    phrases: ['早晨 (zou2 san4) - 早上好', '多谢 (do1 ze6) - 谢谢', '唔该 (m4 goi1) - 不好意思',
+                        '好耐冇见 (hou2 noi6 mou5 gin3) - 好久不见', '几钱 (gei2 cin2) - 多少钱',
+                        '唔好意思 (m4 hou2 ji3 si1) - 不好意思', '得闲饮茶 (dak1 haan4 jam2 caa4) - 有空喝茶',
+                        '食饭未 (sik6 faan6 mei6) - 吃饭了吗', '你好 (nei5 hou2) - 你好', '再见 (zoi3 gin3) - 再见'
+                    ]
                 }];
             },
             triggerVerify(id) {
@@ -1193,7 +1387,7 @@
                 const list = GameData.tasks[key];
                 const task = list.find(t => t.id === id);
                 if (!task || task.done) return;
-                showNotif('📤 已递交，等待审查...');
+                showNotif('📤 已递交...');
                 addAIMsg('[正在审阅你的汇报...]');
                 try {
                     const p =
@@ -1278,7 +1472,7 @@
         };
 
         // ============================================================
-        //  UI渲染
+        //  UI 渲染
         // ============================================================
         function updateUI() {
             const af = GameData.ai.affection;
@@ -1333,13 +1527,13 @@
                     <div class="icon">${i.icon}</div>
                     <div class="name">${i.name}</div>
                     <div class="price">${i.price}🍰</div>
-                    <div style="font-size:10px;color:var(--primary);">+${i.af}❤️</div>
+                    <div style="font-size:9px;color:var(--primary);">+${i.af}❤️</div>
                 </div>`
             ).join('');
         }
 
         // ============================================================
-        //  其他功能
+        //  其他
         // ============================================================
         function switchTab(name, el) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1359,7 +1553,6 @@
         function closeModal() { document.getElementById('modal').classList.remove('active'); }
 
         function submitReport() { TaskSystem.submit(); }
-
         document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
         function togglePush() {
