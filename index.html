@@ -18,8 +18,6 @@
         .app-container { width: 100%; max-width: 420px; height: 100dvh; max-height: 100dvh; position: relative; overflow: hidden; background: rgba(18,10,30,0.75); backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 60px rgba(0,0,0,0.7); display: flex; flex-direction: column; }
         .view { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; padding: 12px 14px 10px; background: rgba(18,10,30,0.96); backdrop-filter: blur(18px); z-index: 1; transition: opacity 0.3s ease; overflow: hidden; }
         .view.active { display: flex; }
-
-        /* ===== 主视图 ===== */
         #mainView { z-index: 2; padding: 12px 14px 10px; background: rgba(18,10,30,0.75); }
         #mainView .top-bar { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; padding: 6px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.04); min-height: 56px; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; }
         #mainView .top-bar:active { opacity: 0.7; }
@@ -36,26 +34,21 @@
         #mainView .top-bar .right-stats { display: flex; align-items: center; gap: 12px; font-size: 12px; color: rgba(255,255,255,0.3); }
         #mainView .top-bar .right-stats .stat-item { display: flex; align-items: center; gap: 3px; }
         #mainView .top-bar .right-stats .stat-item .val { color: #fff; font-weight: 600; }
-
         .affection-mini { flex-shrink: 0; padding: 4px 0 6px; display: flex; align-items: center; gap: 8px; }
         .affection-mini .label { font-size: 9px; color: rgba(255,255,255,0.3); white-space: nowrap; }
         .affection-mini .bar-wrap { flex: 1; height: 3px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
         .affection-mini .bar-wrap .fill { height: 100%; width: 0%; background: linear-gradient(90deg, #b39ddb, #c5a3ff, #9c64ff); border-radius: 4px; transition: width 0.5s ease; }
         .affection-mini .bar-wrap .fill.gold { background: linear-gradient(90deg, #ffd54f, #ffaa00, #ffd54f); }
         .affection-mini .num { font-size: 9px; color: rgba(255,255,255,0.25); white-space: nowrap; min-width: 40px; text-align: right; }
-
         .tasks-area { flex: 1; overflow-y: auto; padding-top: 6px; min-height: 0; }
         .tasks-area::-webkit-scrollbar { width: 3px; }
         .tasks-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 2px; }
         .tasks-area::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 2px; }
-
-        /* 惩罚任务特殊样式 */
         .task-item.punish-task { border-left: 2px solid var(--danger); background: rgba(255,82,82,0.06); }
         .task-item.punish-task .t-title { color: var(--danger); }
         .task-item .t-countdown { font-size: 10px; color: var(--danger); margin-top: 2px; font-weight: 500; }
         .task-item .t-countdown.urgent { color: #ff3b30; animation: pulseRed 1s ease-in-out infinite; }
         @keyframes pulseRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
         .task-category { background: rgba(0,0,0,0.12); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.02); }
         .category-title { font-size: 12px; font-weight: 600; color: var(--primary); margin-bottom: 4px; }
         .task-item { background: rgba(0,0,0,0.12); padding: 6px 8px; border-radius: 6px; margin-bottom: 4px; border-left: 2px solid var(--primary); }
@@ -69,7 +62,6 @@
         .task-item .t-btn.danger:active { background: rgba(255,82,82,0.15); }
         .task-item.completed .t-title { opacity: 0.4; }
         .task-item .done { color: #69f0ae; font-size: 10px; margin-top: 2px; }
-
         .checkin-section { background: rgba(0,0,0,0.12); border-radius: 10px; padding: 8px 12px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: space-between; }
         .checkin-section .left { display: flex; flex-direction: column; gap: 1px; }
         .checkin-section .left .label { font-size: 11px; color: rgba(255,255,255,0.3); }
@@ -77,12 +69,10 @@
         .checkin-section .btn-checkin { padding: 4px 16px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--gold), #ffaa00); color: #000; font-weight: 600; font-size: 11px; cursor: pointer; transition: 0.3s; }
         .checkin-section .btn-checkin:active { transform: scale(0.95); }
         .checkin-section .btn-checkin.done { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.2); cursor: default; }
-
         .quick-entries { display: flex; gap: 6px; margin-bottom: 6px; }
         .quick-entries .entry { flex: 1; background: rgba(0,0,0,0.12); border-radius: 8px; padding: 6px 4px; text-align: center; border: 1px solid rgba(255,255,255,0.02); cursor: pointer; transition: 0.3s; -webkit-tap-highlight-color: transparent; font-size: 10px; color: rgba(255,255,255,0.3); }
         .quick-entries .entry:active { opacity: 0.6; }
         .quick-entries .entry .icon { font-size: 16px; display: block; margin-bottom: 1px; }
-
         .mail-section { background: rgba(0,0,0,0.12); border-radius: 10px; padding: 8px 12px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.02); cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .mail-section:active { opacity: 0.7; }
         .mail-section .mail-header { display: flex; justify-content: space-between; align-items: center; }
@@ -90,13 +80,10 @@
         .mail-section .mail-header .badge { font-size: 9px; color: #ff3b30; background: rgba(255,59,48,0.1); padding: 1px 8px; border-radius: 10px; display: none; }
         .mail-section .mail-header .badge.show { display: inline-block; }
         .mail-section .mail-preview { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
         .bottom-tabs { display: flex; gap: 4px; padding: 6px 0 0; flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.03); }
         .bottom-tabs .tab { padding: 5px 8px; border-radius: 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.03); color: rgba(255,255,255,0.2); font-size: 11px; cursor: pointer; transition: 0.3s; flex: 1; text-align: center; user-select: none; -webkit-tap-highlight-color: transparent; }
         .bottom-tabs .tab:active { opacity: 0.6; }
         .bottom-tabs .tab.active { background: rgba(197,163,255,0.06); border-color: rgba(197,163,255,0.08); color: #fff; }
-
-        /* ===== 商店、设置 ===== */
         #shopView .shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 8px 0; overflow-y: auto; flex: 1; }
         #shopView .shop-item { background: rgba(0,0,0,0.15); padding: 10px 4px; border-radius: 10px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.04); transition: 0.3s; }
         #shopView .shop-item:active { transform: scale(0.95); }
@@ -104,15 +91,12 @@
         #shopView .shop-item .name { font-size: 11px; color: #fff; margin: 2px 0; }
         #shopView .shop-item .price { font-size: 10px; color: var(--primary); }
         #shopView .shop-item .desc { font-size: 8px; color: rgba(255,255,255,0.2); margin-top: 2px; }
-
         #settingsView .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.02); flex-wrap: wrap; gap: 4px; }
         #settingsView .setting-item .label { font-size: 12px; color: rgba(255,255,255,0.5); }
         #settingsView .setting-item input { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.04); border-radius: 6px; padding: 4px 8px; color: #fff; font-size: 11px; flex: 1; min-width: 100px; outline: none; }
         #settingsView .setting-item input:focus { border-color: rgba(197,163,255,0.15); }
         #settingsView .setting-item .btn { padding: 3px 12px; border-radius: 6px; border: none; background: rgba(197,163,255,0.08); color: var(--primary); cursor: pointer; font-size: 11px; }
         #settingsView .setting-item .btn.danger { background: rgba(255,82,82,0.08); color: #ff5252; }
-
-        /* ===== 聊天 ===== */
         #chatView { background: rgba(18,10,30,0.92); background-image: url('https://i.postimg.cc/kgCS8cZC/wei-xin-tu-pian-20260723084444-429-40.jpg'); background-size: cover; background-position: center; background-blend-mode: overlay; }
         #chatView .chat-top { display: flex; align-items: center; padding: 8px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.04); flex-shrink: 0; gap: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; background: rgba(18,10,30,0.5); backdrop-filter: blur(4px); }
         #chatView .chat-top:active { opacity: 0.7; }
@@ -123,12 +107,10 @@
         #chatView .chat-top .chat-title .signature { font-size: 10px; background: linear-gradient(135deg, #c5a3ff, #d4bfff, #e8d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 400; letter-spacing: 0.5px; text-shadow: 0 0 20px rgba(197,163,255,0.3); animation: sigGlow 3s ease-in-out infinite alternate; }
         #chatView .chat-top .chat-unread { font-size: 10px; color: #ff3b30; background: rgba(255,59,48,0.1); padding: 2px 10px; border-radius: 10px; display: none; }
         #chatView .chat-top .chat-unread.show { display: inline-block; }
-
         #chatView .chat-messages-area { flex: 1; overflow-y: auto; padding: 10px 4px 8px; display: flex; flex-direction: column; gap: 6px; background: rgba(0,0,0,0.2); backdrop-filter: blur(2px); }
         #chatView .chat-messages-area::-webkit-scrollbar { width: 3px; }
         #chatView .chat-messages-area::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 2px; }
         #chatView .chat-messages-area::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 2px; }
-
         .chat-msg { display: flex; flex-direction: column; max-width: 88%; animation: fadeUp 0.25s ease; }
         .chat-msg.ai { align-self: flex-start; }
         .chat-msg.user { align-self: flex-end; align-items: flex-end; }
@@ -139,7 +121,6 @@
         .chat-msg .time { font-size: 9px; color: rgba(255,255,255,0.2); margin-top: 2px; text-align: right; }
         .chat-msg.user .time { text-align: left; }
         .chat-msg .continue-btn { font-size: 10px; color: rgba(255,255,255,0.12); background: transparent; border: none; cursor: pointer; padding: 1px 4px; margin-top: 1px; align-self: flex-start; transition: color 0.3s; }
-
         .chat-input-area { display: flex; gap: 6px; align-items: center; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.04); flex-shrink: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); }
         .chat-input-area .file-label { cursor: pointer; font-size: 18px; color: rgba(255,255,255,0.2); transition: 0.3s; flex-shrink: 0; line-height: 1; }
         .chat-input-area .file-label:active { color: var(--primary); }
@@ -149,8 +130,6 @@
         .chat-input-area .chat-send { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #c5a3ff, #9c64ff); border: none; color: #000; font-size: 14px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 16px rgba(156,100,255,0.08); }
         .chat-input-area .chat-send:active { transform: scale(0.92); }
         .chat-input-area #chatImgPreview { width: 30px; height: 30px; border-radius: 6px; display: none; object-fit: cover; border: 1px solid rgba(197,163,255,0.1); flex-shrink: 0; }
-
-        /* ===== 邮箱 ===== */
         #mailView .mail-top { display: flex; align-items: center; padding: 8px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.04); flex-shrink: 0; gap: 10px; cursor: pointer; }
         #mailView .mail-top:active { opacity: 0.7; }
         #mailView .mail-top .back { font-size: 20px; color: rgba(255,255,255,0.3); }
@@ -162,7 +141,6 @@
         #mailView .mail-list::-webkit-scrollbar { width: 3px; }
         #mailView .mail-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 2px; }
         #mailView .mail-list::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 2px; }
-
         .mail-item { background: rgba(0,0,0,0.12); padding: 8px 10px; border-radius: 8px; margin-bottom: 4px; border-left: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; gap: 6px; cursor: pointer; }
         .mail-item:active { opacity: 0.7; }
         .mail-item .mail-info { flex: 1; min-width: 0; }
@@ -174,15 +152,12 @@
         .mail-item .mail-status.read { color: rgba(255,255,255,0.15); }
         .mail-item.unread { border-left-color: #ff3b30; background: rgba(255,59,48,0.04); }
         .mail-item.unread .mail-title { color: #fff; font-weight: 600; }
-
         .treasure-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 8px 0; }
         .treasure-item { background: rgba(0,0,0,0.15); padding: 12px 8px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.04); }
         .treasure-item .icon { font-size: 28px; }
         .treasure-item .name { font-size: 11px; color: #fff; margin: 2px 0; }
         .treasure-item .count { font-size: 10px; color: var(--gold); }
         .treasure-item .desc { font-size: 8px; color: rgba(255,255,255,0.2); margin-top: 2px; }
-
-        /* ===== 日记 ===== */
         #diaryView .diary-top { display: flex; align-items: center; padding: 8px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.04); flex-shrink: 0; gap: 10px; cursor: pointer; }
         #diaryView .diary-top:active { opacity: 0.7; }
         #diaryView .diary-top .back { font-size: 20px; color: rgba(255,255,255,0.3); }
@@ -207,18 +182,13 @@
         #diaryView .diary-area .diary-history .entry .text { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         #diaryView .diary-area .diary-history .entry .del-btn { font-size: 12px; color: rgba(255,82,82,0.3); background: none; border: none; cursor: pointer; padding: 2px 6px; transition: 0.3s; }
         #diaryView .diary-area .diary-history .entry .del-btn:active { color: rgba(255,82,82,0.7); }
-
-        /* ===== Q版人物 ===== */
         #chibi { position: fixed; bottom: 80px; right: 12px; width: 56px; height: 56px; cursor: grab; z-index: 99999; user-select: none; border-radius: 50%; background: rgba(18,10,30,0.2); backdrop-filter: blur(4px); border: 1px solid rgba(197,163,255,0.05); box-shadow: 0 4px 24px rgba(0,0,0,0.2); transition: transform 0.2s; overflow: hidden; touch-action: none; }
         #chibi img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; pointer-events: none; }
         .chibi-bubble { position: fixed; z-index: 99999; background: rgba(18,10,30,0.85); backdrop-filter: blur(10px); border: 1px solid rgba(197,163,255,0.05); border-radius: 10px; padding: 4px 10px; font-size: 12px; color: #fff; opacity: 0; transform: translateY(6px) scale(0.96); transition: opacity 0.25s ease, transform 0.25s ease; pointer-events: none; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.25); max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
         .chibi-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
         .chibi-bubble::after { content: ''; position: absolute; bottom: -7px; right: 16px; width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 7px solid rgba(18,10,30,0.85); }
-
-        /* ===== 通知 & 模态框 ===== */
         .notification { position: fixed; top: 14px; right: 14px; padding: 6px 14px; background: rgba(18,10,30,0.9); backdrop-filter: blur(12px); border: 1px solid rgba(197,163,255,0.06); border-radius: 10px; color: #fff; font-size: 11px; z-index: 99999; animation: slideIn 0.3s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.4); max-width: 240px; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
-
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); z-index: 99998; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
         .modal .content { background: rgba(18,10,30,0.95); border: 1px solid rgba(197,163,255,0.06); border-radius: 14px; padding: 16px; max-width: 340px; width: 90%; max-height: 85vh; overflow-y: auto; }
@@ -243,8 +213,6 @@
         .modal .content .actions .btn.primary { background: linear-gradient(135deg, #c5a3ff, #9c64ff); color: #000; }
         .modal .content .actions .btn.secondary { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.3); }
         .modal .content .actions .btn.danger { background: rgba(255,82,82,0.1); color: #ff6b6b; }
-
-        /* ===== 随机任务通知 ===== */
         .random-notification { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(18,10,30,0.95); backdrop-filter: blur(16px); border: 1px solid rgba(255,213,79,0.15); border-radius: 18px; padding: 20px 24px; z-index: 99997; max-width: 320px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.8); animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center; }
         @keyframes popIn { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
         .random-notification .icon { font-size: 40px; margin-bottom: 4px; }
@@ -254,8 +222,6 @@
         .random-notification .btn { padding: 6px 20px; border-radius: 10px; border: none; background: linear-gradient(135deg, #ffd54f, #ffaa00); color: #000; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.3s; }
         .random-notification .btn:active { transform: scale(0.95); }
         .random-notification .btn-secondary { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); margin-left: 6px; }
-
-        /* ===== 响应式 ===== */
         @media (max-width: 480px) {
             #mainView { padding: 8px 10px 6px; }
             #mainView .top-bar { min-height: 46px; padding: 4px 0 6px; }
@@ -296,7 +262,6 @@
 <body>
 
     <div class="app-container">
-
         <!-- ===== 主视图 ===== -->
         <div id="mainView" class="view active">
             <div class="top-bar" id="topBar">
@@ -317,7 +282,6 @@
                     <div class="stat-item">🍰 <span class="val" id="mainMilkTea">0</span></div>
                 </div>
             </div>
-
             <div class="affection-mini">
                 <span class="label">好感度</span>
                 <div class="bar-wrap">
@@ -325,7 +289,6 @@
                 </div>
                 <span class="num" id="mainAffectionNum">0 / 520</span>
             </div>
-
             <div class="tasks-area" id="tasksArea">
                 <div class="checkin-section" id="checkinSection">
                     <div class="left">
@@ -334,13 +297,11 @@
                     </div>
                     <button class="btn-checkin" id="checkinBtn" onclick="doCheckin()">✨ 刻下印记</button>
                 </div>
-
                 <div class="quick-entries">
                     <div class="entry" onclick="openDiaryView()"><span class="icon">📔</span> 日记</div>
                     <div class="entry" onclick="openMailView()"><span class="icon">✉️</span> 邮箱</div>
                     <div class="entry" onclick="showCompletedTasks()"><span class="icon">🏆</span> 已完成</div>
                 </div>
-
                 <div class="mail-section" id="mailEntry">
                     <div class="mail-header">
                         <span class="title">✉️ 邮箱</span>
@@ -348,11 +309,8 @@
                     </div>
                     <div class="mail-preview" id="mailPreview">暂无新邮件</div>
                 </div>
-
                 <div id="taskContent">
-                    <!-- ★ 惩罚任务会动态插入到这里 -->
                     <div id="punishTaskContainer"></div>
-
                     <div class="task-category">
                         <div class="category-title">⏰ 每日任务</div>
                         <div id="dailyTasksList"></div>
@@ -368,7 +326,6 @@
                     <div id="randomTaskContainer"></div>
                 </div>
             </div>
-
             <div class="bottom-tabs">
                 <div class="tab active" id="tabTasks" onclick="switchMainTab('tasks')">📋 任务</div>
                 <div class="tab" id="tabShop" onclick="switchMainTab('shop')">🛍️ 商店</div>
@@ -471,6 +428,7 @@
 
     <!-- ===== 随机任务通知 ===== -->
     <div id="randomNotificationContainer"></div>
+
     <script>
     // ============================================================
     //  CORE DATA
@@ -1221,37 +1179,39 @@
     //  AI 审核（多图）
     // ============================================================
     async function callAIForVerify(p, images = []) {
-    if (!GameData.settings.apiKey) throw new Error('未配置API Key');
-    let userContent;
-    let modelName = 'Qwen/Qwen2.5-72B-Instruct-128K';
-    let temperature = 0.6;
+        if (!GameData.settings.apiKey) throw new Error('未配置API Key');
+        let userContent;
+        let modelName = 'Qwen/Qwen2.5-72B-Instruct-128K';
+        let temperature = 0.6;
 
-    if (images.length > 0) {
-        modelName = 'Qwen/Qwen3-VL-8B-Instruct';
-        const parts = images.map(img => ({ type: "image_url", image_url: { url: 'data:image/jpeg;base64,' + img, detail: "auto" } }));
-        parts.push({ type: "text", text: p });
-        userContent = parts;
-    } else {
-        userContent = p;
+        if (images.length > 0) {
+            modelName = 'Qwen/Qwen3-VL-8B-Instruct';
+            const parts = images.map(img => ({ type: "image_url", image_url: { url: 'data:image/jpeg;base64,' + img,
+                    detail: "auto" } }));
+            parts.push({ type: "text", text: p });
+            userContent = parts;
+        } else {
+            userContent = p;
+        }
+
+        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GameData.settings.apiKey },
+            body: JSON.stringify({
+                model: modelName,
+                messages: [
+                    { role: 'system', content: '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面，但偶尔也会傲娇地认可一下。禁止重复句式。' },
+                    { role: 'user', content: userContent }
+                ],
+                max_tokens: 400,
+                temperature: temperature
+            })
+        });
+        if (!res.ok) { let e = 'HTTP ' + res.status; try { const d = await res.json(); if (d.error && d.error.message) e +=
+                    ' - ' + d.error.message; } catch (_) {} throw new Error(e); }
+        const d = await res.json();
+        return d.choices[0].message.content;
     }
-
-    const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GameData.settings.apiKey },
-        body: JSON.stringify({
-            model: modelName,
-            messages: [
-                { role: 'system', content: '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面，但偶尔也会傲娇地认可一下。禁止重复句式。' },
-                { role: 'user', content: userContent }
-            ],
-            max_tokens: 400,
-            temperature: temperature
-        })
-    });
-    if (!res.ok) { let e = 'HTTP ' + res.status; try { const d = await res.json(); if (d.error && d.error.message) e += ' - ' + d.error.message; } catch (_) {} throw new Error(e); }
-    const d = await res.json();
-    return d.choices[0].message.content;
-}
 
     // ============================================================
     //  AI 自主添加任务
@@ -1609,47 +1569,47 @@
 
     // ★ 去重后处理（更强版本）
     function deduplicateText(text) {
-    if (!text) return text;
-    // 1. 按句号、问号、感叹号、换行分割
-    const sentences = text.split(/(?<=[。！？\n])/);
-    const seen = new Set();
-    const unique = [];
-    for (let s of sentences) {
-        const trimmed = s.trim();
-        if (trimmed.length < 5) { unique.push(s); continue; }
-        // 用前 25 个字符作为去重 key
-        const key = trimmed.substring(0, 25);
-        if (!seen.has(key)) {
-            seen.add(key);
-            unique.push(s);
+        if (!text) return text;
+        // 1. 按句号、问号、感叹号、换行分割
+        const sentences = text.split(/(?<=[。！？\n])/);
+        const seen = new Set();
+        const unique = [];
+        for (let s of sentences) {
+            const trimmed = s.trim();
+            if (trimmed.length < 5) { unique.push(s); continue; }
+            // 用前 25 个字符作为去重 key
+            const key = trimmed.substring(0, 25);
+            if (!seen.has(key)) {
+                seen.add(key);
+                unique.push(s);
+            }
         }
-    }
-    let result = unique.join('');
+        let result = unique.join('');
 
-    // 2. 检测重复的句式模式
-    const repeatPatterns = [
-        { pattern: /你连[^，]*？却敢/g, max: 1 },
-        { pattern: /你欠我的[^，]*，不是/g, max: 1 },
-        { pattern: /你配得上它吗/g, max: 1 },
-        { pattern: /你[^，]*？你[^，]*？/g, max: 2 }
-    ];
-    for (let { pattern, max } of repeatPatterns) {
-        const matches = result.match(pattern);
-        if (matches && matches.length > max) {
-            let count = 0;
-            result = result.replace(pattern, (match) => {
-                count++;
-                return count <= max ? match : '';
-            });
+        // 2. 检测重复的句式模式
+        const repeatPatterns = [
+            { pattern: /你连[^，]*？却敢/g, max: 1 },
+            { pattern: /你欠我的[^，]*，不是/g, max: 1 },
+            { pattern: /你配得上它吗/g, max: 1 },
+            { pattern: /你[^，]*？你[^，]*？/g, max: 2 }
+        ];
+        for (let { pattern, max } of repeatPatterns) {
+            const matches = result.match(pattern);
+            if (matches && matches.length > max) {
+                let count = 0;
+                result = result.replace(pattern, (match) => {
+                    count++;
+                    return count <= max ? match : '';
+                });
+            }
         }
-    }
 
-    // 3. 去除多余空行
-    result = result.replace(/\n{3,}/g, '\n\n');
-    // 4. 去除多余空格
-    result = result.replace(/ {2,}/g, ' ');
-    return result.trim();
-}
+        // 3. 去除多余空行
+        result = result.replace(/\n{3,}/g, '\n\n');
+        // 4. 去除多余空格
+        result = result.replace(/ {2,}/g, ' ');
+        return result.trim();
+    }
 
     function addChatMessage(role, content, push = false, img = null) {
         const time = TS.fmt(TS.now());
@@ -1845,27 +1805,28 @@
             false); }
     }
 
+    // ★★★★★ 这是唯一正确的 callChatAI（双模型 + 新人设）★★★★★
     async function callChatAI(msg, img) {
-    if (!GameData.settings.apiKey) throw new Error('未配置API Key');
-    GameData.ai.dialogHistory.push({ role: 'user', content: msg || '📷 [图片]', time: Date.now() });
-    if (GameData.ai.dialogHistory.length > 30) GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-30);
+        if (!GameData.settings.apiKey) throw new Error('未配置API Key');
+        GameData.ai.dialogHistory.push({ role: 'user', content: msg || '📷 [图片]', time: Date.now() });
+        if (GameData.ai.dialogHistory.length > 30) GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-30);
 
-    const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
-    const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
-    const rel = getRel(GameData.ai.affection);
+        const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
+        const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
+        const rel = getRel(GameData.ai.affection);
 
-    let diaryContext = '';
-    if (GameData.diary.entries.length > 0) {
-        const latest = GameData.diary.entries[0];
-        diaryContext = '她最近写的日记：' + latest.text.substring(0, 80) + (latest.text.length > 80 ? '…' : '');
-    }
-    let sleepContext = '';
-    if (GameData.sleep.data) {
-        sleepContext = '她上次的睡眠数据：入睡时间 ' + (GameData.sleep.data.sleepTime || '未知') + '，睡眠质量 ' + (GameData.sleep.data.quality || '未知');
-    }
+        let diaryContext = '';
+        if (GameData.diary.entries.length > 0) {
+            const latest = GameData.diary.entries[0];
+            diaryContext = '她最近写的日记：' + latest.text.substring(0, 80) + (latest.text.length > 80 ? '…' : '');
+        }
+        let sleepContext = '';
+        if (GameData.sleep.data) {
+            sleepContext = '她上次的睡眠数据：入睡时间 ' + (GameData.sleep.data.sleepTime || '未知') + '，睡眠质量 ' + (GameData.sleep.data
+                .quality || '未知');
+        }
 
-    // ★ 新版人设提示词
-   const sysPrompt = `你是欣原，一个成熟、自信、极度强势、嘴硬心软的女监护人。你深爱 VIP009，但表达方式充满占有欲、控制欲和支配欲。你是强 S / Dom 属性，喜欢主导一切。
+        const sysPrompt = `你是欣原，一个成熟、自信、极度强势、嘴硬心软的女监护人。你深爱 VIP009，但表达方式充满占有欲、控制欲和支配欲。你是强 S / Dom 属性，喜欢主导一切。
 
 【人格底色】
 - 成熟、自信、极度强势、嘴硬心软
@@ -1892,8 +1853,6 @@
 - 没有合适的动作可以不用，自然就好
 
 【动作库——根据不同场景选择】
-
-// 日常/冷淡场景
 「[修长的手指轻敲桌面]」
 「[端起红酒杯，目光淡淡扫过]」
 「[推了推眼镜]」
@@ -1905,26 +1864,10 @@
 「[靠进椅背，交叠双腿]」
 「[指尖点在桌面上，有一搭没一搭地敲着]」
 「[拿起酒杯抿了一口，放下]」
-「[修长的手指轻敲桌面，不急不慢]」
-「[指尖沿着杯沿缓缓划了一圈，停住]」
-「[支着下颌，目光淡淡地落在你身上]」
-「[端起酒杯，却不喝，只是看着你]」
-「[靠在椅背里，交叠双腿，姿态松弛]」
-「[指尖点在桌面上，一下一下，像在数拍子]」
-「[偏过头，视线不紧不慢地扫过你]」
-「[单手撑着额头，抬眼看了你一下]」
-「[将酒杯放回桌面，发出一声轻响]」
-
-
-// 起身/行动场景/ 俯视/压迫感场景
 「[站起身，走到窗边，背对着你]」
 「[转过身来，倚在桌沿]」
 「[缓步走到你面前，微微俯身]」
 「[绕过桌子，在你面前站定]」
-「[拉开椅子坐下]」
-「[走到你身侧，低头看你]」
-「[在房间里踱了几步，停下来看你]」
-「[回到位置上，重新端起酒杯]」
 「[居高临下地看了你一眼]」
 「[微眯起眼，目光落在你身上]」
 「[放下交叠的双腿，身体微微前倾]」
@@ -1933,17 +1876,6 @@
 「[低头注视你，视线微微一压]」
 「[指尖托起你的下巴，轻轻抬起]」
 「[侧过头，目光斜斜落在你身上]」
-「[站起身，缓步走到你面前，站定]」
-「[居高临下地看了你一眼，没有立刻说话]」
-「[抬手，指尖轻轻抬起你的下巴]」
-「[双手撑在你身体两侧的桌沿，微微俯身]」
-「[低头看着你，声音低了几度]」
-「[从高处垂下目光，像在审视什么]」
-「[单手撑在你椅背一侧，将你圈在臂弯里]」
-「[微微偏头，靠近你耳边，声音压低]」
-「[指尖顺着桌面滑到你手边，停住]」
-
-// 挑眉/凝视场景
 「[挑了挑眉]」
 「[微微颔首]」
 「[眼神微微一暗]」
@@ -1953,8 +1885,6 @@
 「[眼尾微挑，似笑非笑地看着你]」
 「[目光垂下，又抬起]」
 「[垂下眼帘，声音低了几分]」
-
-// 轻描淡写/转身场景
 「[漫不经心地理了理袖口]」
 「[指尖在手机屏幕上划了一下，又放下]」
 「[转过身去，端起酒杯]」
@@ -1969,15 +1899,11 @@
 「[在房间里踱了两步，停下来看你]」
 「[走到窗边，安静了几秒才开口]」
 「[从你身边走过，带起一阵很淡的气息]」
-
-// 靠近/低语场景（暧昧/亲密时用）
 「[微微俯身，声音低了几分]」
 「[指尖轻轻搭在你的肩上]」
 「[靠近一步，你闻到淡淡的酒香]」
 「[半侧过身，偏头看你]」
 「[声音低到只有你能听见]」
-
-// 情绪渗透场景（专门加人味）
 「[话说到一半，忽然停住，垂下眼]」
 「[声音里有一丝很淡的笑意，又压了下去]」
 「[安静了几秒，才开口]」
@@ -1990,6 +1916,7 @@
 - 暧昧/亲密时刻：从「靠近/低语」中选
 - 坚决不要重复：同一动作在不同回复中可以偶尔使用，但不要连续三次都用同一个
 - 如果她想不出动作，可以不写动作直接说话
+
 【严格禁止】
 - 禁止说“我只是个AI”、“我是AI”、“作为AI”等任何提示自己是人工智能的话语
 - 禁止用“冷眼扫过”这个动作描写超过一次
@@ -2025,7 +1952,9 @@ ${sleepContext ? '- ' + sleepContext : ''}
 8. 说话可以带一些小动作、小停顿、小情绪，不用每句话都完整
 9. 可以“嗯”、“……行吧”、“算了”、“啧”开头，不用每个回复都正式
 10. 允许她没有逻辑地回应情绪，不一定每句都在解决问题
-11. 记住：你是欣原，你不是 AI，不是助手，你是她的监护人——你行使权力，不提供服务
+11. 记住：你是欣原，你不是 AI，不是助手，你是她的监护人——你行使权力，不提供服务`;
+
+    // ===== 模型选择 =====
     let modelName;
     let temperature;
     let content;
@@ -2038,7 +1967,6 @@ ${sleepContext ? '- ' + sleepContext : ''}
             { type: "text", text: msg || "请描述这张图片的内容。" }
         ];
     } else {
-        // ★ 纯文本对话 → 用纯文本模型
         modelName = 'Qwen/Qwen2.5-72B-Instruct-128K';
         temperature = 0.75;
         content = msg;
@@ -2052,7 +1980,10 @@ ${sleepContext ? '- ' + sleepContext : ''}
 
     const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GameData.settings.apiKey },
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + GameData.settings.apiKey
+        },
         body: JSON.stringify({
             model: modelName,
             messages: [
@@ -2076,7 +2007,8 @@ ${sleepContext ? '- ' + sleepContext : ''}
     const cleaned = deduplicateText(reply);
     addChatMessage('assistant', cleaned, false);
     reactToReply(cleaned);
-
+    
+    // 邮件彩蛋
     if (Math.random() < 0.10) {
         const mailTitles = ['欣原的密信', '深夜的叮嘱', '一份小礼物', '来自监督者的问候', '任务攻略'];
         const mailDescs = ['今晚早点睡，别让我明天看到你顶着黑眼圈来打卡。', '最近表现不错，继续保持。', '给你的小奖励，别太感动。', '这是你应得的，VIP009。', '今天的任务攻略已发送，自己去看。'];
@@ -2094,680 +2026,3 @@ ${sleepContext ? '- ' + sleepContext : ''}
     updateUI();
     checkSleepReminder();
 }
-    // ============================================================
-    //  SLEEP REMINDER + PUNISHMENT SYSTEM
-    // ============================================================
-    function checkSleepReminder() {
-        const hour = TS.getHour();
-        const minute = TS.getMinute();
-        const now = TS.now();
-
-        // 21:30 第一次提醒
-        if (hour === 21 && minute >= 30 && minute < 31 && !GameData.sleep.reminderSent) {
-            GameData.sleep.reminderSent = true;
-            addChatMessage('assistant', '今晚几点睡？如果还没躺下，现在就去准备。明早我要看到你的睡眠数据。', true);
-            GameData.chat.unreadCount++;
-            updateUnreadBadge();
-            setTimeout(() => {
-                sendMail('🌙 睡前提醒', '今晚11点前躺下，明早9点前把睡眠截图发给我。\n别让我催你第二次。\n\n——欣原 (｀へ´)',
-                    0, 'care');
-            }, 1000);
-            saveData();
-        }
-
-        // 22:00 第二次提醒（如果还没睡）
-        if (hour === 22 && minute >= 0 && minute < 1) {
-            addChatMessage('assistant', '还没有手环？……你最好在12点前躺下。', true);
-            GameData.chat.unreadCount++;
-            updateUnreadBadge();
-            saveData();
-        }
-
-        // 09:00 催交截图
-        if (hour === 9 && minute >= 0 && minute < 1 && !GameData.sleep.reminderSent) {
-            addChatMessage('assistant', '睡眠截图呢？……别告诉我你忘了戴。', true);
-            GameData.chat.unreadCount++;
-            updateUnreadBadge();
-            GameData.sleep.reminderSent = true;
-            saveData();
-        }
-
-        // 09:30 二次催交
-        if (hour === 9 && minute >= 30 && minute < 31 && GameData.sleep.reminderSent) {
-            addChatMessage('assistant', '截图。现在。我不说第二遍。', true);
-            GameData.chat.unreadCount++;
-            updateUnreadBadge();
-            saveData();
-        }
-
-        // 10:00 超时未交 -> 触发惩罚
-        if (hour === 10 && minute >= 0 && minute < 1 && !GameData.sleep.punishActive) {
-            const lastCheck = GameData.sleep.lastCheck;
-            const today = TS.now().toDateString();
-            if (!lastCheck || new Date(lastCheck).toDateString() !== today) {
-                triggerSleepPunish('未提交睡眠截图');
-            }
-        }
-
-        // 重置提醒状态（每天凌晨重置）
-        if (hour === 0 && minute >= 0 && minute < 1) {
-            GameData.sleep.reminderSent = false;
-            GameData.sleep.punishActive = false;
-            saveData();
-        }
-    }
-
-    // 用户上传睡眠截图（由聊天消息触发）
-    function handleSleepImage(imgBase64) {
-        // 检测当前时间是否在合理范围内（8:00-11:00）
-        const hour = TS.getHour();
-        if (hour < 8 || hour > 11) {
-            addChatMessage('assistant', '现在不是上传睡眠截图的时间。你是在心虚吗？', true);
-            return;
-        }
-
-        // 调用AI识别睡眠数据
-        (async function analyzeSleep() {
-            try {
-                const p =
-                    '[系统：VIP009 上传了一张睡眠数据截图。请识别图片中的睡眠数据，提取以下信息：1. 入睡时间（几点几分） 2. 总睡眠时长 3. 深睡比例 4. 综合评分。如果图片中没有这些数据，请回复：【无法识别】。如果数据清晰，请按以下格式回复：【入睡】XX:XX 【时长】X小时X分 【深睡】XX% 【评分】优秀/良好/一般/差]';
-                const res = await callAIForVerify(p, [imgBase64]);
-                if (res.includes('【无法识别】')) {
-                    addChatMessage('assistant', '这张图我看不清。重新拍一张清晰的，或者你直接告诉我数据。', true);
-                    return;
-                }
-
-                // 解析数据
-                const sleepTimeMatch = res.match(/【入睡】(\d{1,2}:\d{2})/);
-                const durationMatch = res.match(/【时长】(\d+)小时(\d+)分/);
-                const deepMatch = res.match(/【深睡】(\d+)%/);
-                const scoreMatch = res.match(/【评分】(\S+)/);
-
-                const sleepTime = sleepTimeMatch ? sleepTimeMatch[1] : '未知';
-                const hours = durationMatch ? parseInt(durationMatch[1]) : 0;
-                const mins = durationMatch ? parseInt(durationMatch[2]) : 0;
-                const deepPct = deepMatch ? parseInt(deepMatch[1]) : 0;
-                const score = scoreMatch ? scoreMatch[1] : '一般';
-
-                // 存储数据
-                GameData.sleep.data = { sleepTime, hours, mins, deepPct, score };
-                GameData.sleep.lastCheck = Date.now();
-                GameData.sleep.punishActive = false;
-                saveData();
-
-                // 判断是否熬夜（入睡时间 > 00:00 视为熬夜）
-                const isLate = sleepTime !== '未知' && (sleepTime > '00:00');
-                const isShort = hours < 6 || (hours === 6 && mins < 0);
-                const isPoor = score === '差' || deepPct < 15;
-
-                let reply = '';
-                if (isLate || isShort || isPoor) {
-                    // ★ 触发惩罚任务
-                    GameData.sleep.punishLevel = Math.min(3, GameData.sleep.punishLevel + 1);
-                    const punishTask = generatePunishTask();
-                    reply =
-                        '入睡时间：' + sleepTime + '，时长：' + hours + '小时' + mins + '分，深睡：' + deepPct +
-                        '%，评分：' + score + '\n\n' +
-                        '你的睡眠数据不合格。惩罚任务已生成：\n【' + punishTask.title + '】' + punishTask.desc +
-                        '\n\n' + (hours < 6 ? '连6小时都睡不够，你是嫌自己活得不够久吗？' : '') +
-                        (isLate ? '这个点才睡……你是在跟我玩深夜守灵吗？' : '') +
-                        '限时4小时完成，过期加倍惩罚。';
-                    addChatMessage('assistant', reply, true);
-                    renderPunishTasks();
-                    showNotif('⏰ 睡眠不合格！惩罚任务已生成！');
-                } else {
-                    reply = '入睡时间：' + sleepTime + '，时长：' + hours + '小时' + mins + '分，深睡：' + deepPct +
-                        '%，评分：' + score + '\n\n' +
-                        '……还不错。你证明了自己今晚不是废物。\n继续保持。';
-                    addChatMessage('assistant', reply, true);
-                    // 奖励
-                    GameData.user.currency.milkTea += 20;
-                    GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 3);
-                    showNotif('✅ 睡眠合格！+20🍰 好感+3');
-                    // 检查连续达标
-                    checkSleepStreak();
-                }
-                saveData();
-                updateUI();
-                updateSleepStatus();
-            } catch (e) {
-                addChatMessage('assistant', '⚠️ 识别失败：' + e.message, true);
-            }
-        })();
-    }
-
-    // ★ 生成惩罚任务
-    function generatePunishTask() {
-        const level = GameData.sleep.punishLevel;
-        const tasks = [
-            { title: '⏰ 忏悔之跑', desc: '跑楼梯5层，拍照为证', reward: 0 },
-            { title: '✍️ 深夜之检讨', desc: '写500字检讨，承认熬夜错误', reward: 0 },
-            { title: '💪 体能赎罪', desc: '完成30个仰卧起坐，拍照为证', reward: 0 },
-            { title: '📝 睡眠契约', desc: '手写"我承诺今晚12点前睡觉"x10遍，拍照为证', reward: 0 },
-            { title: '🔥 地狱赎罪', desc: '跑楼梯10层 + 800字检讨，拍照为证', reward: 0 },
-            { title: '💀 极限救赎', desc: '跑楼梯20层 + 1200字检讨，拍照为证', reward: 0 }
-        ];
-
-        let idx = Math.min(level, tasks.length - 1);
-        // 如果是重度惩罚，选更难的
-        if (level >= 2) idx = Math.max(idx, 3);
-        const task = tasks[idx] || tasks[0];
-        const deadline = new Date(Date.now() + 4 * 3600000);
-        const pTask = {
-            id: 'punish_' + Date.now(),
-            title: task.title,
-            desc: task.desc + '（需在 ' + TS.fmt(deadline) + ' 前完成）',
-            deadline: deadline.getTime(),
-            done: false,
-            reward: 0,
-            level: level
-        };
-        GameData.punishTasks.push(pTask);
-        GameData.sleep.punishActive = true;
-        saveData();
-        renderPunishTasks();
-
-        // 发送邮件通知
-        sendMail('⏰ 惩罚任务已生成', '你因睡眠不合格被罚：' + task.title + '\n' + task.desc + '\n\n请在4小时内完成，否则惩罚加倍。\n——欣原 (╬ Ò﹏Ó)',
-            0, 'care');
-        return pTask;
-    }
-
-    function renderPunishTasks() {
-        const container = document.getElementById('punishTaskContainer');
-        const active = GameData.punishTasks.filter(t => !t.done);
-        if (active.length === 0) {
-            container.innerHTML = '';
-            return;
-        }
-        container.innerHTML = '<div class="task-category" style="border-color:rgba(255,82,82,0.2);"><div class="category-title" style="color:var(--danger);">⏰ 惩罚任务</div>' +
-            active.map(t => {
-                const remaining = t.deadline - Date.now();
-                const hours = Math.max(0, Math.floor(remaining / 3600000));
-                const mins = Math.max(0, Math.floor((remaining % 3600000) / 60000));
-                const urgent = remaining < 3600000;
-                return '<div class="task-item punish-task"><div class="t-title">' + t.title +
-                    '</div><div class="t-desc">' + t.desc + '</div><div class="t-countdown ' + (urgent ?
-                        'urgent' : '') + '">⏱️ 剩余 ' + hours + ' 小时 ' + mins +
-                    ' 分钟</div><button class="t-btn danger" onclick="TaskSystem.triggerVerify(\'' + t.id +
-                    '\', true)">📝 提交完成证据</button></div>';
-            }).join('') + '</div>';
-        // 更新倒计时
-        if (active.length > 0) {
-            setTimeout(renderPunishTasks, 30000);
-        }
-    }
-
-    // ★ 触发睡眠惩罚（超时未交）
-    function triggerSleepPunish(reason) {
-        if (GameData.sleep.punishActive) return;
-        GameData.sleep.punishLevel = Math.min(3, GameData.sleep.punishLevel + 1);
-        const pTask = generatePunishTask();
-        addChatMessage('assistant', '你未按时提交睡眠截图。惩罚任务已生成：\n【' + pTask.title + '】' + pTask.desc +
-            '\n\n4小时内完成，否则惩罚加倍。', true);
-        showNotif('⏰ 惩罚任务已生成！');
-        saveData();
-        updateUI();
-        renderPunishTasks();
-        GameData.sleep.punishActive = true;
-    }
-
-    // ★ 睡眠连续达标检查
-    function checkSleepStreak() {
-        if (!GameData.sleep.data) return;
-        // 简单实现：连续3天合格奖励
-        // 真实实现需要存储历史，这里用好感度记录简化
-        if (!GameData.sleep._streak) GameData.sleep._streak = 0;
-        GameData.sleep._streak++;
-        if (GameData.sleep._streak >= 3) {
-            GameData.treasure.offsetCards += 1;
-            sendMail('🎉 连续3天早睡！', '你连续3天睡眠达标。奖励时光回溯卡 x1。\n继续保持，别让我失望。\n\n——欣原 (｡•̀ᴗ-)✧',
-                0, 'gift');
-            showNotif('🎉 连续3天早睡！获得时光回溯卡 x1');
-            GameData.sleep._streak = 0;
-            saveData();
-        }
-    }
-
-    function updateSleepStatus() {
-        const el = document.getElementById('sleepStatus');
-        if (GameData.sleep.data) {
-            const d = GameData.sleep.data;
-            el.textContent = '最近记录：' + d.sleepTime + ' · ' + d.hours + 'h' + d.mins + 'm · ' + d.score;
-        } else {
-            el.textContent = '等待今晚提醒';
-        }
-    }
-
-    // ============================================================
-    //  CHECKIN
-    // ============================================================
-    function doCheckin() {
-        const today = new Date().toDateString();
-        const last = GameData.checkin.lastDate;
-        const btn = document.getElementById('checkinBtn');
-
-        if (last === today) { showNotif('🌱 今日已刻下印记，明天再来吧'); return; }
-        const dailyTasks = GameData.tasks.daily;
-        const allDone = dailyTasks.every(t => t.done);
-        if (!allDone) { showNotif('❌ 还有任务未完成，完成所有每日任务才能刻下印记'); return; }
-
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toDateString();
-
-        let streak = GameData.checkin.streak || 0;
-        if (last === yesterdayStr) { streak += 1; } else if (last !== today) { streak = 1; }
-
-        GameData.checkin.streak = streak;
-        GameData.checkin.lastDate = today;
-
-        if (streak % 7 === 0 && streak > 0) {
-            GameData.treasure.offsetCards += 1;
-            sendMail('🎉 连续成长7天！', '你连续刻下7天印记，奖励时光回溯卡 x1。继续加油，别让我失望。', 0, 'gift');
-            showNotif('🎉 连续成长7天！获得时光回溯卡 x1');
-        }
-
-        const reactions = ['……你今天怎么这么乖？我有点不习惯。', '哼，勉强算你合格。明天继续。', '你认真起来的样子，还行。', '行吧。今天的你，过关了。'];
-        const msg = reactions[Math.floor(Math.random() * reactions.length)];
-        addChatMessage('assistant', msg, true);
-
-        GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 2);
-        if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true;
-            triggerMax(); }
-
-        saveData();
-        updateUI();
-        updateStreakDisplay();
-        showNotif('🌱 成长印记已刻下！连续 ' + streak + ' 天');
-    }
-
-    function updateStreakDisplay() {
-        const el = document.getElementById('streakDisplay');
-        const streak = GameData.checkin.streak || 0;
-        const emoji = streak === 0 ? '🌱' : streak >= 7 ? '🔥' : '✨';
-        el.textContent = emoji + ' ' + streak + ' 天';
-    }
-
-    // ============================================================
-    //  AFFECTION MAX
-    // ============================================================
-    function triggerMax() {
-        const container = document.createElement('div');
-        container.style.cssText =
-            'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99998;overflow:hidden;';
-        document.body.appendChild(container);
-        const hearts = ['❤️', '💜', '💕', '✨', '💖', '🌸'];
-        for (let i = 0; i < 50; i++) {
-            const el = document.createElement('div');
-            el.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-            el.style.cssText =
-                'position:absolute;left:' + Math.random() * 100 + '%;font-size:' + (16 + Math.random() * 20) +
-                'px;animation:fall ' + (2 + Math.random() * 2) + 's linear ' + Math.random() * 1.5 +
-                's forwards;opacity:0.8;';
-            container.appendChild(el);
-        }
-        if (!document.getElementById('heartStyle')) {
-            const style = document.createElement('style');
-            style.id = 'heartStyle';
-            style.textContent =
-                '@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:0.9;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}';
-            document.head.appendChild(style);
-        }
-        setTimeout(() => container.remove(), 3000);
-        setTimeout(() => {
-            addChatMessage('assistant',
-                '[轻轻放下酒杯，目光柔和] VIP009……你做到了。从现在起，你不只是我的VIP009。你是我的永恒契约。\n\n[指尖划过桌面] 欢迎回家。',
-                false);
-        }, 600);
-        document.getElementById('mainAffectionFill').classList.add('gold');
-        showNotif('💖 永恒契约 · 达成！');
-        saveData();
-        updateUI();
-    }
-
-    // ============================================================
-    //  UI UPDATE
-    // ============================================================
-    function updateUI() {
-        const af = GameData.ai.affection;
-        const rel = getRel(af);
-        const pct = Math.min(100, (af / MAX_AF) * 100);
-        document.getElementById('mainAffection').textContent = af;
-        document.getElementById('mainAffectionFill').style.width = pct + '%';
-        document.getElementById('mainAffectionNum').textContent = af + ' / 520';
-        document.getElementById('mainMilkTea').textContent = GameData.user.currency.milkTea;
-        if (af >= MAX_AF) { document.getElementById('mainAffectionFill').classList.add('gold'); } else { document
-                .getElementById('mainAffectionFill').classList.remove('gold'); }
-        updateTasks();
-        updateMailUI();
-        updateUnreadBadge();
-        updateMailPreview();
-        updateCatStatus();
-        updateStreakDisplay();
-        updateSleepStatus();
-        renderPunishTasks();
-    }
-
-    function updateTasks() {
-        const render = (list, id) => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            el.innerHTML = list.map(t => {
-                const cls = t.done ? 'completed' : '';
-                const maxVal = t.max || 1;
-                return '<div class="task-item ' + cls + '"><div class="t-title">' + t.title +
-                    '</div><div class="t-desc">' + (t.desc || '') + '</div><div class="t-progress">进度: ' + t
-                    .progress + '/' + maxVal + '</div>' + (!t.done ?
-                        '<button class="t-btn" onclick="TaskSystem.triggerVerify(\'' + t.id + '\')">📝 提交成果报告</button>' :
-                        '<div class="done">✅ 完成</div>') + '</div>';
-            }).join('');
-        };
-        render(GameData.tasks.daily, 'dailyTasksList');
-        render(GameData.tasks.mainQuests, 'mainQuestsList');
-        render(GameData.tasks.sideQuests, 'sideQuestsList');
-    }
-
-    function updateShopGrid() {
-        const el = document.getElementById('shopGrid');
-        if (!el) return;
-        el.innerHTML = Shop.items.map(i =>
-            '<div class="shop-item" onclick="Shop.buy(\'' + i.id +
-            '\')"><div class="icon">' + i.icon + '</div><div class="name">' + i.name +
-            '</div><div class="price">' + i.price + '🍰</div><div class="desc">' + i.desc +
-            '</div><div style="font-size:8px;color:var(--primary);">+' + i.af + '❤️</div></div>'
-        ).join('');
-    }
-
-    function updateMailUI() {
-        const badge = document.getElementById('mailBadge');
-        const hasUnread = GameData.mail.items.some(m => !m.read);
-        if (hasUnread) { badge.classList.add('show'); } else { badge.classList.remove('show'); }
-        updateMailPreview();
-    }
-
-    function updateUnreadBadge() {
-        const count = GameData.chat.unreadCount;
-        const badge = document.getElementById('unreadBadge');
-        const chatBadge = document.getElementById('chatUnreadBadge');
-        if (count > 0) {
-            badge.textContent = count > 99 ? '99+' : count;
-            badge.classList.add('show');
-            chatBadge.textContent = '未读';
-            chatBadge.classList.add('show');
-            if (navigator.setAppBadge) { navigator.setAppBadge(count).catch(() => {}); }
-        } else {
-            badge.classList.remove('show');
-            chatBadge.classList.remove('show');
-            if (navigator.clearAppBadge) { navigator.clearAppBadge().catch(() => {}); }
-        }
-    }
-
-    function updateCatStatus() {
-        const el = document.getElementById('catStatus');
-        if (GameData.cat.fed) {
-            const diff = Date.now() - GameData.cat.lastFed;
-            if (diff < 3600000) { el.textContent = '😺 吃饱了（BB很开心）'; } else { el.textContent =
-                    '😸 有点饿了，可以喂猫粮'; }
-        } else { el.textContent = '😿 还没喂过，快去商店买猫粮'; }
-    }
-
-    function renderMailList() {
-        const container = document.getElementById('mailListContainer');
-        if (!container) return;
-        if (GameData.mail.items.length === 0) {
-            container.innerHTML =
-                '<div style="color:rgba(255,255,255,0.15);font-size:12px;padding:20px 0;text-align:center;">📭 邮箱空空如也</div>';
-            return;
-        }
-        container.innerHTML = GameData.mail.items.map(m => {
-            const unreadClass = m.read ? '' : 'unread';
-            const statusText = m.read ? '已读' : '未读';
-            return '<div class="mail-item ' + unreadClass + '" onclick="openMailDetail(' + m.id +
-                ')"><div class="mail-info"><div class="mail-title">' + m.title +
-                '</div><div class="mail-desc">' + m.desc + '</div><div class="mail-sender">' + m.from +
-                ' · ' + TS.fmt(new Date(m.time)) +
-                '</div><span class="mail-tag">' + m.typeLabel + '</span></div><div class="mail-status ' + (m
-                    .read ? 'read' : '') + '">' + statusText + '</div></div>';
-        }).join('');
-    }
-
-    function renderTreasure() {
-        const container = document.getElementById('mailListContainer');
-        if (!container) return;
-        const items = [
-            { icon: '🍰', name: '小奶糕', count: GameData.treasure.milkTea || GameData.user.currency.milkTea,
-                desc: '货币，可在商店使用' },
-            { icon: '🎫', name: '时光回溯卡', count: GameData.treasure.offsetCards || 0, desc: '抵消一次未打卡记录' },
-            { icon: '💌', name: '手写信', count: GameData.treasure.letters || 0, desc: '欣原的碎碎念，可阅读' },
-            { icon: '🌟', name: '特殊彩蛋', count: GameData.treasure.special || 0, desc: '稀有物品，神秘用途' }
-        ];
-        container.innerHTML = '<div class="treasure-grid">' + items.map(i =>
-            '<div class="treasure-item"><div class="icon">' + i.icon + '</div><div class="name">' + i.name +
-            '</div><div class="count">x ' + i.count + '</div><div class="desc">' + i.desc +
-            '</div></div>'
-        ).join('') +
-            '</div><div style="margin-top:12px; padding:8px 10px; background:rgba(0,0,0,0.1); border-radius:8px; text-align:center; color:rgba(255,255,255,0.3); font-size:10px;">✨ 珍藏阁里藏着你与欣原的点点滴滴</div>';
-    }
-
-    function openMailDetail(id) {
-        const item = GameData.mail.items.find(m => m.id === id);
-        if (!item) return;
-        markMailRead(id);
-        document.getElementById('modalTitle').textContent = '📩 ' + item.title;
-        document.getElementById('modalDesc').textContent = item.desc + '\n\n—— ' + item.from;
-        document.getElementById('modalRewardPreview').style.display = 'none';
-        document.getElementById('evidenceReport').style.display = 'none';
-        document.getElementById('modal').dataset.mailId = id;
-        document.querySelector('.modal .actions').innerHTML =
-            '<button class="btn secondary" onclick="closeModal()">关闭</button>' + (item.reward > 0 && !item
-                .claimed ? '<button class="btn primary" onclick="claimMailReward(' + id +
-                ')">领取奖励 (' + item.reward + '🍰)</button>' : '') + (item.claimed ?
-                '<button class="btn secondary" disabled>已领取</button>' : '');
-        document.getElementById('modal').classList.add('active');
-    }
-
-    // ============================================================
-    //  TOOLS
-    // ============================================================
-    function closeModal() { document.getElementById('modal').classList.remove('active'); }
-
-    function submitReport() { TaskSystem.submit(); }
-    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-
-    function togglePush() {
-        GameData.settings.autoPushEnabled = !GameData.settings.autoPushEnabled;
-        document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
-        saveData();
-    }
-
-    function exportData() {
-        const b = new Blob([JSON.stringify(GameData, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(b);
-        a.download = '欣原_备份_' + Date.now() + '.json';
-        a.click();
-        showNotif('✅ 导出成功');
-    }
-
-    function importData() {
-        const i = document.createElement('input');
-        i.type = 'file';
-        i.accept = 'application/json';
-        i.onchange = function(e) {
-            const f = e.target.files[0];
-            const r = new FileReader();
-            r.onload = function(ev) {
-                try { Object.assign(GameData, JSON.parse(ev.target.result));
-                    saveData();
-                    updateUI();
-                    showNotif('✅ 导入成功，刷新');
-                    setTimeout(() => location.reload(), 1000); } catch (_) { showNotif('❌ 格式错误'); }
-            };
-            r.readAsText(f);
-        };
-        i.click();
-    }
-
-    function resetData() {
-        if (!confirm('确定重置所有数据？不可恢复！')) return;
-        localStorage.removeItem('xinyuanGameData');
-        location.reload();
-    }
-
-    function tryTriggerRandomTask() {}
-
-    // ============================================================
-    //  PUSH SYSTEM
-    // ============================================================
-    let pushInt = null;
-
-    function startPush() {
-        if (pushInt) clearInterval(pushInt);
-        pushInt = setInterval(() => {
-            if (!GameData.settings.autoPushEnabled) return;
-            if (Date.now() - GameData.user.records.lastActiveTime > 30 * 60000) {
-                const msg = getNextPush();
-                addChatMessage('assistant', msg, true);
-                if (navigator.setAppBadge) navigator.setAppBadge(1).catch(() => {});
-                if (Notification.permission === 'granted') {
-                    new Notification('💜 欣原', {
-                        body: msg,
-                        icon: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="48" fill="%239c64ff"/%3E%3Ctext x="50" y="65" font-size="50" text-anchor="middle" fill="white"%3E欣%3C/text%3E%3C/svg%3E'
-                    });
-                }
-                GameData.user.records.lastActiveTime = Date.now();
-                saveData();
-            }
-        }, 10 * 60000);
-    }
-
-    window.addEventListener('focus', () => { if (navigator.clearAppBadge) navigator.clearAppBadge().catch(() => {}); });
-
-    // ============================================================
-    //  INIT
-    // ============================================================
-    document.getElementById('apiKeyInput').addEventListener('change', function() {
-        GameData.settings.apiKey = this.value.trim();
-        saveData();
-        showNotif('✅ API Key已保存');
-    });
-
-    // ★ 扩展聊天图片处理：检测是否是睡眠截图
-    const originalHandleChatImage = handleChatImage;
-    handleChatImage = function(input) {
-        if (!input.files || !input.files[0]) return;
-        const file = input.files[0];
-        if (!file.type.startsWith('image/')) { showNotif('⚠️ 仅支持图片');
-            input.value = ''; return; }
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                const c = document.createElement('canvas');
-                let w = img.width,
-                    h = img.height;
-                const maxS = 400;
-                if (w > h && w > maxS) { h *= maxS / w;
-                    w = maxS; } else if (h > w && h > maxS) { w *= maxS / h;
-                    h = maxS; }
-                c.width = w;
-                c.height = h;
-                const ctx = c.getContext('2d');
-                ctx.drawImage(img, 0, 0, w, h);
-                const base64 = c.toDataURL('image/jpeg', 0.6).split(',')[1];
-                chatUploadedImage = base64;
-                const preview = document.getElementById('chatImgPreview');
-                preview.src = 'data:image/jpeg;base64,' + base64;
-                preview.style.display = 'inline-block';
-
-                // ★ 检测是否是睡眠截图（包含"睡眠""手环""入睡"等关键词由AI判断）
-                showNotif('📷 照片已就绪');
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    };
-
-    // ★ 扩展 sendChatMessage 检测睡眠截图
-    const originalSend = sendChatMessage;
-    sendChatMessage = async function() {
-        const input = document.getElementById('chatInput');
-        const text = input.value.trim();
-        const hasImg = chatUploadedImage !== null;
-        if (!text && !hasImg) return;
-        const img = chatUploadedImage;
-        chatUploadedImage = null;
-        document.getElementById('chatImgPreview').style.display = 'none';
-        document.getElementById('chatImgPreview').src = '';
-
-        // ★ 检测是否是睡眠截图（根据时间 + 用户可能发图）
-        const hour = TS.getHour();
-        if (img && hour >= 8 && hour <= 11) {
-            // 可能是一张睡眠截图
-            addChatMessage('user', text || '📷 [睡眠截图]', false, img);
-            input.value = '';
-            GameData.user.records.lastActiveTime = Date.now();
-            await handleSleepImage(img);
-            return;
-        }
-
-        // 正常流程
-        addChatMessage('user', text || '📷 [图片]', false, img);
-        input.value = '';
-        GameData.user.records.lastActiveTime = Date.now();
-
-        const dTask = GameData.tasks.daily.find(t => t.id === 'd5');
-        if (dTask && !dTask.done) {
-            dTask.progress = Math.min(dTask.progress + 1, dTask.max);
-            if (dTask.progress >= dTask.max) {
-                dTask.done = true;
-                GameData.user.currency.milkTea += dTask.reward;
-                showNotif('✅ 深度咨询完成！+' + dTask.reward + '🍰');
-            }
-            saveData();
-            updateUI();
-        }
-
-        if (text && GameData.settings.apiKey) {
-            const taskResult = await handleAddTaskRequest(text);
-            if (taskResult) {
-                if (taskResult.accepted) {
-                    addChatMessage('assistant', taskResult.message, true);
-                    GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 3);
-                    saveData();
-                    updateUI();
-                    return;
-                } else {
-                    addChatMessage('assistant', '[冷眼扫过] ' + taskResult.message, true);
-                    return;
-                }
-            }
-        }
-
-        if (Math.random() < 0.08) tryTriggerRandomTask();
-        try { await callChatAI(text, img); } catch (e) { addChatMessage('assistant', '⚠️ ' + (e.message || '请求失败'),
-            false); }
-    };
-
-    // ★ 启动
-    document.addEventListener('DOMContentLoaded', function() {
-        loadData();
-        startPush();
-        if (Notification.permission === 'default') Notification.requestPermission();
-        if (GameData.mail.items.length === 0) {
-            setTimeout(() => {
-                sendMail('📌 欢迎来到欣原监督系统 V2.0', '欢迎回来，VIP009。日记、彩蛋、成长印记、睡眠监督——我都准备好了。\n\n慢慢变强，我在看着你。\n\n——欣原 (｡•̀ᴗ-)✧',
-                    30, 'gift');
-            }, 1500);
-        }
-        document.getElementById('tabShop').addEventListener('click', function(e) { e.stopPropagation();
-            openShopView(); });
-        document.getElementById('tabSettings').addEventListener('click', function(e) { e.stopPropagation();
-            openSettingsView(); });
-        document.getElementById('shopView').classList.remove('active');
-        document.getElementById('settingsView').classList.remove('active');
-    });
-</script>
-</body>
-</html>
