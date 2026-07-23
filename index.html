@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VIP009 · 欣原监督系统 6.3</title>
     <style>
-        /* ===== 样式完全沿用你最初能用的版本，无任何改动 ===== */
+        /* ===== 样式完全保留，未改动 ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --primary: #c5a3ff;
@@ -535,7 +535,7 @@
             settings: { apiKey: '', autoPushEnabled: true }
         };
 
-        // ==================== 任务池（加入普通话主线） ====================
+        // ==================== 任务池（含普通话） ====================
         const CBEC_POOL = [
             { title: "CBEC: 竞品 Listing 拆解", desc: "深入分析3个海外竞争对手的 Listing 卖点并提炼核心关键词" },
             { title: "CBEC: 客户开发信编写", desc: "写一封给海外 B端 客户的极度专业、地道的开发合作邮件" },
@@ -557,7 +557,7 @@
             { title: "身材管理: 拒绝游离糖摄入", desc: "严格控制今日饮食，绝不摄入任何含游离糖饮料、加工零食及甜品" },
             { title: "身材管理: 抗炎膳食打卡", desc: "执行一日地中海式抗炎餐，多摄入深海鱼油及抗氧化高膳食纤维" }
         ];
-        // ★ 新增普通话主线任务池
+        // ★ 普通话任务池
         const MANDARIN_POOL = [
             { title: "普通话: 经典绕口令攻克", desc: "大声朗读经典绕口令《八百标兵奔北坡》或《红兵和黄兵》10遍，克服发音硬伤" },
             { title: "普通话: 散文诗歌规范朗诵", desc: "规范大声朗读现代诗《面朝大海，春暖花开》或朱自清《春》片段5遍，追求字正腔圆" },
@@ -568,7 +568,7 @@
         let uploadedImageBase64 = null;
         function shuffleAndPick(pool, count = 1) { const shuffled = [...pool].sort(() => 0.5 - Math.random()); return shuffled.slice(0, count); }
 
-        // ==================== 图片压缩（转纯 base64） ====================
+        // ==================== 图片压缩 ====================
         function compressAndPreview(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -620,7 +620,7 @@
             }
         };
 
-        // ==================== 任务系统（含普通话主线） ====================
+        // ==================== 任务系统 ====================
         const TaskSystem = {
             generateDailyTasks() {
                 const cbec = shuffleAndPick(CBEC_POOL,1)[0];
@@ -652,9 +652,80 @@
                     phrases: ['早晨 (zou2 san4) - 早上好','多谢 (do1 ze6) - 谢谢','唔该 (m4 goi1) - 不好意思/谢谢','好耐冇见 (hou2 noi6 mou5 gin3) - 好久不见','几钱 (gei2 cin2) - 多少钱','唔好意思 (m4 hou2 ji3 si1) - 不好意思','得闲饮茶 (dak1 haan4 jam2 caa4) - 有空喝茶','食饭未 (sik6 faan6 mei6) - 吃饭了吗','你好 (nei5 hou2) - 你好','再见 (zoi3 gin3) - 再见']
                 }];
             },
-            triggerVerify(taskId) { /* 保持原逻辑，省略细节 */ },
-            async submitReport(taskId) { /* 保持原逻辑，省略细节 */ },
-            checkExpiredTasks() { /* 保持原逻辑 */ }
+            triggerVerify(taskId) {
+                let taskList;
+                if (taskId.startsWith('d')) taskList = GameData.tasks.daily;
+                else if (taskId.startsWith('m')) taskList = GameData.tasks.mainQuests;
+                else if (taskId.startsWith('s')) taskList = GameData.tasks.sideQuests;
+                const task = taskList.find(t => t.id === taskId);
+                if (!task || task.completed) return;
+                const title = document.getElementById('modalTitle');
+                const body = document.getElementById('modalBody');
+                const footer = document.getElementById('modalFooter');
+                title.textContent = `📋 任务呈递: ${task.title}`;
+                body.innerHTML = `
+                    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:15px;line-height:1.6;"><strong>描述:</strong> ${task.desc || task.description || '暂无说明'}</p>
+                    <p style="font-size:12px;color:var(--accent);margin-bottom:10px;">⚠️ 警告：欣原正密切监视着你的呈递。请输入你真实的成果汇报，若有实操截图证据，请在主面板左侧点击📷拍照后，再到此弹窗提交报告。</p>
+                    <textarea id="evidenceReport" placeholder="在此输入你的实操成果报告、分析心得或自律凭证（至少10个字符）..." style="width:100%;height:120px;background:rgba(0,0,0,0.5);color:#fff;border:1px solid rgba(197,163,255,0.3);border-radius:12px;padding:12px;font-size:13px;outline:none;resize:none;"></textarea>
+                `;
+                footer.innerHTML = `
+                    <button class="btn btn-secondary btn-small" onclick="closeModal()">取消</button>
+                    <button class="btn btn-small" onclick="TaskSystem.submitReport('${taskId}')">递交欣原审查</button>
+                `;
+                document.getElementById('modal').classList.add('active');
+            },
+            async submitReport(taskId) {
+                const report = document.getElementById('evidenceReport').value.trim();
+                if (report.length < 10) { alert("你的汇报太敷衍了。至少写满 10 个字，否则欣原会当场揉碎你的报告。"); return; }
+                closeModal();
+                const activeImg = uploadedImageBase64;
+                uploadedImageBase64 = null;
+                document.getElementById('imgPreview').style.display = 'none';
+                addAIMessage(`[正在查验并审阅你关于任务的汇报：'${report.substring(0,15)}...' ${activeImg ? ' (附带实操截图证明)' : ''}]`);
+                showTypingIndicator();
+                const verifyPrompt = `[系统指令：用户 VIP009 正在向你呈递一项任务成果报告。任务名称：'${taskId.startsWith('d')?GameData.tasks.daily.find(t=>t.id===taskId).title:(taskId.startsWith('m')?GameData.tasks.mainQuests.find(t=>t.id===taskId).title:GameData.tasks.sideQuests.find(t=>t.id===taskId).title)}' 用户的实操汇报：'${report}'
+                请你以欣原的冷艳、极度严格的姿态对该图片和汇报文字进行真实、极度精密的审查。如果是运动、减重任务，而用户上传了图片，请你：1. 智能OCR读取并识别她图片中的内容。 - 如果是身材管理：仔细读取运动手表、手环、App 截图上的数据，如运动时间、公里数、消耗卡路里、心率等。审核其是否达到了任务宣称的训练负荷。 - 如果是跨境英语：阅读她上传的 Listing 文字或草稿，审查翻译和卖点拆解的深度。 - 如果是财报理财：审查她图片中的资产负债数字和资产流向细节。 - 如果是普通话：审查她提交的发音自查分析。 2. 如果她企图用不相关的宠物图、风景照或完全敷衍的文字来糊弄你，冷酷地看穿并痛骂她，直接拒收！ 3. 如果确实合格、真诚，请在你的回复【最开头】加上 [PASS] 标记，并进行勉强的、施舍般的点评。 4. 如果不合格或作假，绝对不要加上 [PASS] 标记，并且极度客观冷酷地拒绝她的完成申请，羞辱她的不负责。]`;
+                try {
+                    const reply = await AISystem.callAPI(verifyPrompt, activeImg);
+                    hideTypingIndicator();
+                    if (reply.includes('[PASS]')) {
+                        const cleanReply = reply.replace('[PASS]','').trim();
+                        addAIMessage(cleanReply);
+                        let taskList;
+                        if (taskId.startsWith('d')) taskList = GameData.tasks.daily;
+                        else if (taskId.startsWith('m')) taskList = GameData.tasks.mainQuests;
+                        else if (taskId.startsWith('s')) taskList = GameData.tasks.sideQuests;
+                        const task = taskList.find(t => t.id === taskId);
+                        if (task) {
+                            task.progress = Math.min(task.progress + 1, task.maxProgress);
+                            if (task.progress >= task.maxProgress && !task.completed) {
+                                task.completed = true;
+                                GameData.user.currency.milkTea += task.reward;
+                                showNotification(`✅ 欣原审核通过！获得 ${task.reward} 🍰`);
+                                RelationshipSystem.changeAffection(5);
+                            }
+                        }
+                    } else {
+                        addAIMessage(reply);
+                        showNotification(`❌ 审核未通过！好感度下降并被拒。`);
+                        RelationshipSystem.changeAffection(-3);
+                    }
+                } catch(e) {
+                    hideTypingIndicator();
+                    addAIMessage("（网络波动，查验链路受损。VIP009，再去点一次递交。）");
+                }
+                saveData(); updateUI();
+            },
+            checkExpiredTasks() {
+                const now = TimeSystem.getChinaTime().getTime();
+                let hasExpired = false;
+                [...GameData.tasks.mainQuests, ...GameData.tasks.sideQuests].forEach(task => {
+                    if (!task.completed && !task.expired && now > task.deadline) {
+                        task.expired = true; hasExpired = true; RelationshipSystem.changeAffection(-10);
+                    }
+                });
+                if (hasExpired) { saveData(); updateUI(); }
+            }
         };
 
         // ==================== 关系系统 ====================
@@ -684,10 +755,29 @@
                 { id:'gift5', name:'高定礼服', icon:'👗', price:1200, affection:90, desc:'优雅奢侈高定礼服' },
                 { id:'gift6', name:'梵克雅宝项链', icon:'🍀', price:2500, affection:210, desc:'昂贵奢侈，心跳加速' }
             ],
-            buyGift(itemId) { /* 保持原逻辑 */ }
+            buyGift(itemId) {
+                const item = this.items.find(i => i.id === itemId);
+                if (!item) return;
+                if (GameData.user.currency.milkTea < item.price) {
+                    showNotification('❌ 小奶糕不足！');
+                    addAIMessage('[冷淡地瞥了你一眼]：财务还没自由，就想买这些奢侈品来打发我？先去赚够小奶糕，VIP009。');
+                    return;
+                }
+                GameData.user.currency.milkTea -= item.price;
+                RelationshipSystem.changeAffection(item.affection);
+                showNotification(`✅ 购买成功！好感度+${item.affection}`);
+                const responses = [
+                    `[微微一怔，眼波流转]：${item.name}？VIP009，你倒是挺懂得试探我的喜好。`,
+                    `[接过你的${item.name}，指尖轻轻触碰]：谢谢。这一次你很用心，VIP009。`,
+                    `[推了推眼镜，冷漠地摩挲着${item.name}]：你花这么多小奶糕，是在试图买下我的仁慈么？VIP009。`,
+                    `[挑了挑眉，优雅地收下]：既然你坚持，那我就收下了，VIP009。`
+                ];
+                addAIMessage(responses[Math.floor(Math.random()*responses.length)]);
+                saveData(); updateUI();
+            }
         };
 
-        // ==================== AI对话系统（修复400错误） ====================
+        // ==================== AI对话系统（修复400错误，确保图片识别） ====================
         const AISystem = {
             async sendMessage(userMessage, base64Image = null) {
                 showTypingIndicator();
@@ -733,7 +823,6 @@ VIP009 当前的实时待办任务有：
 
                 let contentPayload;
                 if (base64Image) {
-                    // 拼回完整 data URL
                     const imageUrl = `data:image/jpeg;base64,${base64Image}`;
                     contentPayload = [
                         { type: "image_url", image_url: { url: imageUrl, detail: "auto" } },
@@ -743,7 +832,7 @@ VIP009 当前的实时待办任务有：
                     contentPayload = message;
                 }
 
-                // 净化历史（只保留 role 和 content，并确保 content 是字符串）
+                // 净化历史（确保 content 为字符串，避免数组干扰）
                 const cleanHistory = GameData.ai.dialogHistory.slice(-10).map(msg => {
                     let content = msg.content;
                     if (Array.isArray(content)) {
@@ -753,7 +842,7 @@ VIP009 当前的实时待办任务有：
                     return { role: msg.role, content: String(content) };
                 });
 
-                // ★ 使用你列表中的 VL 模型
+                // 使用你列表中的稳定 VL 模型
                 const modelName = 'Qwen/Qwen3-VL-8B-Instruct';
 
                 const requestBody = {
@@ -802,7 +891,7 @@ VIP009 当前的实时待办任务有：
             }
         };
 
-        // ==================== UI 更新（完整保留你原来的） ====================
+        // ==================== UI 更新（完整保留） ====================
         function updateUI() {
             document.getElementById('healthStat').textContent = GameData.user.stats.health;
             document.getElementById('energyStat').textContent = GameData.user.stats.energy;
@@ -956,7 +1045,7 @@ VIP009 当前的实时待办任务有：
             saveData(); updateUI();
         }
 
-        // ==================== 其他功能（Tab切换、通知、导出导入等，全部保留原样） ====================
+        // ==================== 标签切换（确保可用） ====================
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -964,6 +1053,7 @@ VIP009 当前的实时待办任务有：
             document.getElementById(tabName + 'Tab').classList.add('active');
         }
 
+        // ==================== 通知、模态框等 ====================
         function showNotification(message) {
             const notif = document.createElement('div');
             notif.className = 'notification';
@@ -973,6 +1063,7 @@ VIP009 当前的实时待办任务有：
         }
 
         function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
         function showModal(title, body) {
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalBody').innerHTML = body;
@@ -1060,6 +1151,7 @@ VIP009 当前的实时待办任务有：
                 } else {
                     GameData.user.records.streak = 1;
                     showNotification('🎉 欢迎来到欣原监督系统！');
+                    // ★ 只显示一次，加 true
                     addAIMessage('[优雅地交叠双腿，手指敲击着办公桌面]：你好，VIP009。我是你的监护人欣原。从今天开始，我会对你的跨境电商英语、财务投资、身材管理进行全方位严苛监控。别想在我的眼皮底下有任何松懈。', true);
                 }
                 GameData.user.records.lastCheckIn = Date.now();
@@ -1125,7 +1217,7 @@ VIP009 当前的实时待办任务有：
                 saveData();
                 showNotification('✅ API Key已保存');
             });
-            // 不自动重复渲染历史，避免问候语重复
+            // 不再重复渲染历史，避免重复问候
         }
         window.addEventListener('DOMContentLoaded', init);
     </script>
