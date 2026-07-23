@@ -3112,4 +3112,29 @@ ${sleepContext ? '- ' + sleepContext : ''}
                 const style = document.createElement('style');
                 style.id = 'heartStyle';
                 style.textContent =
-                    `@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:0.9;}100%{transform:translateY(110vh) rotate(720deg);opacity
+                  @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:0.9;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+    </style>
+</head>
+<body>
+    <!-- 这里是完整的 HTML 主体内容，你之前的已经有了，如果没被截断就不用动 -->
+    <!-- 但是为了保险，我还是把完整的 V2.0 结尾部分贴出来 -->
+    <script>
+        // ============ 以下是你缺失的结尾 JS ============
+            if (GameData.mail.items.length === 0) {
+                setTimeout(() => {
+                    sendMail('📌 欢迎来到欣原监督系统 V2.0',
+                        '欢迎回来，VIP009。日记、彩蛋、成长印记——我都准备好了。\n\n慢慢变强，我在看着你。\n\n——欣原 (｡•̀ᴗ-)✧',
+                        30, 'gift');
+                }, 1500);
+            }
+            document.getElementById('tabShop').addEventListener('click', function(e) { e.stopPropagation(); openShopView(); });
+            document.getElementById('tabSettings').addEventListener('click', function(e) { e.stopPropagation(); openSettingsView(); });
+            document.getElementById('shopView').classList.remove('active');
+            document.getElementById('settingsView').classList.remove('active');
+            
+            // 启动主动推送（欣原会主动发消息）
+            startPush();
+        });
+    </script>
+</body>
+</html>
