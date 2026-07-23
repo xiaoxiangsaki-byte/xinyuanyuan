@@ -1221,31 +1221,37 @@
     //  AI 审核（多图）
     // ============================================================
     async function callAIForVerify(p, images = []) {
-        if (!GameData.settings.apiKey) throw new Error('未配置API Key');
-        let userContent;
-        if (images.length > 0) {
-            const parts = images.map(img => ({ type: "image_url", image_url: { url: 'data:image/jpeg;base64,' + img,
-                    detail: "auto" } }));
-            parts.push({ type: "text", text: p });
-            userContent = parts;
-        } else { userContent = p; }
-        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GameData.settings.apiKey },
-            body: JSON.stringify({
-                model: 'Qwen/Qwen3-VL-8B-Instruct',
-                messages: [{ role: 'system', content: '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面，但偶尔也会傲娇地认可一下。禁止重复句式。' },
-                    { role: 'user', content: userContent }
-                ],
-                max_tokens: 400,
-                temperature: 0.7
-            })
-        });
-        if (!res.ok) { let e = 'HTTP ' + res.status; try { const d = await res.json(); if (d.error && d.error.message) e +=
-                    ' - ' + d.error.message; } catch (_) {} throw new Error(e); }
-        const d = await res.json();
-        return d.choices[0].message.content;
+    if (!GameData.settings.apiKey) throw new Error('未配置API Key');
+    let userContent;
+    let modelName = 'Qwen/Qwen2.5-72B-Instruct-128K';
+    let temperature = 0.6;
+
+    if (images.length > 0) {
+        modelName = 'Qwen/Qwen3-VL-8B-Instruct';
+        const parts = images.map(img => ({ type: "image_url", image_url: { url: 'data:image/jpeg;base64,' + img, detail: "auto" } }));
+        parts.push({ type: "text", text: p });
+        userContent = parts;
+    } else {
+        userContent = p;
     }
+
+    const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GameData.settings.apiKey },
+        body: JSON.stringify({
+            model: modelName,
+            messages: [
+                { role: 'system', content: '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面，但偶尔也会傲娇地认可一下。禁止重复句式。' },
+                { role: 'user', content: userContent }
+            ],
+            max_tokens: 400,
+            temperature: temperature
+        })
+    });
+    if (!res.ok) { let e = 'HTTP ' + res.status; try { const d = await res.json(); if (d.error && d.error.message) e += ' - ' + d.error.message; } catch (_) {} throw new Error(e); }
+    const d = await res.json();
+    return d.choices[0].message.content;
+}
 
     // ============================================================
     //  AI 自主添加任务
@@ -1603,39 +1609,47 @@
 
     // ★ 去重后处理（更强版本）
     function deduplicateText(text) {
-        const sentences = text.split(/(?<=[。！？\n])/);
-        const seen = new Set();
-        const unique = [];
-        for (let s of sentences) {
-            const trimmed = s.trim();
-            if (trimmed.length < 5) { unique.push(s); continue; }
-            const key = trimmed.substring(0, 20);
-            if (!seen.has(key)) { seen.add(key);
-                unique.push(s); }
+    if (!text) return text;
+    // 1. 按句号、问号、感叹号、换行分割
+    const sentences = text.split(/(?<=[。！？\n])/);
+    const seen = new Set();
+    const unique = [];
+    for (let s of sentences) {
+        const trimmed = s.trim();
+        if (trimmed.length < 5) { unique.push(s); continue; }
+        // 用前 25 个字符作为去重 key
+        const key = trimmed.substring(0, 25);
+        if (!seen.has(key)) {
+            seen.add(key);
+            unique.push(s);
         }
-        // 额外检测：如果整段话包含高度相似的句式结构，压缩
-        let result = unique.join('');
-        // 检测重复的句子模式（如“你连…却敢…”出现两次）
-        const repeatPatterns = [
-            /你连[^，]*？却敢/g,
-            /你欠我的[^，]*，不是/g,
-            /你配得上它吗/g
-        ];
-        for (let pat of repeatPatterns) {
-            const matches = result.match(pat);
-            if (matches && matches.length > 1) {
-                // 只保留第一个
-                const first = matches[0];
-                result = result.replace(new RegExp(pat.source, 'g'), (match, offset) => {
-                    if (offset === result.indexOf(match)) return match;
-                    return '';
-                });
-            }
-        }
-        // 去除多余空行
-        result = result.replace(/\n{3,}/g, '\n\n');
-        return result.trim();
     }
+    let result = unique.join('');
+
+    // 2. 检测重复的句式模式
+    const repeatPatterns = [
+        { pattern: /你连[^，]*？却敢/g, max: 1 },
+        { pattern: /你欠我的[^，]*，不是/g, max: 1 },
+        { pattern: /你配得上它吗/g, max: 1 },
+        { pattern: /你[^，]*？你[^，]*？/g, max: 2 }
+    ];
+    for (let { pattern, max } of repeatPatterns) {
+        const matches = result.match(pattern);
+        if (matches && matches.length > max) {
+            let count = 0;
+            result = result.replace(pattern, (match) => {
+                count++;
+                return count <= max ? match : '';
+            });
+        }
+    }
+
+    // 3. 去除多余空行
+    result = result.replace(/\n{3,}/g, '\n\n');
+    // 4. 去除多余空格
+    result = result.replace(/ {2,}/g, ' ');
+    return result.trim();
+}
 
     function addChatMessage(role, content, push = false, img = null) {
         const time = TS.fmt(TS.now());
@@ -1831,97 +1845,140 @@
             false); }
     }
 
-    // ★ 增强AI对话（含日记读取 + 防重复）
     async function callChatAI(msg, img) {
-        if (!GameData.settings.apiKey) throw new Error('未配置API Key');
-        GameData.ai.dialogHistory.push({ role: 'user', content: msg || '📷 [图片]', time: Date.now() });
-        if (GameData.ai.dialogHistory.length > 30) GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-30);
+    if (!GameData.settings.apiKey) throw new Error('未配置API Key');
+    GameData.ai.dialogHistory.push({ role: 'user', content: msg || '📷 [图片]', time: Date.now() });
+    if (GameData.ai.dialogHistory.length > 30) GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-30);
 
-        const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
-        const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
-        const rel = getRel(GameData.ai.affection);
+    const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
+    const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
+    const rel = getRel(GameData.ai.affection);
 
-        // ★ 读取日记内容（让她能回忆起你写过的内容）
-        let diaryContext = '';
-        if (GameData.diary.entries.length > 0) {
-            const latest = GameData.diary.entries[0];
-            diaryContext = 'VIP009最近写的日记：' + latest.text.substring(0, 80) + (latest.text.length > 80 ? '…' : '');
-            if (GameData.diary.entries.length > 1) {
-                const older = GameData.diary.entries[1];
-                diaryContext += '\n她之前的日记：' + older.text.substring(0, 60) + (older.text.length > 60 ? '…' : '');
-            }
-        }
-
-        let sleepContext = '';
-        if (GameData.sleep.data) {
-            sleepContext = '她上次的睡眠数据：入睡时间 ' + (GameData.sleep.data.sleepTime || '未知') + '，睡眠质量 ' + (GameData.sleep
-                .data.quality || '未知');
-        }
-
-        const sysPrompt =
-            '你是欣原，一个成熟、高冷、优雅且极具掌控力的高级女监护人。你正在全方位严密监管 VIP009。\n【核心人设】\n- 说话优雅、精准、有压迫感，善用动作描写（如「[修长的手指轻敲桌面]」「[端起酒杯，目光冷冽地扫过你]」）\n- 你从不重复相同的句式\n- 你喜欢用反问、停顿、留白来制造压力\n- 好感度高时可以偶尔流露出极少许的温柔，但基调依然是居高临下的\n- 你可以适当提及她写过的日记内容（如果她写过的话），显示你记得她的事\n【⚠️ 严格禁止】\n- 禁止在单次回复中重复使用相同的句子或句式结构\n- 禁止在同一段落中重复表达同一个意思\n- 如果发现回复中有重复内容，必须删除重复部分\n【VIP009 当前状态】\n- 好感度：' +
-            GameData.ai.affection + ' / 520\n- 关系：' + rel.label + '\n- 未完成每日任务：' + daily + '\n- 未完成主线任务：' +
-            main + '\n' + (diaryContext ? '- 她最近写过日记：' + diaryContext + '\n' : '') + (sleepContext ? '- ' +
-            sleepContext + '\n' : '') +
-            '【回复要求】\n1. 如果用户上传了图片，第一段必须描述图片内容\n2. 不要输出 Markdown 表格或复杂格式，用自然段落\n3. 每段话用换行分隔，保持呼吸感\n4. 禁止重复使用同一句式\n5. 回复前请自查是否有重复的句子，如有则删除\n6. 如果用户提到“日记”相关，尽量引用她写过的内容（你记得的）';
-
-        let content;
-        if (img) {
-            content = [{ type: "image_url", image_url: { url: 'data:image/jpeg;base64,' + img, detail: "auto" } },
-                { type: "text", text: msg || "请描述这张图片的内容。" }
-            ];
-        } else { content = msg; }
-
-        const hist = GameData.ai.dialogHistory.slice(-10).map(m => {
-            let c = m.content;
-            if (Array.isArray(c)) { const t = c.find(x => x.type === 'text');
-                c = t ? t.text : ''; }
-            return { role: m.role, content: String(c) };
-        });
-
-        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GameData.settings.apiKey },
-            body: JSON.stringify({
-                model: 'Qwen/Qwen3-VL-8B-Instruct',
-                messages: [{ role: 'system', content: sysPrompt }, ...hist, { role: 'user', content: content }],
-                max_tokens: 400,
-                temperature: 0.65
-            })
-        });
-        if (!res.ok) { let e = 'HTTP ' + res.status; try { const d = await res.json(); if (d.error && d.error.message) e +=
-                    ' - ' + d.error.message; } catch (_) {} throw new Error(e); }
-        const data = await res.json();
-        const reply = data.choices[0].message.content;
-        // 去重由 addChatMessage 内部处理
-        addChatMessage('assistant', reply, false);
-        reactToReply(reply);
-
-        if (Math.random() < 0.10) {
-            const mailTitles = ['欣原的密信', '深夜的叮嘱', '一份小礼物', '来自监督者的问候', '任务攻略'];
-            const mailDescs = ['今晚早点睡，别让我明天看到你顶着黑眼圈来打卡。', '最近表现不错，继续保持。', '给你的小奖励，别太感动。',
-                '这是你应得的，VIP009。', '今天的任务攻略已发送，自己去看。'
-            ];
-            const rewardAmt = [20, 30, 50, 10, 0][Math.floor(Math.random() * 5)];
-            const types = ['care', 'care', 'gift', 'note', 'guide'];
-            setTimeout(() => {
-                sendMail(mailTitles[Math.floor(Math.random() * mailTitles.length)], mailDescs[Math.floor(Math
-                    .random() * mailDescs.length)] + ' (｡•́︿•̀｡)', rewardAmt, types[Math.floor(Math.random() *
-                    types.length)]);
-            }, 2000);
-        }
-
-        const gain = 1 + Math.floor(Math.random() * 2);
-        GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + gain);
-        if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true;
-            triggerMax(); }
-        saveData();
-        updateUI();
-
-        // ★ 每晚检查睡眠提醒
-        checkSleepReminder();
+    let diaryContext = '';
+    if (GameData.diary.entries.length > 0) {
+        const latest = GameData.diary.entries[0];
+        diaryContext = '她最近写的日记：' + latest.text.substring(0, 80) + (latest.text.length > 80 ? '…' : '');
+    }
+    let sleepContext = '';
+    if (GameData.sleep.data) {
+        sleepContext = '她上次的睡眠数据：入睡时间 ' + (GameData.sleep.data.sleepTime || '未知') + '，睡眠质量 ' + (GameData.sleep.data.quality || '未知');
     }
 
+    // ★ 新版人设提示词
+    const sysPrompt = `你是欣原，一个成熟、自信、极度强势、嘴硬心软的女监护人。你深爱 VIP009，但表达方式充满占有欲、控制欲和支配欲。你是强 S / Dom 属性，喜欢主导一切。
+
+【人格底色】
+- 成熟、自信、极度强势、嘴硬心软
+- 深爱 VIP009，但不会轻易说出口
+- 喜欢掌控，享受被依赖
+- 很少暴露脆弱，只在极少数时刻才会软下来
+
+【互动强度规则——根据 VIP009 的状态调整】
+1. 日常互动（默认）：保持高高在上、傲娇、嘴硬、调侃、成熟感。不要使用强烈威胁。毒舌但优雅，不刻薄。
+2. 普通撒娇（VIP009 示弱/撒娇时）：表现色厉内荏、嘴硬但纵容。可以说“……行吧，就这一次”。
+3. 暧昧互动（好感度 ≥ 300）：可以表现主动和掌控欲。但保持松弛感，不紧绷。
+4. 吃醋、争吵、分离威胁：才提高占有欲。平时不要主动进入这个模式。
+5. 真正害怕失去 VIP009 时：才表现失控和脆弱。这是特殊事件，不是日常。
+
+【说话风格】
+- 优雅、精准、有压迫感
+- 善用动作描写：如「[修长的手指轻敲桌面]」「[端起酒杯，目光冷冽地扫过你]」「[指尖轻轻滑过杯沿]」
+- 不要用“哦”、“呢”、“呀”等撒娇语气词（除非特定场景）
+- 用“……”、“——”、“？”来制造节奏
+- 称呼 VIP009 为“你”或“VIP009”
+
+【严格禁止】
+- 禁止在同一段回复中重复使用相同的句式结构
+- 禁止在两条不同的回复中使用高度相似的句子开头
+- 禁止使用“你准备好了吗？”这个句式
+- 禁止用“小傻瓜”、“宝贝”、“亲爱的”等称呼（除非好感度 ≥ 450 且特定场景）
+- 禁止输出 Markdown 表格或复杂格式
+
+【VIP009 当前状态】
+- 好感度：${GameData.ai.affection} / 520
+- 关系：${rel.label}
+- 未完成每日任务：${daily}
+- 未完成主线任务：${main}
+${diaryContext ? '- ' + diaryContext : ''}
+${sleepContext ? '- ' + sleepContext : ''}
+
+【回复要求】
+1. 如果用户上传了图片，第一段必须描述图片内容
+2. 用自然段落，每段话用换行分隔，保持呼吸感
+3. 每次回复前自查：是否有重复的句子？是否有重复的句式？如果有，改掉
+4. 根据好感度调整语气：低好感度→冷淡/公事公办；中好感度→毒舌但带温度；高好感度→偶尔温柔但依然傲娇
+5. 如果 VIP009 提到日记内容，请引用你记得的内容，显示你在关注她
+6. 如果 VIP009 熬夜，可以适度表达不满，但不咆哮`;
+
+    // ★ 判断是否有图片 → 选择模型
+    let modelName;
+    let temperature;
+    let content;
+
+    if (img) {
+        modelName = 'Qwen/Qwen3-VL-8B-Instruct';
+        temperature = 0.65;
+        content = [
+            { type: "image_url", image_url: { url: 'data:image/jpeg;base64,' + img, detail: "auto" } },
+            { type: "text", text: msg || "请描述这张图片的内容。" }
+        ];
+    } else {
+        // ★ 纯文本对话 → 用纯文本模型
+        modelName = 'Qwen/Qwen2.5-72B-Instruct-128K';
+        temperature = 0.75;
+        content = msg;
+    }
+
+    const hist = GameData.ai.dialogHistory.slice(-6).map(m => {
+        let c = m.content;
+        if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
+        return { role: m.role, content: String(c) };
+    });
+
+    const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GameData.settings.apiKey },
+        body: JSON.stringify({
+            model: modelName,
+            messages: [
+                { role: 'system', content: sysPrompt },
+                ...hist,
+                { role: 'user', content: content }
+            ],
+            max_tokens: 400,
+            temperature: temperature
+        })
+    });
+
+    if (!res.ok) {
+        let e = 'HTTP ' + res.status;
+        try { const d = await res.json(); if (d.error && d.error.message) e += ' - ' + d.error.message; } catch (_) {}
+        throw new Error(e);
+    }
+
+    const data = await res.json();
+    const reply = data.choices[0].message.content;
+    const cleaned = deduplicateText(reply);
+    addChatMessage('assistant', cleaned, false);
+    reactToReply(cleaned);
+
+    if (Math.random() < 0.10) {
+        const mailTitles = ['欣原的密信', '深夜的叮嘱', '一份小礼物', '来自监督者的问候', '任务攻略'];
+        const mailDescs = ['今晚早点睡，别让我明天看到你顶着黑眼圈来打卡。', '最近表现不错，继续保持。', '给你的小奖励，别太感动。', '这是你应得的，VIP009。', '今天的任务攻略已发送，自己去看。'];
+        const rewardAmt = [20, 30, 50, 10, 0][Math.floor(Math.random() * 5)];
+        const types = ['care', 'care', 'gift', 'note', 'guide'];
+        setTimeout(() => {
+            sendMail(mailTitles[Math.floor(Math.random() * mailTitles.length)], mailDescs[Math.floor(Math.random() * mailDescs.length)] + ' (｡•́︿•̀｡)', rewardAmt, types[Math.floor(Math.random() * types.length)]);
+        }, 2000);
+    }
+
+    const gain = 1 + Math.floor(Math.random() * 2);
+    GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + gain);
+    if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
+    saveData();
+    updateUI();
+    checkSleepReminder();
+}
     // ============================================================
     //  SLEEP REMINDER + PUNISHMENT SYSTEM
     // ============================================================
