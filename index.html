@@ -31,24 +31,10 @@
         #mainView .top-bar .left { display: flex; align-items: center; gap: 10px; }
         #mainView .top-bar .avatar-sm { width: 42px; height: 42px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
         #mainView .top-bar .avatar-sm img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        /* ★ 角标移到名字后面 */
         #mainView .top-bar .info { position: relative; display: flex; flex-direction: column; }
         #mainView .top-bar .info .name-row { display: flex; align-items: center; gap: 6px; }
         #mainView .top-bar .info .name-row h3 { font-size: 15px; color: #fff; font-weight: 600; }
-        #mainView .top-bar .info .name-row .unread-badge {
-            font-size: 10px;
-            background: #ff3b30;
-            color: #fff;
-            font-weight: 700;
-            min-width: 18px;
-            height: 18px;
-            border-radius: 10px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 0 5px;
-            box-shadow: 0 0 8px rgba(255,59,48,0.3);
-        }
+        #mainView .top-bar .info .name-row .unread-badge { font-size: 10px; background: #ff3b30; color: #fff; font-weight: 700; min-width: 18px; height: 18px; border-radius: 10px; display: none; align-items: center; justify-content: center; padding: 0 5px; box-shadow: 0 0 8px rgba(255,59,48,0.3); }
         #mainView .top-bar .info .name-row .unread-badge.show { display: flex; }
         #mainView .top-bar .info .signature { font-size: 10px; background: linear-gradient(135deg, #c5a3ff, #d4bfff, #e8d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 400; letter-spacing: 0.5px; text-shadow: 0 0 20px rgba(197,163,255,0.3); animation: sigGlow 3s ease-in-out infinite alternate; }
         @keyframes sigGlow { 0% { text-shadow: 0 0 10px rgba(197,163,255,0.2); } 100% { text-shadow: 0 0 25px rgba(197,163,255,0.5), 0 0 40px rgba(156,100,255,0.2); } }
@@ -192,15 +178,28 @@
         .notification { position: fixed; top: 14px; right: 14px; padding: 6px 14px; background: rgba(18,10,30,0.9); backdrop-filter: blur(12px); border: 1px solid rgba(197,163,255,0.06); border-radius: 10px; color: #fff; font-size: 11px; z-index: 99999; animation: slideIn 0.3s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.4); max-width: 240px; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* ===== 模态框 ===== */
+        /* ===== 模态框（含多图上传） ===== */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); z-index: 99998; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
-        .modal .content { background: rgba(18,10,30,0.95); border: 1px solid rgba(197,163,255,0.06); border-radius: 14px; padding: 16px; max-width: 340px; width: 90%; }
+        .modal .content { background: rgba(18,10,30,0.95); border: 1px solid rgba(197,163,255,0.06); border-radius: 14px; padding: 16px; max-width: 340px; width: 90%; max-height: 85vh; overflow-y: auto; }
         .modal .content h3 { color: var(--primary); margin-bottom: 4px; font-size: 14px; }
         .modal .content .desc { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 6px; }
         .modal .content .random-reward-preview { font-size: 10px; color: var(--gold); background: rgba(255,213,79,0.06); padding: 4px 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid rgba(255,213,79,0.06); }
         .modal .content .evidence-hint { font-size: 10px; color: #ff6b6b; background: rgba(255,82,82,0.08); padding: 4px 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid rgba(255,82,82,0.08); display: none; }
         .modal .content .evidence-hint.show { display: block; }
+
+        /* ★ 多图上传区域 */
+        .modal .content .upload-area { background: rgba(0,0,0,0.15); border: 1px dashed rgba(197,163,255,0.15); border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+        .modal .content .upload-area .upload-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 11px; color: rgba(255,255,255,0.3); transition: 0.3s; -webkit-tap-highlight-color: transparent; }
+        .modal .content .upload-area .upload-label:active { color: var(--primary); }
+        .modal .content .upload-area .upload-label input { display: none; }
+        .modal .content .upload-area .preview-list { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+        .modal .content .upload-area .preview-list .preview-item { position: relative; width: 56px; height: 56px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); }
+        .modal .content .upload-area .preview-list .preview-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .modal .content .upload-area .preview-list .preview-item .remove-btn { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: rgba(255,59,48,0.85); border: none; color: #fff; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
+        .modal .content .upload-area .preview-list .preview-item .remove-btn:active { transform: scale(0.92); }
+        .modal .content .upload-area .count-hint { font-size: 9px; color: rgba(255,255,255,0.15); margin-top: 4px; }
+
         .modal .content textarea { width: 100%; height: 70px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 6px; color: #fff; font-size: 11px; resize: vertical; outline: none; }
         .modal .content textarea:focus { border-color: rgba(197,163,255,0.1); }
         .modal .content .actions { display: flex; gap: 6px; justify-content: flex-end; margin-top: 6px; }
@@ -237,6 +236,7 @@
             .random-notification { padding: 16px 18px; max-width: 280px; }
             #shopView .shop-grid { grid-template-columns: repeat(2, 1fr); }
             .treasure-grid { grid-template-columns: repeat(2, 1fr); }
+            .modal .content .upload-area .preview-list .preview-item { width: 48px; height: 48px; }
         }
         @media (max-width: 380px) {
             #mainView { padding: 4px 6px 4px; }
@@ -252,6 +252,7 @@
             #chibi { width: 40px; height: 40px; bottom: 60px; right: 6px; }
             #shopView .shop-grid { grid-template-columns: repeat(2, 1fr); }
             .treasure-grid { grid-template-columns: repeat(2, 1fr); }
+            .modal .content .upload-area .preview-list .preview-item { width: 40px; height: 40px; }
         }
     </style>
 </head>
@@ -267,7 +268,6 @@
                         <img src="https://i.postimg.cc/85Yt5NJz/wei-xin-tu-pian-20260723051447-419-40.jpg" alt="欣原">
                     </div>
                     <div class="info">
-                        <!-- ★ 名字+角标在同一行 -->
                         <div class="name-row">
                             <h3>欣原</h3>
                             <div class="unread-badge" id="unreadBadge">0</div>
@@ -405,13 +405,24 @@
     </div>
     <div class="chibi-bubble" id="chibiBubble"></div>
 
-    <!-- ===== 模态框 ===== -->
+    <!-- ===== 模态框（含多图上传） ===== -->
     <div class="modal" id="modal">
         <div class="content">
             <h3 id="modalTitle">📋 任务呈递</h3>
             <div class="desc" id="modalDesc">描述</div>
             <div class="random-reward-preview" id="modalRewardPreview" style="display:none;"></div>
             <div class="evidence-hint" id="evidenceHint">📸 请附上实操照片/截图证据（可选）</div>
+
+            <!-- ★ 多图上传区域 -->
+            <div class="upload-area" id="uploadArea">
+                <label class="upload-label" id="uploadLabel">
+                    📤 点击上传图片证据（最多3张）
+                    <input type="file" id="evidenceImages" accept="image/*" multiple onchange="handleEvidenceImages(this)">
+                </label>
+                <div class="preview-list" id="evidencePreviewList"></div>
+                <div class="count-hint" id="evidenceCountHint">已选 0 / 3 张</div>
+            </div>
+
             <textarea id="evidenceReport" placeholder="输入你的成果汇报..."></textarea>
             <div class="actions">
                 <button class="btn secondary" onclick="closeModal()">取消</button>
@@ -498,7 +509,6 @@
             return item;
         }
 
-        // ★ 修复：标记已读后刷新列表
         function markMailRead(id) {
             const item = GameData.mail.items.find(m => m.id === id);
             if (!item || item.read) return;
@@ -507,7 +517,6 @@
             updateMailUI();
             updateUnreadBadge();
             saveData();
-            // 如果当前在邮箱视图，刷新列表
             const mailView = document.getElementById('mailView');
             if (mailView && mailView.classList.contains('active')) {
                 if (mailTab === 'mails') { renderMailList(); } else { renderTreasure(); }
@@ -579,6 +588,72 @@
 
         function shufflePick(arr, n = 1) { const s = [...arr].sort(() => Math.random() - 0.5); return s.slice(0, n); }
 
+        // ★ 证据图片存储（模态框内）
+        let evidenceImages = [];
+
+        function handleEvidenceImages(input) {
+            const files = input.files;
+            if (!files || files.length === 0) return;
+            const remaining = 3 - evidenceImages.length;
+            if (remaining <= 0) {
+                showNotif('⚠️ 最多上传3张图片');
+                input.value = '';
+                return;
+            }
+            const toProcess = Math.min(files.length, remaining);
+            for (let i = 0; i < toProcess; i++) {
+                const file = files[i];
+                if (!file.type.startsWith('image/')) continue;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width,
+                            h = img.height;
+                        const maxS = 400;
+                        if (w > h && w > maxS) { h *= maxS / w;
+                            w = maxS; } else if (h > w && h > maxS) { w *= maxS / h;
+                            h = maxS; }
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        const base64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+                        evidenceImages.push(base64);
+                        updateEvidencePreview();
+                        if (evidenceImages.length >= 3) {
+                            document.getElementById('uploadLabel').style.opacity = '0.3';
+                            document.getElementById('uploadLabel').style.pointerEvents = 'none';
+                        }
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+            input.value = '';
+        }
+
+        function removeEvidenceImage(index) {
+            evidenceImages.splice(index, 1);
+            updateEvidencePreview();
+            document.getElementById('uploadLabel').style.opacity = '1';
+            document.getElementById('uploadLabel').style.pointerEvents = 'auto';
+        }
+
+        function updateEvidencePreview() {
+            const list = document.getElementById('evidencePreviewList');
+            const hint = document.getElementById('evidenceCountHint');
+            list.innerHTML = evidenceImages.map((img, idx) =>
+                `<div class="preview-item">
+                    <img src="data:image/jpeg;base64,${img}" alt="证据${idx+1}">
+                    <button class="remove-btn" onclick="removeEvidenceImage(${idx})">×</button>
+                </div>`
+            ).join('');
+            hint.textContent = `已选 ${evidenceImages.length} / 3 张`;
+        }
+
+        // ★ 任务系统
         const TaskSystem = {
             genDaily() {
                 const a = shufflePick(POOL_CBEC, 1)[0],
@@ -626,6 +701,12 @@
                 }];
             },
             triggerVerify(taskId) {
+                // ★ 清空之前上传的图片
+                evidenceImages = [];
+                updateEvidencePreview();
+                document.getElementById('uploadLabel').style.opacity = '1';
+                document.getElementById('uploadLabel').style.pointerEvents = 'auto';
+
                 let list;
                 let isRandom = false;
                 if (taskId === 'random' && GameData.random.active && !GameData.random.active.completed) {
@@ -663,6 +744,8 @@
                 const key = document.getElementById('modal').dataset.taskList;
                 const report = document.getElementById('evidenceReport').value.trim();
                 if (report.length < 10) { showNotif('❌ 报告太短（至少10个字）'); return; }
+                // ★ 收集图片
+                const images = [...evidenceImages];
                 closeModal();
 
                 // 处理随机任务
@@ -672,9 +755,10 @@
                     showNotif('📤 已递交随机任务证据...');
                     addChatMessage('assistant', '[正在审阅你的随机任务汇报...]', true);
                     try {
+                        const imgText = images.length > 0 ? `（附带了 ${images.length} 张图片证据）` : '';
                         const p =
-                            `[系统：VIP009 提交随机任务「${task.title}」，汇报：${report}。通过则开头加 [PASS] 并给出奖励反应。不通过不加 [PASS]。禁止重复句式。]`;
-                        const r = await callAIForVerify(p);
+                            `[系统：VIP009 提交随机任务「${task.title}」，汇报：${report} ${imgText}。通过则开头加 [PASS] 并给出奖励反应。不通过不加 [PASS]。禁止重复句式。]`;
+                        const r = await callAIForVerify(p, images);
                         if (r.includes('[PASS]')) {
                             const clean = r.replace('[PASS]', '').trim();
                             const bonusReactions = REWARD_REACTIONS;
@@ -714,23 +798,24 @@
                     return;
                 }
 
-                // ★ 普通任务 - 使用毒舌审核
+                // ★ 普通任务 - 带图片审核
                 const list = GameData.tasks[key];
                 const task = list.find(t => t.id === id);
                 if (!task || task.done) return;
                 showNotif('📤 已递交...');
-                addChatMessage('assistant', '[冷眼扫过你的汇报] 让我看看你这次交上来的是什么……', true);
+                const imgText = images.length > 0 ? `（附带了 ${images.length} 张图片证据）` : '';
+                addChatMessage('assistant', `[冷眼扫过你的汇报${imgText}] 让我看看你这次交上来的是什么……`, true);
+
                 try {
-                    // ★ 毒舌审核提示词
                     const p =
-                        `[系统：VIP009 呈递「${task.title}」，汇报内容：${report}。请以欣原的身份进行审核。
+                        `[系统：VIP009 呈递「${task.title}」，汇报内容：${report}。${images.length > 0 ? '用户上传了 ' + images.length + ' 张图片证据，请结合图片审核。' : ''}
 
 【审核规则】
 1. 如果汇报内容敷衍、空洞、字数不足、缺乏实质内容 → 必须狠狠痛骂一顿，直接拒批，并明确要求：重新完成任务 + 必须附上实操照片/截图证据。
 2. 如果汇报内容真诚、详实、有实际成果 → 勉强认可，开头加 [PASS]，然后用傲娇的语气夸一句（比如“还行，没让我失望”“勉强合格，继续加油”），并让她别得意。
 3. 禁止重复句式，语气要毒舌、高冷、带有压迫感。
 4. 回复要符合欣原的人设：优雅、犀利、嘴硬心软。]`;
-                    const r = await callAIForVerify(p);
+                    const r = await callAIForVerify(p, images);
                     if (r.includes('[PASS]')) {
                         const clean = r.replace('[PASS]', '').trim();
                         addChatMessage('assistant', clean, true);
@@ -742,7 +827,6 @@
                             GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 5);
                             if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true;
                                 triggerMax(); }
-                            // 任务完成邮件
                             setTimeout(() => {
                                 sendMail('📌 任务完成通知',
                                     '你完成了「' + task.title + '」\n\n' +
@@ -799,25 +883,38 @@
                 ] }
         ];
 
-        // ============================================================
-        //  AI 审核调用（毒舌加强版）
-        // ============================================================
-        async function callAIForVerify(p) {
+        // ★ 多图AI审核调用
+        async function callAIForVerify(p, images = []) {
             if (!GameData.settings.apiKey) throw new Error('未配置API Key');
+
+            // 构建消息内容
+            let userContent;
+            if (images.length > 0) {
+                const parts = images.map(img => ({
+                    type: "image_url",
+                    image_url: { url: `data:image/jpeg;base64,${img}`, detail: "auto" }
+                }));
+                parts.push({ type: "text", text: p });
+                userContent = parts;
+            } else {
+                userContent = p;
+            }
+
             const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GameData.settings.apiKey },
                 body: JSON.stringify({
-                    model: 'Qwen/Qwen2.5-72B-Instruct',
+                    model: 'Qwen/Qwen3-VL-8B-Instruct',
                     messages: [
                         { role: 'system', content: '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面，但偶尔也会傲娇地认可一下。禁止重复句式。' },
-                        { role: 'user', content: p }
+                        { role: 'user', content: userContent }
                     ],
-                    max_tokens: 380,
+                    max_tokens: 400,
                     temperature: 0.7
                 })
             });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
+            if (!res.ok) { let e = 'HTTP ' + res.status; try { const d = await res.json(); if (d.error && d.error.message) e +=
+                        ' - ' + d.error.message; } catch (_) {} throw new Error(e); }
             const d = await res.json();
             return d.choices[0].message.content;
         }
@@ -1456,7 +1553,6 @@
 
         function saveData() { localStorage.setItem('xinyuanGameData', JSON.stringify(GameData)); }
 
-        // ★ 修复任务进度显示：使用 t.max 并做容错
         function updateUI() {
             const af = GameData.ai.affection;
             const rel = getRel(af);
@@ -1578,7 +1674,6 @@
                 <div style="margin-top:12px; padding:8px 10px; background:rgba(0,0,0,0.1); border-radius:8px; text-align:center; color:rgba(255,255,255,0.3); font-size:10px;">✨ 珍藏阁里藏着你与欣原的点点滴滴</div>`;
         }
 
-        // ★ 修复：邮件详情打开时先标记已读
         function openMailDetail(id) {
             const item = GameData.mail.items.find(m => m.id === id);
             if (!item) return;
