@@ -760,7 +760,7 @@
             }
         };
 
-        // ==================== AI对话系统（最终修复版） ====================
+        // ==================== AI对话系统（最终修复版 + 模型改为 Qwen/Qwen-VL-Chat） ====================
         const AISystem = {
             async sendMessage(userMessage, base64Image = null) {
                 showTypingIndicator();
@@ -822,8 +822,8 @@ VIP009 当前的实时待办任务有：
                     content: msg.content
                 }));
 
-                // 使用稳定模型
-                const modelName = 'Qwen/Qwen2-VL-72B-Instruct';
+                // ★★★ 关键修改：改用稳定的免费 VL 模型 ★★★
+                const modelName = 'Qwen/Qwen-VL-Chat';
                 const requestBody = {
                     model: modelName,
                     messages: [
@@ -1146,7 +1146,6 @@ VIP009 当前的实时待办任务有：
                 } else {
                     GameData.user.records.streak = 1;
                     showNotification('🎉 欢迎来到欣原监督系统！');
-                    // ★★★ 修复：加 true，避免重复 ★★★
                     addAIMessage('[优雅地交叠双腿，手指敲击着办公桌面]：你好，VIP009。我是你的监护人欣原。从今天开始，我会对你的跨境电商英语、财务投资、身材管理进行全方位严苛监控。别想在我的眼皮底下有任何松懈。', true);
                 }
                 GameData.user.records.lastCheckIn = Date.now();
@@ -1177,7 +1176,6 @@ VIP009 当前的实时待办任务有：
                 saveData();
                 showNotification('✅ API Key已保存');
             });
-            // 不自动渲染历史消息，因为我们已经用 addAIMessage 显示过了，避免重复
         }
         window.addEventListener('DOMContentLoaded', init);
     </script>
