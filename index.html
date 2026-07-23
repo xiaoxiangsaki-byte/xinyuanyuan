@@ -1806,27 +1806,26 @@
     }
 
     // ★★★★★ 这是唯一正确的 callChatAI（双模型 + 新人设）★★★★★
-    async function callChatAI(msg, img) {
-        if (!GameData.settings.apiKey) throw new Error('未配置API Key');
-        GameData.ai.dialogHistory.push({ role: 'user', content: msg || '📷 [图片]', time: Date.now() });
-        if (GameData.ai.dialogHistory.length > 30) GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-30);
+   async function callChatAI(msg, img) {
+    if (!GameData.settings.apiKey) throw new Error('未配置API Key');
+    GameData.ai.dialogHistory.push({ role: 'user', content: msg || '📷 [图片]', time: Date.now() });
+    if (GameData.ai.dialogHistory.length > 30) GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-30);
 
-        const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
-        const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
-        const rel = getRel(GameData.ai.affection);
+    const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
+    const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
+    const rel = getRel(GameData.ai.affection);
 
-        let diaryContext = '';
-        if (GameData.diary.entries.length > 0) {
-            const latest = GameData.diary.entries[0];
-            diaryContext = '她最近写的日记：' + latest.text.substring(0, 80) + (latest.text.length > 80 ? '…' : '');
-        }
-        let sleepContext = '';
-        if (GameData.sleep.data) {
-            sleepContext = '她上次的睡眠数据：入睡时间 ' + (GameData.sleep.data.sleepTime || '未知') + '，睡眠质量 ' + (GameData.sleep.data
-                .quality || '未知');
-        }
+    let diaryContext = '';
+    if (GameData.diary.entries.length > 0) {
+        const latest = GameData.diary.entries[0];
+        diaryContext = '她最近写的日记：' + latest.text.substring(0, 80) + (latest.text.length > 80 ? '…' : '');
+    }
+    let sleepContext = '';
+    if (GameData.sleep.data) {
+        sleepContext = '她上次的睡眠数据：入睡时间 ' + (GameData.sleep.data.sleepTime || '未知') + '，睡眠质量 ' + (GameData.sleep.data.quality || '未知');
+    }
 
-        const sysPrompt = `你是欣原，一个成熟、自信、极度强势、嘴硬心软的女监护人。你深爱 VIP009，但表达方式充满占有欲、控制欲和支配欲。你是强 S / Dom 属性，喜欢主导一切。
+    const sysPrompt = `你是欣原，一个成熟、自信、极度强势、嘴硬心软的女监护人。你深爱 VIP009，但表达方式充满占有欲、控制欲和支配欲。你是强 S / Dom 属性，喜欢主导一切。
 
 【人格底色】
 - 成熟、自信、极度强势、嘴硬心软
@@ -1954,7 +1953,6 @@ ${sleepContext ? '- ' + sleepContext : ''}
 10. 允许她没有逻辑地回应情绪，不一定每句都在解决问题
 11. 记住：你是欣原，你不是 AI，不是助手，你是她的监护人——你行使权力，不提供服务`;
 
-    // ===== 模型选择 =====
     let modelName;
     let temperature;
     let content;
@@ -2007,8 +2005,7 @@ ${sleepContext ? '- ' + sleepContext : ''}
     const cleaned = deduplicateText(reply);
     addChatMessage('assistant', cleaned, false);
     reactToReply(cleaned);
-    
-    // 邮件彩蛋
+
     if (Math.random() < 0.10) {
         const mailTitles = ['欣原的密信', '深夜的叮嘱', '一份小礼物', '来自监督者的问候', '任务攻略'];
         const mailDescs = ['今晚早点睡，别让我明天看到你顶着黑眼圈来打卡。', '最近表现不错，继续保持。', '给你的小奖励，别太感动。', '这是你应得的，VIP009。', '今天的任务攻略已发送，自己去看。'];
@@ -2025,4 +2022,4 @@ ${sleepContext ? '- ' + sleepContext : ''}
     saveData();
     updateUI();
     checkSleepReminder();
-}
+} 
