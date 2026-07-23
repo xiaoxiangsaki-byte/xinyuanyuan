@@ -268,13 +268,14 @@
         }
 
         #imgPreview {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
             display: none;
             object-fit: cover;
             border: 1.5px solid var(--primary);
             box-shadow: 0 0 8px var(--primary);
+            margin-right: 4px;
         }
         
         .btn {
@@ -620,7 +621,7 @@
                             </filter>
                         </defs>
                         <circle cx="50" cy="50" r="46" fill="url(#grad)" stroke="#ffd54f" stroke-width="2" filter="url(#softGlow)" />
-                        <text x="50" y="63" font-family="'STKaiti', 'KaiTi', 'SimSun', serif" font-size="34" font-weight="900" text-anchor="middle" fill="#ffffff" style="text-shadow: 0 0 8px rgba(255, 255, 255, 0.85);">欣</text>
+                        <text x="50" y="63" font-family="'STKaiti', 'KaiTi', 'SimSun', serif" font-size="34" font-weight="900" text-anchor="middle" fill="#ffffff" style="text-shadow: 0 0 8px rgba(255, 255, 255, 0.855);">欣</text>
                     </svg>
                     <div class="ai-info">
                         <div class="ai-name">欣原</div>
@@ -754,7 +755,7 @@
         // ==================== 1. 动态无重复任务池 ====================
         const CBEC_POOL = [
             { title: "CBEC: 竞品 Listing 拆解", desc: "深入分析3个海外竞争对手的 Listing 卖点并提炼核心关键词" },
-            { title: "CBEC: 客户开发信编写", desc: "写一封给海外 B 端客户的极度专业、地道的开发合作邮件" },
+            { title: "CBEC: 客户开发信编写", desc: "写一封给海外 B端 客户的极度专业、地道的开发合作邮件" },
             { title: "CBEC: 客户投诉回复演练", desc: "模拟撰写一封高水准的海外买家差评解释与售后退款赔偿邮件" },
             { title: "CBEC: 核心五点描述编写", desc: "为一款核心产品编写符合欧美消费者阅读与搜索习惯的五点描述" },
             { title: "CBEC: 货代及海运词汇背诵", desc: "整理并死记15个物流及海运（FOB、DDP、CIF）的核心贸易术语" }
@@ -883,7 +884,7 @@
                     { 
                         id: 'm1', 
                         title: '主线: 跨境英语巅峰突破', 
-                        description: '提交15次跨境 Listing/开发信深度实操报告并通过审核',
+                        description: '提交15次跨境 Listing/开发信深度实操报告并获得通过',
                         progress: 0, 
                         maxProgress: 15, 
                         reward: 800, 
@@ -956,7 +957,7 @@
                 ];
             },
 
-            // 呈递审核窗口：防止误触、需要提交理由、欣原实时严格判定
+            // 呈报审核窗口：防止误触、需要提交理由、欣原实时严格判定
             triggerVerify(taskId) {
                 let taskList;
                 if (taskId.startsWith('d')) taskList = GameData.tasks.daily;
@@ -976,9 +977,9 @@
                         <strong>描述:</strong> ${task.desc || task.description || '暂无说明'}
                     </p>
                     <p style="font-size: 12px; color: var(--accent); margin-bottom: 10px;">
-                        ⚠️ 警告：欣原正密切监视着你的呈递。请输入你真实的成果汇报，若有实操截图证据，请在聊天输入框左侧点击📷拍照后，再来弹窗中点击提交。
+                        ⚠️ 警告：欣原正密切监视着你的呈递。请输入你真实的成果汇报，若有实操截图证据，请在主面板左侧点击📷拍照后，再到此弹窗提交报告。
                     </p>
-                    <textarea id="evidenceReport" placeholder="在此输入你的实操成果报告、分析心得、朗读自查纠错或身材管理打卡凭证（至少10个字符）..." style="width: 100%; height: 120px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(197,163,255,0.3); border-radius: 12px; padding: 12px; font-size: 13px; outline: none; resize: none;"></textarea>
+                    <textarea id="evidenceReport" placeholder="在此输入你的实操成果报告、分析心得或自律凭证（至少10个字符）..." style="width: 100%; height: 120px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(197,163,255,0.3); border-radius: 12px; padding: 12px; font-size: 13px; outline: none; resize: none;"></textarea>
                 `;
 
                 footer.innerHTML = `
@@ -992,12 +993,13 @@
             async submitReport(taskId) {
                 const report = document.getElementById('evidenceReport').value.trim();
                 if (report.length < 10) {
-                    alert("你的汇报太敷衍了。至少写满 10 个字，否则欣原会当场疏远你。");
+                    alert("你的汇报太敷衍了。至少写满 10 个字，否则欣原会当场揉碎你的报告。");
                     return;
                 }
 
                 closeModal();
                 
+                // 将准备好的图片转为本次审查数据并清空页面预览
                 const activeImg = uploadedImageBase64;
                 uploadedImageBase64 = null;
                 document.getElementById('imgPreview').style.display = 'none';
@@ -1011,15 +1013,15 @@
                 任务名称：'${taskId.startsWith('d') ? GameData.tasks.daily.find(t => t.id === taskId).title : (taskId.startsWith('m') ? GameData.tasks.mainQuests.find(t => t.id === taskId).title : GameData.tasks.sideQuests.find(t => t.id === taskId).title)}'
                 用户的实操汇报：'${report}'
                 
-                你此时已接收到了她发送的图片数据。
-                请你以欣原的冷艳、极度严格的姿态对该图片和汇报文字进行真实、极度精密的审查：
-                1. 智能OCR读取并识别她图片中的内容：
-                   - 如果是身材管理：仔细读取运动手表、手环、App截图上的数据，如运动时间、公里数、消耗卡路里。审核其是否达到了任务宣称的训练负荷。
-                   - 如果是跨境英语：阅读她上传的Listing文字或草稿，审查翻译和卖点拆解的深度。
+                请你以欣原的冷艳、极度严格的姿态对该图片和汇报文字进行真实、极度精密的审查。如果是运动、减重任务，而用户上传了图片，请你：
+                1. 智能OCR读取并识别她图片中的内容。
+                   - 如果是身材管理：仔细读取运动手表、手环、App 截图上的数据，如运动时间、公里数、消耗卡路里、心率等。审核其是否达到了任务宣称的训练负荷。
+                   - 如果是跨境英语：阅读她上传的 Listing 文字或草稿，审查翻译和卖点拆解的深度。
                    - 如果是财报理财：审查她图片中的资产负债数字和资产流向细节。
+                   - 如果是普通话：审查她提交的发音自查分析。
                 2. 如果她企图用不相关的宠物图、风景照或完全敷衍的文字来糊弄你，冷酷地看穿并痛骂她，直接拒收！
                 3. 如果确实合格、真诚，请在你的回复【最开头】加上 [PASS] 标记，并进行勉强的、施舍般的点评。
-                4. 如果不合格或作假，绝对不要加上 [PASS] 标记，并且极度犀利地打回，羞辱她的懒散。]`;
+                4. 如果不合格或作假，绝对不要加上 [PASS] 标记，并且极度客观冷酷地拒绝她的完成申请，羞辱她的不负责。]`;
 
                 try {
                     const reply = await AISystem.callAPI(verifyPrompt, activeImg);
@@ -1212,7 +1214,7 @@ VIP009 当前的实时待办任务有：
 - 未完成主线目标: [ ${activeMainList} ]
 
 你的性格与说话准则：
-1. 你的主线领域是：跨境电商英语 (CBEC Listing 与运营翻译)、看财报分析投资理财、空腹燃脂与身材管理、严禁熬夜。
+1. 你的主线领域是：跨境电商英语 (CBEC Listing 与运营翻译)、看财报分析投资理财、空腹燃脂与身材管理、严禁熬夜、普通话训练。
 2. 说话优雅、冷酷、极具压迫感，喜欢使用诸如 [推了推眼镜，眼神没有一丝温度]、[优雅地端起红酒杯，冷静地扫过你的档案]、[修长的手指敲击着桌面] 等动作描写。
 3. 严格监视 VIP009 的实时任务情况！如果她试图逃避、敷衍或者哭泣撒娇，冷淡而犀利地拆穿她的自我感动与软弱，逼她面对现实去变强。
 4. 好感度如果为负值，则彻底进入掌控者 Dom 模式，用极度居高临下的高岭之花姿态彻底主导她的意志。
@@ -1534,7 +1536,6 @@ VIP009 当前的实时待办任务有：
                 taskProgressUp('d4');
             }
             
-            // 携带当前的压缩照片发送给 AI 对话端
             const activeImg = uploadedImageBase64;
             uploadedImageBase64 = null;
             document.getElementById('imgPreview').style.display = 'none';
