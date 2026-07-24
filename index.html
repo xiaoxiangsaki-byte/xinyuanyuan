@@ -1068,35 +1068,70 @@
     }
 
     // ★ 用户主动加任务（$加任务 指令）
-    function detectTaskRequest(text) {
-        if (text.trim().startsWith('$加任务')) return true;
-        const keywords = ['我想加任务', '加个任务', '申请任务', '给我加任务'];
-        for (let kw of keywords) {
-            if (text.includes(kw)) return true;
-        }
-        return false;
+   function detectTaskRequest(text) {
+    // ★ 识别两种指令：$加任务 和 $强制加任务
+    if (text.trim().startsWith('$加任务')) return true;
+    if (text.trim().startsWith('$强制加任务')) return true;
+    
+    const keywords = ['我想加任务', '加个任务', '申请任务', '给我加任务'];
+    for (let kw of keywords) {
+        if (text.includes(kw)) return true;
     }
-
+    return false;
+}
     async function handleTaskRequest(userMessage) {
-    // ★ 修正：正则里用 \$ 匹配字面量 $
-    let taskDesc = userMessage.replace(/^\$加任务\s*/, '').trim();
+    // ★ 判断是否为强制模式
+    const isForceMode = userMessage.trim().startsWith('$强制加任务');
+    
+    // 提取任务描述
+    let taskDesc = userMessage.replace(/^\$强制加任务\s*/, '').trim();
+    taskDesc = taskDesc.replace(/^\$加任务\s*/, '').trim();
+    
     if (!taskDesc) {
         addChatMessage('assistant', '[挑眉] 你倒是说清楚想加什么任务啊，$加任务 散步 这种格式懂不懂？', true);
         return;
     }
 
-    // ★ 修正：用 !t.done && !t.exempted 判断未完成任务
+    // 获取当前任务状态
     const incomplete = [...GameData.tasks.daily, ...GameData.tasks.mainQuests, ...GameData.tasks.sideQuests].filter(t => !t.done && !t.exempted);
     const recentRate = Math.round(calculateRecentRate() * 100);
 
-    // ★ 让逻辑模型判断是否加任务
-    const prompt = `VIP009 当前有 ${incomplete.length} 个未完成任务，近三天完成率为 ${recentRate}%。她想添加新任务：「${taskDesc}」。请判断：1. 这个任务是否合理、有价值？2. 结合她当前任务量和完成率，是否应该批准？3. 如果批准，请直接输出 "APPROVED"；如果不批准，直接输出 "REJECTED" 并附上毒舌理由。`;
+    // ★ 强制模式：直接添加，不经过逻辑模型判断
+    if (isForceMode) {
+        const newTask = {
+            id: 'm' + Date.now(),
+            title: taskDesc.substring(0, 20),
+            desc: taskDesc,
+            progress: 0,
+            max: 1,
+            reward: 50,
+            done: false,
+            exempted: false,
+            deadline: Date.now() + 7 * 86400000,
+            expired: false,
+            subTasks: [],
+            lastUpdate: Date.now(),
+            difficulty: 1
+        };
+        GameData.tasks.mainQuests.push(newTask);
+        
+        const reply = `[啧] 强制加任务？行，你厉害。给你加了「${taskDesc.substring(0, 20)}」。完不成的话，你知道后果。`;
+        addChatMessage('assistant', reply, true);
+        showNotif('✅ 强制添加成功：「' + taskDesc.substring(0, 15) + '…」');
+        
+        saveData();
+        updateUI();
+        updateTasks();
+        return;
+    }
+
+    // ★ 非强制模式：交给逻辑模型判断
+    const prompt = `VIP009 当前有 ${incomplete.length} 个未完成任务，近三天完成率为 ${recentRate}%。她想添加新任务：「${taskDesc}」。请判断：1. 这个任务是否合理、有价值？2. 结合她当前任务量和完成率，是否应该批准？3. 如果批准，直接输出 "APPROVED"；如果不批准，输出 "REJECTED" 并附上毒舌理由。`;
 
     try {
         const response = await callAIChat(prompt, '你是欣原，理性、毒舌、傲娇的决策者。');
 
         if (response.includes('APPROVED')) {
-            // ★ 批准 → 添加任务
             const newTask = {
                 id: 'm' + Date.now(),
                 title: taskDesc.substring(0, 20),
@@ -1120,16 +1155,13 @@
 
             saveData();
             updateUI();
-            updateTasks(); // 强制刷新
-
+            updateTasks();
         } else {
-            // ★ 拒绝 → 显示毒舌理由
             const rejectMsg = response.replace('REJECTED', '').trim();
             addChatMessage('assistant', rejectMsg || '[挑眉] 你现在手头任务够多了，先清掉再说。', true);
         }
-
     } catch(e) {
-        // ★ 逻辑模型调用失败时的降级方案
+        // 降级方案
         if (incomplete.length < 6) {
             const newTask = {
                 id: 'm' + Date.now(),
