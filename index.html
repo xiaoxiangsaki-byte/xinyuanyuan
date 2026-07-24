@@ -629,7 +629,7 @@
     // ============================================================
     //  ★ MAIL SYSTEM — sendMail 正文不带署名
     // ============================================================
-    function sendMail(title, desc, reward = 0, type = 'note', from = '欣原') {
+    function sendMail(title, desc, reward = 0, type = 'note') {
         const typeLabels = { guide: '📖 攻略', reward: '🎁 奖励', gift: '🎀 礼物', care: '💜 关心', note: '✉️ 留言' };
         const item = {
             id: GameData.mail.nextId++,
@@ -2044,43 +2044,86 @@
     }
 
     // ★ 邮件详情 - 强制隐藏上传区域 + 单署名
-    function openMailDetail(id) {
-        const item = GameData.mail.items.find(m => m.id === id);
-        if (!item) return;
-        markMailRead(id);
-        document.getElementById('modalTitle').textContent = '📩 '+item.title;
-        // ★ 正文直接显示 item.desc（不含署名），署名单独追加在右下角
-        document.getElementById('modalDesc').textContent = item.desc + '\n\n　　—— ' + item.from;
-        document.getElementById('modalRewardPreview').style.display = 'none';
-        document.getElementById('evidenceReport').style.display = 'none';
-        // ★ 强制隐藏上传区域
-        document.getElementById('uploadArea').style.display = 'none';
-        document.getElementById('modal').dataset.mailId = id;
-        document.querySelector('.modal .actions').innerHTML =
-            '<button class="btn secondary" onclick="closeModal()">关闭</button>'+
-            (item.reward > 0 && !item.claimed ? '<button class="btn primary" onclick="claimMailReward('+id+')">领取奖励 ('+item.reward+'🍰)</button>' : '')+
-            (item.claimed ? '<button class="btn secondary" disabled>已领取</button>' : '');
-        document.getElementById('modal').classList.add('active');
+    // ★ 替换整个 openMailDetail 函数
+function openMailDetail(id) {
+    const item = GameData.mail.items.find(m => m.id === id);
+    if (!item) return;
+    markMailRead(id);
+
+    const modal = document.getElementById('modal');
+    const content = document.getElementById('modalContent');
+    content.className = 'content';
+
+    document.getElementById('modalTitle').textContent = '📩 ' + item.title;
+    // ★ 正文直接显示 item.desc（不含署名），署名单独追加在右下角
+    document.getElementById('modalDesc').textContent = item.desc + '\n\n　　—— ' + item.from;
+
+    document.getElementById('modalRewardPreview').style.display = 'none';
+    document.getElementById('evidenceReport').style.display = 'none';
+
+    // ★ 强制隐藏上传区域（用 !important 覆盖 CSS）
+    const uploadArea = document.getElementById('uploadArea');
+    if (uploadArea) {
+        uploadArea.style.setProperty('display', 'none', 'important');
+        uploadArea.style.visibility = 'hidden';
+        uploadArea.style.height = '0';
+        uploadArea.style.overflow = 'hidden';
+        uploadArea.style.padding = '0';
+        uploadArea.style.margin = '0';
+        uploadArea.style.border = 'none';
     }
+
+    // ★ 同时隐藏 evidenceHint
+    const hint = document.getElementById('evidenceHint');
+    if (hint) hint.style.display = 'none';
+
+    document.getElementById('modal').dataset.mailId = id;
+    let actionsHtml = '<button class="btn secondary" onclick="closeModal()">关闭</button>';
+    if (item.reward > 0 && !item.claimed) {
+        actionsHtml += '<button class="btn primary" onclick="claimMailReward(' + id + ')">领取奖励 (' + item.reward + '🍰)</button>';
+    }
+    if (item.claimed) {
+        actionsHtml += '<button class="btn secondary" disabled>已领取</button>';
+    }
+    document.querySelector('.modal .actions').innerHTML = actionsHtml;
+
+    modal.classList.add('active');
+}
 
     // ============================================================
     //  TOOLS
     // ============================================================
-    function closeModal() {
-        document.getElementById('modal').classList.remove('active');
-        // 强制隐藏上传区域
-        document.getElementById('uploadArea').style.display = 'none';
-        // 清空其他内容
-        document.getElementById('evidencePreviewList').innerHTML = '';
-        document.getElementById('evidenceCountHint').textContent = '已选 0 / 3 张';
-        evidenceImages = [];
-        document.getElementById('evidenceReport').value = '';
-        document.getElementById('modal').dataset.taskId = '';
-        document.getElementById('modal').dataset.taskList = '';
-        document.getElementById('modal').dataset.mailId = '';
-        document.getElementById('uploadLabel').style.opacity = '1';
-        document.getElementById('uploadLabel').style.pointerEvents = 'auto';
+   // ★ 替换整个 closeModal 函数
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+    // 恢复上传区域默认状态（由CSS控制）
+    const uploadArea = document.getElementById('uploadArea');
+    if (uploadArea) {
+        uploadArea.style.removeProperty('display');
+        uploadArea.style.visibility = '';
+        uploadArea.style.height = '';
+        uploadArea.style.overflow = '';
+        uploadArea.style.padding = '';
+        uploadArea.style.margin = '';
+        uploadArea.style.border = '';
     }
+    // 清空其他内容
+    document.getElementById('evidencePreviewList').innerHTML = '';
+    document.getElementById('evidenceCountHint').textContent = '已选 0 / 3 张';
+    evidenceImages = [];
+    document.getElementById('evidenceReport').value = '';
+    document.getElementById('modalContent').classList.remove('envelope');
+    document.getElementById('modal').dataset.taskId = '';
+    document.getElementById('modal').dataset.taskList = '';
+    document.getElementById('modal').dataset.mailId = '';
+    document.getElementById('uploadLabel').style.opacity = '1';
+    document.getElementById('uploadLabel').style.pointerEvents = 'auto';
+    // 恢复 evidenceHint 显示
+    const hint = document.getElementById('evidenceHint');
+    if (hint) hint.style.display = '';
+    const report = document.getElementById('evidenceReport');
+    if (report) report.style.display = '';
+}
 
     function submitReport() { TaskSystem.submit(); }
     document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
