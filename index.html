@@ -1094,43 +1094,60 @@
 
     // ★ 用户主动申请加任务（聊天中检测关键词）
     function detectTaskRequest(text) {
-        const keywords = ['我想加任务', '加个任务', '申请任务', '给我加任务', '我想加个任务'];
+        const keywords = ['$我想加任务', '加个任务', '申请任务', '给我加任务', '我想加个任务'];
         for (let kw of keywords) {
             if (text.includes(kw)) return true;
         }
         return false;
     }
 
-    async function handleTaskRequest(userMessage) {
-        // 先反问
-        addChatMessage('assistant', '[挑眉] 你想额外加什么任务？说清楚点，我考虑一下。', true);
-        // 设置全局状态，等待用户描述
-        window._awaitingTaskDesc = true;
-        window._taskRequestContext = userMessage;
+   async function handleTaskRequest(userMessage) {
+    // 直接提取任务内容（去掉命令词）
+    let taskDesc = userMessage.replace(/\$加任务\s*/, '').trim();
+    if (!taskDesc) {
+        addChatMessage('assistant', '[挑眉] 你倒是说清楚想加什么任务啊，$加任务 散步 这种格式懂不懂？', true);
+        return;
     }
 
-    async function processTaskDescription(desc) {
-        if (!window._awaitingTaskDesc) return;
-        window._awaitingTaskDesc = false;
-        const incomplete = [...GameData.tasks.daily, ...GameData.tasks.mainQuests, ...GameData.tasks.sideQuests].filter(t => !t.done && !t.exempted);
-        if (incomplete.length > 4) {
-            addChatMessage('assistant', '[不耐烦地] 你手上还有 ' + incomplete.length + ' 个任务没做完，先把它们清掉再说。', true);
-            return;
-        }
-        try {
-            const prompt = `VIP009 主动申请添加一个新任务，她目前的未完成任务数量为 ${incomplete.length}，最近三天完成率为 ${Math.round(calculateRecentRate()*100)}%。她描述的任务是：「${desc}」。请判断是否合理。如果合理，直接输出 "APPROVED" 并附上一个新任务的标题和描述（格式：标题|描述）。如果不合理，直接输出 "REJECTED" 并附上毒舌拒绝理由。`;
-            const response = await callAIChat(prompt, '你是欣原，决策严格、毒舌。');
-            if (response.startsWith('APPROVED')) {
-                const parts = response.replace('APPROVED','').trim().split('|');
-                const title = parts[0] || '自定义任务';
-                const desc2 = parts[1] || '完成一项自定义任务';
-                const newTask = { id: 'm'+Date.now(), title, desc: desc2, progress:0, max:1, reward:100, done:false, deadline:Date.now()+7*86400000, expired:false, subTasks:[], lastUpdate:Date.now(), difficulty:1 };
-                GameData.tasks.mainQuests.push(newTask);
-                addChatMessage('assistant', '✅ 任务已添加：「' + title + '」——好好完成它，别让我失望。', true);
-                showNotif('✅ 新任务已添加');
-                saveData();
-                updateUI();
-            } else {
+    // 检查未完成任务数量
+    const incomplete = [...GameData.tasks.daily, ...GameData.tasks.mainQuests, ...GameData.tasks.sideQuests].filter(t => !t.done && !t.exempted);
+    if (incomplete.length > 4) {
+        addChatMessage('assistant', '[不耐烦地] 你手上还有 ' + incomplete.length + ' 个任务没做完，先把它们清掉再说。', true);
+        return;
+    }
+
+    // 直接添加任务到主线（或支线，这里默认主线）
+    const newTask = {
+        id: 'm' + Date.now(),
+        title: taskDesc.substring(0, 20),
+        desc: taskDesc,
+        progress: 0,
+        max: 1,
+        reward: 50,
+        done: false,
+        exempted: false,
+        deadline: Date.now() + 7 * 86400000,
+        expired: false,
+        subTasks: [],
+        lastUpdate: Date.now(),
+        difficulty: 1
+    };
+    GameData.tasks.mainQuests.push(newTask);
+
+    // 欣原的傲娇毒舌反馈
+    const replies = [
+        '[冷哼一声] 行，给你加了「' + taskDesc.substring(0, 20) + '」。完成不了的话，你知道后果。',
+        '[推了推眼镜] 哼，就这个？给你加上了。别让我看见你半途而废。',
+        '[别过脸去] 啧，真会给我找事。……加好了。记得做完。'
+    ];
+    const reply = replies[Math.floor(Math.random() * replies.length)];
+    addChatMessage('assistant', reply, true);
+    showNotif('✅ 新任务已添加：「' + taskDesc.substring(0, 15) + '…」');
+
+    saveData();
+    updateUI();
+}
+            else {
                 const rejectMsg = response.replace('REJECTED','').trim();
                 addChatMessage('assistant', rejectMsg, true);
             }
