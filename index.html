@@ -668,27 +668,26 @@
             if (mailTab === 'mails') { renderMailList(); } else { renderTreasure(); }
         }
     }
-
-    function claimMailReward(id) {
-        const item = GameData.mail.items.find(m => m.id === id);
-        if (!item || item.claimed) return;
-        if (item.reward > 0) {
-            GameData.user.currency.milkTea += item.reward;
-            GameData.treasure.milkTea += item.reward;
-            showNotif('✅ 领取成功！+'+item.reward+'🍰');
-        }
-        item.claimed = true;
-        if (item.type === 'gift') {
-            if (item.title.includes('时光回溯卡')) { GameData.treasure.offsetCards += 1; showNotif('🎫 获得时光回溯卡 x1'); }
-            if (item.title.includes('手写信')) { GameData.treasure.letters += 1; showNotif('💌 获得手写信 x1'); }
-            if (item.title.includes('彩蛋')) { GameData.treasure.special += 1; showNotif('🌟 获得特殊彩蛋 x1'); }
-        }
-        updateMailUI();
-        updateTreasureUI();
-        saveData();
-        updateUI();
-        addChatMessage('ai', '[看着你领取奖励，微微颔首] 嗯，这是你应得的。继续努力，VIP009。', true);
+function claimMailReward(id) {
+    const item = GameData.mail.items.find(m => m.id === id);
+    if (!item || item.claimed) return;
+    if (item.reward > 0) {
+        GameData.user.currency.milkTea += item.reward;
+        GameData.treasure.milkTea += item.reward;
+        showNotif('✅ 领取成功！+'+item.reward+'🍰');
     }
+    item.claimed = true;
+    if (item.type === 'gift') {
+        if (item.title.includes('时光回溯卡')) { GameData.treasure.offsetCards += 1; showNotif('🎫 获得时光回溯卡 x1'); }
+        if (item.title.includes('手写信')) { GameData.treasure.letters += 1; showNotif('💌 获得手写信 x1'); }
+        if (item.title.includes('彩蛋')) { GameData.treasure.special += 1; showNotif('🌟 获得特殊彩蛋 x1'); }
+    }
+    updateMailUI();
+    updateTreasureUI();
+    saveData();
+    updateUI();
+    addChatMessage('ai', '[看着你领取奖励，微微颔首] 嗯，这是你应得的。继续努力，VIP009。', true);
+}
 
     function updateMailPreview() {
         const preview = document.getElementById('mailPreview');
@@ -2055,13 +2054,12 @@ function openMailDetail(id) {
     content.className = 'content';
 
     document.getElementById('modalTitle').textContent = '📩 ' + item.title;
-    // ★ 正文直接显示 item.desc（不含署名），署名单独追加在右下角
     document.getElementById('modalDesc').textContent = item.desc + '\n\n　　—— ' + item.from;
 
     document.getElementById('modalRewardPreview').style.display = 'none';
     document.getElementById('evidenceReport').style.display = 'none';
 
-    // ★ 强制隐藏上传区域（用 !important 覆盖 CSS）
+    // 强制隐藏上传区域
     const uploadArea = document.getElementById('uploadArea');
     if (uploadArea) {
         uploadArea.style.setProperty('display', 'none', 'important');
@@ -2073,7 +2071,7 @@ function openMailDetail(id) {
         uploadArea.style.border = 'none';
     }
 
-    // ★ 同时隐藏 evidenceHint
+    // 隐藏证据提示
     const hint = document.getElementById('evidenceHint');
     if (hint) hint.style.display = 'none';
 
@@ -2096,7 +2094,8 @@ function openMailDetail(id) {
    // ★ 替换整个 closeModal 函数
 function closeModal() {
     document.getElementById('modal').classList.remove('active');
-    // 恢复上传区域默认状态（由CSS控制）
+
+    // 恢复上传区域（让CSS控制）
     const uploadArea = document.getElementById('uploadArea');
     if (uploadArea) {
         uploadArea.style.removeProperty('display');
@@ -2107,7 +2106,8 @@ function closeModal() {
         uploadArea.style.margin = '';
         uploadArea.style.border = '';
     }
-    // 清空其他内容
+
+    // 清空内容
     document.getElementById('evidencePreviewList').innerHTML = '';
     document.getElementById('evidenceCountHint').textContent = '已选 0 / 3 张';
     evidenceImages = [];
@@ -2118,7 +2118,8 @@ function closeModal() {
     document.getElementById('modal').dataset.mailId = '';
     document.getElementById('uploadLabel').style.opacity = '1';
     document.getElementById('uploadLabel').style.pointerEvents = 'auto';
-    // 恢复 evidenceHint 显示
+
+    // 恢复证据提示
     const hint = document.getElementById('evidenceHint');
     if (hint) hint.style.display = '';
     const report = document.getElementById('evidenceReport');
