@@ -2935,140 +2935,42 @@ ${sleepContext ? '- '+sleepContext : ''}
     }
 
     function openMailDetail(id) {
-        const item = GameData.mail.items.find(m => m.id === id);
-        if (!item) return;
-        markMailRead(id);
+    const item = GameData.mail.items.find(m => m.id === id);
+    if (!item) return;
+    markMailRead(id);
 
-        const modal = document.getElementById('modal');
-        const content = document.getElementById('modalContent');
-        content.className = 'content';
-        document.getElementById('modalTitle').textContent = '📩 ' + item.title;
-        document.getElementById('modalDesc').textContent = item.desc + '\n\n　　—— ' + item.from;
-        document.getElementById('modalRewardPreview').style.display = 'none';
-        document.getElementById('evidenceReport').style.display = 'none';
-        document.getElementById('uploadArea').style.display = 'none';
-        document.getElementById('modal').dataset.mailId = id;
-        let actionsHtml = '<button class="btn secondary" onclick="closeModal()">关闭</button>';
-        if (item.reward > 0 && !item.claimed) {
-            actionsHtml += '<button class="btn primary" onclick="claimMailReward(' + id + ')">领取奖励 (' + item.reward + '🍰)</button>';
-        }
-        if (item.claimed) {
-            actionsHtml += '<button class="btn secondary" disabled>已领取</button>';
-        }
-        document.querySelector('.modal .actions').innerHTML = actionsHtml;
-        modal.classList.add('active');
+    const modal = document.getElementById('modal');
+    const content = document.getElementById('modalContent');
+    content.className = 'content';
+
+    document.getElementById('modalTitle').textContent = '📩 ' + item.title;
+    document.getElementById('modalDesc').textContent = item.desc + '\n\n　　—— ' + item.from;
+    document.getElementById('modalRewardPreview').style.display = 'none';
+    document.getElementById('evidenceReport').style.display = 'none';
+
+    // ★ 强制隐藏上传区域
+    const uploadArea = document.getElementById('uploadArea');
+    if (uploadArea) {
+        uploadArea.style.display = 'none';
+        uploadArea.style.visibility = 'hidden';
+        uploadArea.style.height = '0';
+        uploadArea.style.overflow = 'hidden';
+        uploadArea.style.padding = '0';
+        uploadArea.style.margin = '0';
+        uploadArea.style.border = 'none';
     }
+    // 同时隐藏提示
+    const hint = document.getElementById('evidenceHint');
+    if (hint) hint.style.display = 'none';
 
-    function closeModal() {
-        document.getElementById('modal').classList.remove('active');
-        document.getElementById('uploadArea').style.display = 'none';
-        document.getElementById('evidencePreviewList').innerHTML = '';
-        document.getElementById('evidenceCountHint').textContent = '已选 0 / 3 张';
-        evidenceImages = [];
-        document.getElementById('evidenceReport').value = '';
-        document.getElementById('modalContent').classList.remove('envelope');
-        document.getElementById('modal').dataset.taskId = '';
-        document.getElementById('modal').dataset.taskList = '';
-        document.getElementById('modal').dataset.mailId = '';
-        document.getElementById('uploadLabel').style.opacity = '1';
-        document.getElementById('uploadLabel').style.pointerEvents = 'auto';
+    document.getElementById('modal').dataset.mailId = id;
+    let actionsHtml = '<button class="btn secondary" onclick="closeModal()">关闭</button>';
+    if (item.reward > 0 && !item.claimed) {
+        actionsHtml += '<button class="btn primary" onclick="claimMailReward(' + id + ')">领取奖励 (' + item.reward + '🍰)</button>';
     }
-
-    function submitReport() { TaskSystem.submit(); }
-    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-
-    // ============================================================
-    //  TOOLS
-    // ============================================================
-    function togglePush() {
-        GameData.settings.autoPushEnabled = !GameData.settings.autoPushEnabled;
-        document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
-        saveData();
+    if (item.claimed) {
+        actionsHtml += '<button class="btn secondary" disabled>已领取</button>';
     }
-
-    function exportData() {
-        const b = new Blob([JSON.stringify(GameData, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(b);
-        a.download = '欣原_备份_'+Date.now()+'.json';
-        a.click();
-        showNotif('✅ 导出成功');
-    }
-
-    function importData() {
-        const i = document.createElement('input');
-        i.type = 'file';
-        i.accept = 'application/json';
-        i.onchange = function(e) {
-            const f = e.target.files[0];
-            const r = new FileReader();
-            r.onload = function(ev) {
-                try { Object.assign(GameData, JSON.parse(ev.target.result)); saveData(); updateUI(); showNotif('✅ 导入成功，刷新'); setTimeout(() => location.reload(), 1000); }
-                catch(_) { showNotif('❌ 格式错误'); }
-            };
-            r.readAsText(f);
-        };
-        i.click();
-    }
-
-    function resetData() {
-        if (!confirm('确定重置所有数据？不可恢复！')) return;
-        localStorage.removeItem('xinyuanGameData');
-        location.reload();
-    }
-
-    function tryTriggerRandomTask() {}
-
-    // ============================================================
-    //  PUSH SYSTEM
-    // ============================================================
-    let pushInt = null;
-    function startPush() {
-        if (pushInt) clearInterval(pushInt);
-        pushInt = setInterval(() => {
-            if (!GameData.settings.autoPushEnabled) return;
-            if (Date.now() - GameData.user.records.lastActiveTime > 30 * 60000) {
-                const msg = getNextPush();
-                addChatMessage('assistant', msg, true);
-                if (navigator.setAppBadge) navigator.setAppBadge(1).catch(() => {});
-                if (Notification.permission === 'granted') {
-                    new Notification('💜 欣原', {
-                        body: msg,
-                        icon: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="48" fill="%239c64ff"/%3E%3Ctext x="50" y="65" font-size="50" text-anchor="middle" fill="white"%3E欣%3C/text%3E%3C/svg%3E'
-                    });
-                }
-                GameData.user.records.lastActiveTime = Date.now();
-                saveData();
-            }
-        }, 10 * 60000);
-    }
-
-    window.addEventListener('focus', () => { if (navigator.clearAppBadge) navigator.clearAppBadge().catch(() => {}); });
-
-    // ============================================================
-    //  INIT
-    // ============================================================
-    document.getElementById('apiKeyInput').addEventListener('change', function() {
-        GameData.settings.apiKey = this.value.trim();
-        saveData();
-        showNotif('✅ API Key已保存');
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        loadData();
-        startPush();
-        if (Notification.permission === 'default') Notification.requestPermission();
-        if (GameData.mail.items.length === 0) {
-            setTimeout(() => {
-                sendMail('📌 欢迎来到欣原监督系统 V3.0', '欢迎回来，VIP009。\n\nV3.0 全新升级：\n- 任务监督更智能，实时追踪你的每一步\n- 特殊彩蛋系统，用券生成专属暧昧故事\n- 紫翼·时光笺，永久珍藏每一段记忆\n\n慢慢变强，我在看着你。', 30, 'gift', '欣原');
-            }, 1500);
-        }
-        document.getElementById('tabShop').addEventListener('click', function(e) { e.stopPropagation(); openShopView(); });
-        document.getElementById('tabSettings').addEventListener('click', function(e) { e.stopPropagation(); openSettingsView(); });
-        document.getElementById('shopView').classList.remove('active');
-        document.getElementById('settingsView').classList.remove('active');
-        document.getElementById('uploadArea').style.display = 'none';
-    });
-    </script>
-</body>
-</html>
+    document.querySelector('.modal .actions').innerHTML = actionsHtml;
+    modal.classList.add('active');
+}
