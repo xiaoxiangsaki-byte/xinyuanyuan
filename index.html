@@ -131,6 +131,8 @@
         #settingsView .setting-item input:focus { border-color: rgba(197,163,255,0.15); }
         #settingsView .setting-item .btn { padding: 3px 12px; border-radius: 6px; border: none; background: rgba(197,163,255,0.08); color: var(--primary); cursor: pointer; font-size: 11px; }
         #settingsView .setting-item .btn.danger { background: rgba(255,82,82,0.08); color: #ff5252; }
+        #settingsView .setting-item .btn.clean-btn { background: rgba(255,213,79,0.10); color: var(--gold); border: 1px solid rgba(255,213,79,0.10); }
+        #settingsView .setting-item .btn.clean-btn:active { opacity: 0.6; }
         #chatView { background: rgba(18,10,30,0.92); background-image: url('https://i.postimg.cc/kgCS8cZC/wei-xin-tu-pian-20260723084444-429-40.jpg'); background-size: cover; background-position: center; background-blend-mode: overlay; }
         #chatView .chat-top { display: flex; align-items: center; padding: 8px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.04); flex-shrink: 0; gap: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; background: rgba(18,10,30,0.5); backdrop-filter: blur(4px); }
         #chatView .chat-top:active { opacity: 0.7; }
@@ -318,11 +320,15 @@
         .modal .content .random-reward-preview { font-size: 10px; color: var(--gold); background: rgba(255,213,79,0.06); padding: 4px 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid rgba(255,213,79,0.06); }
         .modal .content .evidence-hint { font-size: 10px; color: #ff6b6b; background: rgba(255,82,82,0.08); padding: 4px 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid rgba(255,82,82,0.08); display: none; }
         .modal .content .evidence-hint.show { display: block; }
-        /* ★ 强制隐藏上传区域（覆盖所有情况） */
-        .modal .content .upload-area,
-        #uploadArea {
+
+        /* ★ 核心修复：上传区域默认完全隐藏，只随模态框激活显示 */
+        .upload-area {
             display: none !important;
         }
+        #modal.active .upload-area {
+            display: block !important;
+        }
+
         .modal .content textarea { width: 100%; height: 70px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 6px; color: #fff; font-size: 11px; resize: vertical; outline: none; }
         .modal .content textarea:focus { border-color: rgba(197,163,255,0.1); }
         .modal .content .actions { display: flex; gap: 6px; justify-content: flex-end; margin-top: 6px; }
@@ -531,6 +537,7 @@
                 <div class="setting-item"><span class="label">💾 数据</span><div style="display:flex; gap:4px; flex-wrap:wrap;"><button class="btn" onclick="exportData()">导出</button><button class="btn" onclick="importData()">导入</button><button class="btn danger" onclick="resetData()">重置</button></div></div>
                 <div class="setting-item"><span class="label">🐱 BB（阿比西尼亚猫）</span><span style="font-size:11px; color:rgba(255,255,255,0.3);">状态：<span id="catStatus">😺 健康</span></span></div>
                 <div class="setting-item"><span class="label">😴 睡眠监督</span><span style="font-size:11px; color:rgba(255,255,255,0.3);">提醒时间：21:30 · <span id="sleepStatus">等待今晚提醒</span></span></div>
+                <div class="setting-item"><span class="label">🧹 清理重复攻略邮件</span><button class="btn clean-btn" onclick="cleanDuplicateGuideMails()">执行清理</button></div>
             </div>
         </div>
     </div>
@@ -546,8 +553,8 @@
             <div class="desc" id="modalDesc">描述</div>
             <div class="random-reward-preview" id="modalRewardPreview" style="display:none;"></div>
             <div class="evidence-hint" id="evidenceHint">📸 请附上实操照片/截图证据（可选）</div>
-            <!-- ★ 上传区域强制隐藏（CSS 已覆盖） -->
-            <div class="upload-area" id="uploadArea" style="display:none !important;">
+            <!-- ★ 上传区域默认隐藏，由CSS控制显示 -->
+            <div class="upload-area" id="uploadArea">
                 <label class="upload-label" id="uploadLabel">📤 点击上传图片证据（最多3张）
                     <input type="file" id="evidenceImages" accept="image/*" multiple onchange="handleEvidenceImages(this)">
                 </label>
@@ -814,42 +821,46 @@
     }
 
     // ============================================================
-    //  ★ 上传区域强制隐藏工具
+    //  ★ 清理重复攻略邮件
     // ============================================================
-    function forceHideUploadArea() {
-        const uploadArea = document.getElementById('uploadArea');
-        if (!uploadArea) return;
-        uploadArea.style.display = 'none';
-        uploadArea.style.visibility = 'hidden';
-        uploadArea.style.height = '0';
-        uploadArea.style.overflow = 'hidden';
-        uploadArea.style.padding = '0';
-        uploadArea.style.margin = '0';
-        uploadArea.style.border = 'none';
-        const label = document.getElementById('uploadLabel');
-        if (label) { label.style.display = 'none'; }
-        const hint = document.getElementById('evidenceCountHint');
-        if (hint) { hint.style.display = 'none'; }
-        const preview = document.getElementById('evidencePreviewList');
-        if (preview) { preview.style.display = 'none'; }
-    }
+    function cleanDuplicateGuideMails() {
+        if (!confirm('将删除同一天内重复的攻略邮件，只保留每天最新的一封。\n确定执行吗？')) return;
 
-    function restoreUploadArea() {
-        const uploadArea = document.getElementById('uploadArea');
-        if (!uploadArea) return;
-        uploadArea.style.display = 'block';
-        uploadArea.style.visibility = 'visible';
-        uploadArea.style.height = '';
-        uploadArea.style.overflow = '';
-        uploadArea.style.padding = '';
-        uploadArea.style.margin = '';
-        uploadArea.style.border = '';
-        const label = document.getElementById('uploadLabel');
-        if (label) { label.style.display = 'flex'; }
-        const hint = document.getElementById('evidenceCountHint');
-        if (hint) { hint.style.display = 'block'; }
-        const preview = document.getElementById('evidencePreviewList');
-        if (preview) { preview.style.display = 'flex'; }
+        const items = GameData.mail.items;
+        const guideMails = items.filter(m => m.type === 'guide');
+        if (guideMails.length <= 1) {
+            showNotif('📭 没有重复的攻略邮件需要清理');
+            return;
+        }
+
+        const groups = {};
+        guideMails.forEach(m => {
+            const date = TS.dateStr(m.time);
+            if (!groups[date]) groups[date] = [];
+            groups[date].push(m);
+        });
+
+        let deletedCount = 0;
+        for (const date in groups) {
+            const mails = groups[date];
+            if (mails.length <= 1) continue;
+            mails.sort((a, b) => b.time - a.time);
+            for (let i = 1; i < mails.length; i++) {
+                const idx = items.indexOf(mails[i]);
+                if (idx !== -1) {
+                    items.splice(idx, 1);
+                    deletedCount++;
+                }
+            }
+        }
+
+        GameData.mail.items = items;
+        GameData.mail.nextId = items.length > 0 ? Math.max(...items.map(m => m.id)) + 1 : 1;
+
+        saveData();
+        updateMailUI();
+        renderMailList();
+        showNotif('🧹 已清理 ' + deletedCount + ' 封重复攻略邮件');
     }
 
     // ============================================================
@@ -907,12 +918,15 @@
             GameData.user.records.lastCheckIn = Date.now();
             saveData();
 
-            if (!GameData._guideSentToday) {
+            // ★ 攻略邮件发送前二次检查
+            const freshCheck = JSON.parse(localStorage.getItem('xinyuanGameData') || '{}');
+            if (freshCheck._guideSentToday === true) {
+                GameData._guideSentToday = true;
+            } else if (!GameData._guideSentToday) {
                 (async function sendDetailedGuide() {
                     try {
                         const tasks = GameData.tasks.daily;
                         const guide = await generateGuideContent(tasks);
-                        // ★ 攻略邮件正文不带署名
                         sendMail('📋 今日任务攻略', guide, 0, 'guide', '一欣原');
                     } catch(e) {
                         const taskNames = GameData.tasks.daily.map(t => t.title).join('、');
@@ -943,8 +957,8 @@
         renderPunishTasks();
         checkSleepReminder();
         renderTimeCapsule();
-        // ★ 初始化强制隐藏上传区域
-        forceHideUploadArea();
+        // ★ 初始化确保上传区域隐藏
+        document.getElementById('uploadArea').style.display = 'none';
     }
 
     // ============================================================
@@ -1434,10 +1448,8 @@
                         if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
                         const allDone = GameData.tasks.daily.every(t => t.done);
                         if (allDone) {
-                            // ★ 全部完成邮件不带署名
                             setTimeout(() => { sendMail('🌱 今日任务全部完成！', '所有每日任务已完成。记得去“刻下印记”，记录你变强的这一天。', 0, 'guide', '一欣原'); }, 1000);
                         }
-                        // ★ 任务完成通知不带署名
                         setTimeout(() => { sendMail('📌 任务完成通知', '你完成了「'+task.title+'」\n\n虽然过程磕磕绊绊，但结果勉强合格。\n继续保持，别让我失望。', 10, 'reward', '一欣原'); }, 1500);
                     }
                     saveData();
@@ -1773,7 +1785,6 @@ ${sleepContext ? '- '+sleepContext : ''}
                 }, 400);
             }
 
-            // ★ 随机邮件不带署名
             if (Math.random() < 0.10) {
                 const mailTitles = ['欣原的密信', '深夜的叮嘱', '一份小礼物', '来自监督者的问候', '任务攻略'];
                 const mailDescs = ['今晚早点睡，别让我明天看到你顶着黑眼圈来打卡。', '最近表现不错，继续保持。', '给你的小奖励，别太感动。', '这是你应得的，VIP009。', '今天的任务攻略已发送，自己去看。'];
@@ -1899,7 +1910,7 @@ ${sleepContext ? '- '+sleepContext : ''}
                 return;
             }
 
-            // ★ 粉钻项链专属
+            // 粉钻项链专属
             if (item.id === 'g16') {
                 GameData.user.currency.milkTea -= item.price;
                 GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + item.af);
@@ -2084,7 +2095,7 @@ ${sleepContext ? '- '+sleepContext : ''}
     }
 
     // ============================================================
-    //  CHAT SYSTEM (unchanged, but uses addChatMessage)
+    //  CHAT SYSTEM
     // ============================================================
     let chatMessages = [];
     let chatUploadedImage = null;
@@ -2426,7 +2437,6 @@ ${sleepContext ? '- '+sleepContext : ''}
         GameData.sleep.punishActive = true;
         saveData();
         renderPunishTasks();
-        // ★ 惩罚邮件不带署名
         sendMail('⏰ 惩罚任务已生成', '你因睡眠不合格被罚：'+task.title+'\n'+task.desc+'\n\n请在4小时内完成，否则惩罚加倍。', 0, 'care', '一欣原');
         return pTask;
     }
@@ -2464,7 +2474,6 @@ ${sleepContext ? '- '+sleepContext : ''}
         GameData.sleep._streak++;
         if (GameData.sleep._streak >= 3) {
             GameData.treasure.offsetCards += 1;
-            // ★ 不带署名
             sendMail('🎉 连续3天早睡！', '你连续3天睡眠达标。奖励时光回溯卡 x1。\n继续保持，别让我失望。', 0, 'gift', '一欣原');
             showNotif('🎉 连续3天早睡！获得时光回溯卡 x1');
             GameData.sleep._streak = 0;
@@ -2511,7 +2520,6 @@ ${sleepContext ? '- '+sleepContext : ''}
 
         if (streak % 7 === 0 && streak > 0) {
             GameData.treasure.offsetCards += 1;
-            // ★ 不带署名
             sendMail('🎉 连续成长7天！', '你连续刻下7天印记，奖励时光回溯卡 x1。继续加油，别让我失望。', 0, 'gift', '一欣原');
             showNotif('🎉 连续成长7天！获得时光回溯卡 x1');
         }
@@ -2698,12 +2706,15 @@ ${sleepContext ? '- '+sleepContext : ''}
         document.getElementById('modalDesc').textContent = story.content + '\n\n　　—— 欣原 · ' + story.date;
         document.getElementById('modalRewardPreview').style.display = 'none';
         document.getElementById('evidenceReport').style.display = 'none';
-        forceHideUploadArea();
+        // 清空上传区域内容（CSS 已隐藏，但清空更保险）
+        document.getElementById('evidencePreviewList').innerHTML = '';
+        document.getElementById('evidenceCountHint').textContent = '已选 0 / 3 张';
+        evidenceImages = [];
         document.querySelector('.modal .actions').innerHTML = '<button class="btn secondary" onclick="closeModal()">合上信封</button>';
         modal.classList.add('active');
     }
 
-    // ★ 修复：邮件详情 — 普通样式 + 无双署名 + 强制隐藏上传
+    // ★ 修复：邮件详情 — 普通样式 + 无双署名 + 上传区域由CSS控制
     function openMailDetail(id) {
         const item = GameData.mail.items.find(m => m.id === id);
         if (!item) return;
@@ -2719,9 +2730,10 @@ ${sleepContext ? '- '+sleepContext : ''}
 
         document.getElementById('modalRewardPreview').style.display = 'none';
         document.getElementById('evidenceReport').style.display = 'none';
-
-        // ★ 强制隐藏上传区域
-        forceHideUploadArea();
+        // 清空上传区域内容（CSS 已隐藏，但清空更保险）
+        document.getElementById('evidencePreviewList').innerHTML = '';
+        document.getElementById('evidenceCountHint').textContent = '已选 0 / 3 张';
+        evidenceImages = [];
 
         document.getElementById('modal').dataset.mailId = id;
 
@@ -2737,17 +2749,20 @@ ${sleepContext ? '- '+sleepContext : ''}
         modal.classList.add('active');
     }
 
-    // ★ 修复：closeModal 彻底重置 + 恢复上传区域
+    // ★ 修复：closeModal — 清空内容，CSS 控制上传区域显示
     function closeModal() {
         document.getElementById('modal').classList.remove('active');
-        // 先强制隐藏上传区域
-        forceHideUploadArea();
-        // 再恢复默认（为下次任务审核准备）
-        restoreUploadArea();
+        // 清空上传区域内容
+        document.getElementById('evidencePreviewList').innerHTML = '';
+        document.getElementById('evidenceCountHint').textContent = '已选 0 / 3 张';
+        evidenceImages = [];
+        document.getElementById('evidenceReport').value = '';
         document.getElementById('modalContent').classList.remove('envelope');
         document.getElementById('modal').dataset.taskId = '';
         document.getElementById('modal').dataset.taskList = '';
         document.getElementById('modal').dataset.mailId = '';
+        document.getElementById('uploadLabel').style.opacity = '1';
+        document.getElementById('uploadLabel').style.pointerEvents = 'auto';
     }
 
     function submitReport() { TaskSystem.submit(); }
@@ -2834,7 +2849,6 @@ ${sleepContext ? '- '+sleepContext : ''}
         loadData();
         startPush();
         if (Notification.permission === 'default') Notification.requestPermission();
-        // ★ 欢迎邮件不带署名
         if (GameData.mail.items.length === 0) {
             setTimeout(() => {
                 sendMail('📌 欢迎来到欣原监督系统 V2.0', '欢迎回来，VIP009。日记、彩蛋、成长印记、睡眠监督——我都准备好了。\n\n慢慢变强，我在看着你。', 30, 'gift', '一欣原');
@@ -2844,8 +2858,8 @@ ${sleepContext ? '- '+sleepContext : ''}
         document.getElementById('tabSettings').addEventListener('click', function(e) { e.stopPropagation(); openSettingsView(); });
         document.getElementById('shopView').classList.remove('active');
         document.getElementById('settingsView').classList.remove('active');
-        // ★ 再次确保上传区域隐藏
-        forceHideUploadArea();
+        // 确保上传区域隐藏
+        document.getElementById('uploadArea').style.display = 'none';
     });
     </script>
 </body>
