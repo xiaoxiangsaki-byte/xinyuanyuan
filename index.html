@@ -16,7 +16,6 @@
             background-attachment: fixed;
         }
 
-        /* 隐藏滚动条 */
         ::-webkit-scrollbar { width: 0px; height: 0px; background: transparent; }
         * { scrollbar-width: none; -ms-overflow-style: none; }
 
@@ -480,7 +479,9 @@
         diary: { entries: [] },
         checkin: { streak: 0, lastDate: null },
         sleep: { lastCheck: null, data: null, reminderSent: false, punishActive: false, punishLevel: 0 },
-        punishTasks: []
+        punishTasks: [],
+        _guideSentToday: false,   // ★ 新增：标记今日是否已发送攻略邮件
+        _lastGuideDate: null      // ★ 新增：记录上次发送攻略邮件的日期
     };
 
     // ============================================================
@@ -537,7 +538,8 @@
             return a.toDateString() !== b.toDateString();
         },
         getHour() { return this.now().getHours(); },
-        getMinute() { return this.now().getMinutes(); }
+        getMinute() { return this.now().getMinutes(); },
+        dateStr(d) { return new Date(d).toDateString(); }
     };
 
     function showNotif(msg) {
@@ -556,6 +558,33 @@
     function loadData() {
         const saved = localStorage.getItem('xinyuanGameData');
         if (saved) { try { Object.assign(GameData, JSON.parse(saved)); } catch(_) {} }
+
+        // ★ 修复1：从 dialogHistory 重建 chatMessages（唯一数据源）
+        chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
+            let c = m.content;
+            let img = null;
+            if (typeof c === 'object' && c !== null) {
+                if (c.image) { img = c.image; }
+                const txt = c.text || '';
+                c = txt;
+            }
+            if (Array.isArray(c)) {
+                const txtPart = c.find(x => x.type === 'text');
+                c = txtPart ? txtPart.text : '';
+            }
+            return {
+                role: m.role || 'assistant',
+                content: String(c || ''),
+                time: TS.fmt(new Date(m.time || Date.now())),
+                img: img || null
+            };
+        });
+
+        // ★ 修复2：检测新的一天 → 重置攻略邮件标记 & 刷新每日任务
+        const todayStr = TS.dateStr(TS.now());
+        if (TS.isNewDay(GameData._lastGuideDate)) {
+            GameData._guideSentToday = false;
+        }
 
         if (TS.isNewDay(GameData.user.records.lastCheckIn)) {
             GameData.tasks.daily = TaskSystem.genDaily();
@@ -578,17 +607,24 @@
             GameData.user.records.lastCheckIn = Date.now();
             saveData();
 
-            // ★ 攻略邮件升级：调用 AI 生成详细攻略
-            (async function sendDetailedGuide() {
-                try {
-                    const tasks = GameData.tasks.daily;
-                    const guide = await generateGuideContent(tasks);
-                    sendMail('📋 今日任务攻略', guide, 0, 'guide');
-                } catch(e) {
-                    const taskNames = GameData.tasks.daily.map(t => t.title).join('、');
-                    sendMail('📋 今日任务攻略', '今天的任务清单：'+taskNames+'\n\n每一项都给我认真完成，别让我看到你偷懒。\n如果遇到困难，别来问我，自己想办法。\n（但如果你真的不会……可以适当求助）\n\n——欣原 (｀へ´)', 0, 'guide');
-                }
-            })();
+            // ★ 修复2：攻略邮件 — 每天只发送一封，且仅当今天尚未发送
+            if (!GameData._guideSentToday) {
+                (async function sendDetailedGuide() {
+                    try {
+                        const tasks = GameData.tasks.daily;
+                        const guide = await generateGuideContent(tasks);
+                        // ★ 修复3：正文不再包含署名，署名统一由 from 字段控制
+                        sendMail('📋 今日任务攻略', guide, 0, 'guide', '一欣原');
+                    } catch(e) {
+                        const taskNames = GameData.tasks.daily.map(t => t.title).join('、');
+                        const fallback = '今天的任务清单：' + taskNames + '\n\n每一项都给我认真完成，别让我看到你偷懒。\n如果遇到困难，别来问我，自己想办法。\n（但如果你真的不会……可以适当求助）';
+                        sendMail('📋 今日任务攻略', fallback, 0, 'guide', '一欣原');
+                    }
+                    GameData._guideSentToday = true;
+                    GameData._lastGuideDate = Date.now();
+                    saveData();
+                })();
+            }
         }
 
         if (!GameData.tasks.daily || !GameData.tasks.daily.length) GameData.tasks.daily = TaskSystem.genDaily();
@@ -597,12 +633,6 @@
 
         if (GameData.settings.apiKey) document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
         document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
-
-        chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
-            let c = m.content;
-            if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
-            return { role: m.role, content: String(c), time: TS.fmt(new Date(m.time || Date.now())), img: null };
-        });
 
         initPushPool();
         saveData();
@@ -618,13 +648,15 @@
     // ============================================================
     //  MAIL SYSTEM
     // ============================================================
-    function sendMail(title, desc, reward = 0, type = 'note', from = '欣原') {
+    // ★ 修复3：sendMail 支持自定义 from，正文不再包含署名
+    function sendMail(title, desc, reward = 0, type = 'note', from = '一欣原') {
         const typeLabels = { guide: '📖 攻略', reward: '🎁 奖励', gift: '🎀 礼物', care: '💜 关心', note: '✉️ 留言' };
         const item = {
             id: GameData.mail.nextId++,
             title, desc, reward, type,
             typeLabel: typeLabels[type] || '📬',
-            from, time: Date.now(),
+            from: from,
+            time: Date.now(),
             read: false, claimed: false
         };
         GameData.mail.items.unshift(item);
@@ -982,7 +1014,6 @@
             const images = [...evidenceImages];
             closeModal();
 
-            // 惩罚任务
             if (key === 'punish' || (id && id.startsWith('punish_'))) {
                 const pTask = GameData.punishTasks.find(t => t.id === id);
                 if (!pTask || pTask.done) return;
@@ -1022,7 +1053,6 @@
                 return;
             }
 
-            // 随机任务
             if (id === 'random' && key === 'random') {
                 const task = GameData.random.active;
                 if (!task || task.completed) return;
@@ -1067,7 +1097,6 @@
                 return;
             }
 
-            // 普通任务
             const list = GameData.tasks[key];
             const task = list.find(t => t.id === id);
             if (!task || task.done) return;
@@ -1090,9 +1119,9 @@
                         if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
                         const allDone = GameData.tasks.daily.every(t => t.done);
                         if (allDone) {
-                            setTimeout(() => { sendMail('🌱 今日任务全部完成！', '所有每日任务已完成。记得去“刻下印记”，记录你变强的这一天。\n\n——欣原 (￣▽￣)ノ', 0, 'guide'); }, 1000);
+                            setTimeout(() => { sendMail('🌱 今日任务全部完成！', '所有每日任务已完成。记得去“刻下印记”，记录你变强的这一天。', 0, 'guide', '一欣原'); }, 1000);
                         }
-                        setTimeout(() => { sendMail('📌 任务完成通知', '你完成了「'+task.title+'」\n\n虽然过程磕磕绊绊，但结果勉强合格。\n继续保持，别让我失望。\n\n——欣原 (￣▽￣)ノ', 10, 'reward'); }, 1500);
+                        setTimeout(() => { sendMail('📌 任务完成通知', '你完成了「'+task.title+'」\n\n虽然过程磕磕绊绊，但结果勉强合格。\n继续保持，别让我失望。', 10, 'reward', '一欣原'); }, 1500);
                     }
                     saveData();
                     updateUI();
@@ -1139,7 +1168,7 @@
             return '- ' + t.title + ' ' + status + '：' + (t.desc || '');
         }).join('\n');
 
-        const prompt = '你是欣原，一个毒舌但极其专业的高级监护人。现在你要给 VIP009 写一份「今日任务攻略」，帮助她更高效地完成今天的任务。\n\n【任务清单】\n' + taskDetails + '\n\n【要求】\n1. 针对每个任务，给出 1-2 条具体的、可操作的技巧或建议\n2. 风格要毒舌+傲娇+实用，像真正的导师在带学生\n3. 如果某个任务她已经拖延了（进度为0），可以适度"刺激"她一句\n4. 不要只是复述任务标题，要给出真正的"干货"\n5. 末尾以你的风格署名，只署名一次\n\n【参考示例】\n- 普通话纠音：平翘舌分不清，是因为舌尖位置不对。试试把舌尖抵在下齿背，气流从舌面和上颚之间通过……\n- CBEC Listing：欧美用户喜欢"短句+数据"，不要写长段落……\n- 平板支撑：手肘在肩下，收紧核心，别塌腰。宁可做 30 秒标准的，也别做 3 分钟变形的……\n\n请按任务逐一输出攻略内容，直接输出攻略正文，不要加额外说明。';
+        const prompt = '你是欣原，一个毒舌但极其专业的高级监护人。现在你要给 VIP009 写一份「今日任务攻略」，帮助她更高效地完成今天的任务。\n\n【任务清单】\n' + taskDetails + '\n\n【要求】\n1. 针对每个任务，给出 1-2 条具体的、可操作的技巧或建议\n2. 风格要毒舌+傲娇+实用，像真正的导师在带学生\n3. 如果某个任务她已经拖延了（进度为0），可以适度"刺激"她一句\n4. 不要只是复述任务标题，要给出真正的"干货"\n5. 正文中不要包含署名，署名由系统统一添加';
 
         try {
             const guide = await callAIForGuide(prompt);
@@ -1218,8 +1247,12 @@
     // ★★★★★ callChatAI (双模型 + 新人设 + 动作库) ★★★★★
     async function callChatAI(msg, img) {
         if (!GameData.settings.apiKey) throw new Error('未配置API Key');
-        GameData.ai.dialogHistory.push({ role: 'user', content: msg || '📷 [图片]', time: Date.now() });
-        if (GameData.ai.dialogHistory.length > 30) GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-30);
+
+        // ★ 修复1：统一通过 addChatMessage 添加到 dialogHistory，不再手动 push
+        // 但这里需要记录用户消息到 dialogHistory，由 addChatMessage 统一处理
+        // 所以这里只调用 addChatMessage 来添加用户消息（但 addChatMessage 内部会处理 dialogHistory）
+        // 但我们已经在 sendChatMessage 中调用了 addChatMessage('user', ...)
+        // 所以这里不再重复添加
 
         const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
         const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
@@ -1305,6 +1338,10 @@ ${sleepContext ? '- '+sleepContext : ''}
 
         const hist = GameData.ai.dialogHistory.slice(-6).map(m => {
             let c = m.content;
+            if (typeof c === 'object' && c !== null) {
+                const txt = c.text || '';
+                c = txt;
+            }
             if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
             return { role: m.role, content: String(c) };
         });
@@ -1333,6 +1370,7 @@ ${sleepContext ? '- '+sleepContext : ''}
         const data = await res.json();
         const reply = data.choices[0].message.content;
         const cleaned = deduplicateText(reply);
+        // ★ 修复1：AI 回复通过 addChatMessage 添加到 dialogHistory（push=false 也会添加）
         addChatMessage('assistant', cleaned, false);
         reactToReply(cleaned);
 
@@ -1342,7 +1380,7 @@ ${sleepContext ? '- '+sleepContext : ''}
             const rewardAmt = [20,30,50,10,0][Math.floor(Math.random()*5)];
             const types = ['care','care','gift','note','guide'];
             setTimeout(() => {
-                sendMail(mailTitles[Math.floor(Math.random()*mailTitles.length)], mailDescs[Math.floor(Math.random()*mailDescs.length)]+' (｡•́︿•̀｡)', rewardAmt, types[Math.floor(Math.random()*types.length)]);
+                sendMail(mailTitles[Math.floor(Math.random()*mailTitles.length)], mailDescs[Math.floor(Math.random()*mailDescs.length)] + ' (｡•́︿•̀｡)', rewardAmt, types[Math.floor(Math.random()*types.length)], '一欣原');
             }, 2000);
         }
 
@@ -1630,13 +1668,34 @@ ${sleepContext ? '- '+sleepContext : ''}
     let chatMessages = [];
     let chatUploadedImage = null;
 
+    // ★ 修复1：addChatMessage 统一处理消息存储到 dialogHistory 和 chatMessages
     function addChatMessage(role, content, push = false, img = null) {
         const time = TS.fmt(TS.now());
         let finalContent = content;
         if (role === 'assistant') { finalContent = deduplicateText(content); }
+
+        // 存储到 chatMessages（渲染用）
         chatMessages.push({ role, content: finalContent, time, img });
+
+        // ★ 存储到 dialogHistory（持久化唯一数据源）
+        // push=true 表示系统消息，也存储；push=false 表示用户/AI消息，也存储
+        // 但避免重复：如果消息已经存在，则不重复添加
+        const historyEntry = {
+            role: role,
+            content: img ? { text: finalContent, image: img } : finalContent,
+            time: Date.now()
+        };
+        // 简单去重：检查最后一条是否相同
+        const last = GameData.ai.dialogHistory[GameData.ai.dialogHistory.length - 1];
+        if (!last || last.content !== historyEntry.content || last.role !== historyEntry.role) {
+            GameData.ai.dialogHistory.push(historyEntry);
+            if (GameData.ai.dialogHistory.length > 30) {
+                GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-30);
+            }
+        }
+
         if (!push) {
-            GameData.ai.dialogHistory.push({ role: role, content: finalContent, time: Date.now() });
+            // 非系统消息触发好感度增加等逻辑
             if (role === 'assistant') {
                 const gain = 1 + Math.floor(Math.random() * 2);
                 GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + gain);
@@ -1655,6 +1714,7 @@ ${sleepContext ? '- '+sleepContext : ''}
             saveData();
             updateUI();
         }
+
         if (document.getElementById('chatView').classList.contains('active')) {
             renderChatMessage(role, finalContent, time, img);
         }
@@ -1703,6 +1763,10 @@ ${sleepContext ? '- '+sleepContext : ''}
         const recent = history.slice(-5);
         for (let m of recent) {
             let c = m.content;
+            if (typeof c === 'object' && c !== null) {
+                const txt = c.text || '';
+                c = txt;
+            }
             if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
             context += (m.role==='user'?'VIP009：':'欣原：')+String(c)+'\n';
         }
@@ -1766,6 +1830,8 @@ ${sleepContext ? '- '+sleepContext : ''}
         chatUploadedImage = null;
         document.getElementById('chatImgPreview').style.display = 'none';
         document.getElementById('chatImgPreview').src = '';
+
+        // ★ 用户消息通过 addChatMessage 添加到 dialogHistory
         addChatMessage('user', text || '📷 [图片]', false, img);
         input.value = '';
         GameData.user.records.lastActiveTime = Date.now();
@@ -1782,7 +1848,6 @@ ${sleepContext ? '- '+sleepContext : ''}
             updateUI();
         }
 
-        // 检测是否是睡眠截图
         const hour = TS.getHour();
         if (img && hour >= 8 && hour <= 11) {
             await handleSleepImage(img);
@@ -1806,7 +1871,7 @@ ${sleepContext ? '- '+sleepContext : ''}
             addChatMessage('assistant', '今晚几点睡？如果还没躺下，现在就去准备。明早我要看到你的睡眠数据。', true);
             GameData.chat.unreadCount++;
             updateUnreadBadge();
-            setTimeout(() => { sendMail('🌙 睡前提醒', '今晚11点前躺下，明早9点前把睡眠截图发给我。\n别让我催你第二次。\n\n——欣原 (｀へ´)', 0, 'care'); }, 1000);
+            setTimeout(() => { sendMail('🌙 睡前提醒', '今晚11点前躺下，明早9点前把睡眠截图发给我。\n别让我催你第二次。', 0, 'care', '一欣原'); }, 1000);
             saveData();
         }
 
@@ -1932,7 +1997,7 @@ ${sleepContext ? '- '+sleepContext : ''}
         GameData.sleep.punishActive = true;
         saveData();
         renderPunishTasks();
-        sendMail('⏰ 惩罚任务已生成', '你因睡眠不合格被罚：'+task.title+'\n'+task.desc+'\n\n请在4小时内完成，否则惩罚加倍。\n——欣原 (╬ Ò﹏Ó)', 0, 'care');
+        sendMail('⏰ 惩罚任务已生成', '你因睡眠不合格被罚：'+task.title+'\n'+task.desc+'\n\n请在4小时内完成，否则惩罚加倍。', 0, 'care', '一欣原');
         return pTask;
     }
 
@@ -1969,7 +2034,7 @@ ${sleepContext ? '- '+sleepContext : ''}
         GameData.sleep._streak++;
         if (GameData.sleep._streak >= 3) {
             GameData.treasure.offsetCards += 1;
-            sendMail('🎉 连续3天早睡！', '你连续3天睡眠达标。奖励时光回溯卡 x1。\n继续保持，别让我失望。\n\n——欣原 (｡•̀ᴗ-)✧', 0, 'gift');
+            sendMail('🎉 连续3天早睡！', '你连续3天睡眠达标。奖励时光回溯卡 x1。\n继续保持，别让我失望。', 0, 'gift', '一欣原');
             showNotif('🎉 连续3天早睡！获得时光回溯卡 x1');
             GameData.sleep._streak = 0;
             saveData();
@@ -2010,7 +2075,7 @@ ${sleepContext ? '- '+sleepContext : ''}
 
         if (streak % 7 === 0 && streak > 0) {
             GameData.treasure.offsetCards += 1;
-            sendMail('🎉 连续成长7天！', '你连续刻下7天印记，奖励时光回溯卡 x1。继续加油，别让我失望。', 0, 'gift');
+            sendMail('🎉 连续成长7天！', '你连续刻下7天印记，奖励时光回溯卡 x1。继续加油，别让我失望。', 0, 'gift', '一欣原');
             showNotif('🎉 连续成长7天！获得时光回溯卡 x1');
         }
 
@@ -2168,12 +2233,14 @@ ${sleepContext ? '- '+sleepContext : ''}
         container.innerHTML = '<div class="treasure-grid">'+items.map(i => '<div class="treasure-item"><div class="icon">'+i.icon+'</div><div class="name">'+i.name+'</div><div class="count">x '+i.count+'</div><div class="desc">'+i.desc+'</div></div>').join('')+'</div><div style="margin-top:12px; padding:8px 10px; background:rgba(0,0,0,0.1); border-radius:8px; text-align:center; color:rgba(255,255,255,0.3); font-size:10px;">✨ 珍藏阁里藏着你与欣原的点点滴滴</div>';
     }
 
+    // ★ 修复3：openMailDetail 中署名统一使用 from 字段，显示在右下角
     function openMailDetail(id) {
         const item = GameData.mail.items.find(m => m.id === id);
         if (!item) return;
         markMailRead(id);
         document.getElementById('modalTitle').textContent = '📩 '+item.title;
-        document.getElementById('modalDesc').textContent = item.desc+'\n\n—— '+item.from;
+        // 正文 + 右下角署名（使用 from 字段）
+        document.getElementById('modalDesc').textContent = item.desc + '\n\n' + '　　—— ' + item.from;
         document.getElementById('modalRewardPreview').style.display = 'none';
         document.getElementById('evidenceReport').style.display = 'none';
         document.getElementById('modal').dataset.mailId = id;
@@ -2271,7 +2338,7 @@ ${sleepContext ? '- '+sleepContext : ''}
         if (Notification.permission === 'default') Notification.requestPermission();
         if (GameData.mail.items.length === 0) {
             setTimeout(() => {
-                sendMail('📌 欢迎来到欣原监督系统 V2.0', '欢迎回来，VIP009。日记、彩蛋、成长印记、睡眠监督——我都准备好了。\n\n慢慢变强，我在看着你。\n\n——欣原 (｡•̀ᴗ-)✧', 30, 'gift');
+                sendMail('📌 欢迎来到欣原监督系统 V2.0', '欢迎回来，VIP009。日记、彩蛋、成长印记、睡眠监督——我都准备好了。\n\n慢慢变强，我在看着你。', 30, 'gift', '一欣原');
             }, 1500);
         }
         document.getElementById('tabShop').addEventListener('click', function(e) { e.stopPropagation(); openShopView(); });
