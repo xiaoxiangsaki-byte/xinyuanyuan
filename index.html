@@ -603,28 +603,27 @@
     <div id="chibi"><img src="https://i.postimg.cc/X7dyG4B7/wei-xin-tu-pian-20260723025526-115-1.jpg" alt="欣原Q版" id="chibiImg"></div>
     <div class="chibi-bubble" id="chibiBubble"></div>
 
-    <!-- ===== 模态框 ===== -->
+        <!-- ===== 模态框 ===== -->
     <div class="modal" id="modal">
-        <div class="content" id="modalContent">
+        <div class="content" id="modalContent" style="max-height: 80vh; display: flex; flex-direction: column; padding-bottom: 10px;">
             <h3 id="modalTitle">📋 任务呈递</h3>
-            <div class="desc" id="modalDesc">描述</div>
-            <div class="random-reward-preview" id="modalRewardPreview" style="display:none;"></div>
-            <div class="evidence-hint" id="evidenceHint">📸 请附上实操照片/截图证据（可选）</div>
-            <div class="upload-area" id="uploadArea">
+            <div class="desc" id="modalDesc" style="flex-shrink: 0;">描述</div>
+            <div class="random-reward-preview" id="modalRewardPreview" style="display:none; flex-shrink: 0;"></div>
+            <div class="evidence-hint" id="evidenceHint" style="flex-shrink: 0;">📸 请附上实操照片/截图证据（可选）</div>
+            <div class="upload-area" id="uploadArea" style="flex-shrink: 0;">
                 <label class="upload-label" id="uploadLabel">📤 点击上传图片证据（最多3张）
                     <input type="file" id="evidenceImages" accept="image/*" multiple onchange="handleEvidenceImages(this)">
                 </label>
                 <div class="preview-list" id="evidencePreviewList"></div>
                 <div class="count-hint" id="evidenceCountHint">已选 0 / 3 张</div>
             </div>
-            <textarea id="evidenceReport" placeholder="输入你的成果汇报..."></textarea>
-            <div class="actions">
+            <textarea id="evidenceReport" placeholder="输入你的成果汇报..." style="flex-shrink: 0; height: 60px;"></textarea>
+            <div class="actions" style="flex-shrink: 0; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
                 <button class="btn secondary" onclick="closeModal()">取消</button>
-                <button class="btn primary" id="modalConfirmBtn" onclick="submitReport()">提交并审核</button>
+                <button class="btn primary" id="modalConfirmBtn" onclick="submitReport()" style="font-weight: bold; font-size: 13px; padding: 4px 16px;">✅ 提交并审核</button>
             </div>
         </div>
     </div>
-
     <!-- ★ 傲娇确认框 -->
     <div class="modal" id="confirmModal">
         <div class="content confirm-box">
@@ -1766,32 +1765,34 @@
     }
 
     function handleChatImage(input) {
-        if (!input.files || !input.files[0]) return;
-        const file = input.files[0];
-        if (!file.type.startsWith('image/')) { showNotif('⚠️ 仅支持图片'); input.value = ''; return; }
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-                const c = document.createElement('canvas');
-                let w = img.width, h = img.height;
-                const maxS = 400;
-                if (w > h && w > maxS) { h *= maxS / w; w = maxS; }
-                else if (h > w && h > maxS) { w *= maxS / h; h = maxS; }
-                c.width = w; c.height = h;
-                const ctx = c.getContext('2d');
-                ctx.drawImage(img, 0, 0, w, h);
-                chatUploadedImage = c.toDataURL('image/jpeg', 0.6).split(',')[1];
-                const preview = document.getElementById('chatImgPreview');
-                preview.src = 'data:image/jpeg;base64,'+chatUploadedImage;
-                preview.style.display = 'inline-block';
-                showNotif('📷 照片已就绪');
-            };
-            img.src = e.target.result;
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) { showNotif('⚠️ 仅支持图片'); input.value = ''; return; }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const c = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            // ★ 改为 200px，大幅缩小图片
+            const maxS = 200;
+            if (w > h && w > maxS) { h *= maxS / w; w = maxS; }
+            else if (h > w && h > maxS) { w *= maxS / h; h = maxS; }
+            c.width = w; c.height = h;
+            const ctx = c.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            // ★ 质量降到 0.4，加快传输
+            const base64 = c.toDataURL('image/jpeg', 0.4).split(',')[1];
+            chatUploadedImage = base64;
+            const preview = document.getElementById('chatImgPreview');
+            preview.src = 'data:image/jpeg;base64,' + chatUploadedImage;
+            preview.style.display = 'inline-block';
+            showNotif('📷 照片已压缩，准备识别');
         };
-        reader.readAsDataURL(file);
-    }
-
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
     // ============================================================
     //  ★ 核心聊天AI（含VL图片强制识别）
     // ============================================================
