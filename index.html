@@ -600,32 +600,43 @@
             }
             GameData.user.records.lastCheckIn = Date.now();
             saveData();
-            const taskNames = GameData.tasks.daily.map(t => t.title).join('、');
-            sendMail('📋 今日任务攻略', '今天的任务清单：'+taskNames+'\n\n每一项都给我认真完成，别让我看到你偷懒。\n如果遇到困难，别来问我，自己想办法。\n（但如果你真的不会……可以适当求助）\n\n——欣原 (｀へ´)', 0, 'guide');
-        }
+            // ★ 攻略邮件升级：调用 AI 生成详细攻略
+// ★ 攻略邮件升级：调用 AI 生成详细攻略
+(async function sendDetailedGuide() {
+    try {
+        const tasks = GameData.tasks.daily;
+        const guide = await generateGuideContent(tasks);
+        sendMail('📋 今日任务攻略', guide, 0, 'guide');
+    } catch(e) {
+        // 如果生成失败，用旧版兜底
+        const taskNames = GameData.tasks.daily.map(t => t.title).join('、');
+        sendMail('📋 今日任务攻略', '今天的任务清单：'+taskNames+'\n\n每一项都给我认真完成，别让我看到你偷懒。\n如果遇到困难，别来问我，自己想办法。\n（但如果你真的不会……可以适当求助）\n\n——欣原 (｀へ´)', 0, 'guide');
+    }
+})();
 
-        if (!GameData.tasks.daily || !GameData.tasks.daily.length) GameData.tasks.daily = TaskSystem.genDaily();
-        if (!GameData.tasks.mainQuests || !GameData.tasks.mainQuests.length) GameData.tasks.mainQuests = TaskSystem.initMain();
-        if (!GameData.tasks.sideQuests || !GameData.tasks.sideQuests.length) GameData.tasks.sideQuests = TaskSystem.initSide();
+// 以下这些是 loadData 原有的逻辑，不要删！
+if (!GameData.tasks.daily || !GameData.tasks.daily.length) GameData.tasks.daily = TaskSystem.genDaily();
+if (!GameData.tasks.mainQuests || !GameData.tasks.mainQuests.length) GameData.tasks.mainQuests = TaskSystem.initMain();
+if (!GameData.tasks.sideQuests || !GameData.tasks.sideQuests.length) GameData.tasks.sideQuests = TaskSystem.initSide();
 
-        if (GameData.settings.apiKey) document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
-        document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
+if (GameData.settings.apiKey) document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
+document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
 
-        chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
-            let c = m.content;
-            if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
-            return { role: m.role, content: String(c), time: TS.fmt(new Date(m.time || Date.now())), img: null };
-        });
+chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
+    let c = m.content;
+    if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
+    return { role: m.role, content: String(c), time: TS.fmt(new Date(m.time || Date.now())), img: null };
+});
 
-        initPushPool();
-        saveData();
-        updateUI();
-        updateMailUI();
-        updateUnreadBadge();
-        updateCatStatus();
-        updateStreakDisplay();
-        renderPunishTasks();
-        checkSleepReminder();
+initPushPool();
+saveData();
+updateUI();
+updateMailUI();
+updateUnreadBadge();
+updateCatStatus();
+updateStreakDisplay();
+renderPunishTasks();
+checkSleepReminder();
     }
 
     // ============================================================
@@ -1185,6 +1196,45 @@
         result = result.replace(/ {2,}/g, ' ');
         return result.trim();
     }
+        // ★ 攻略生成专用 AI 调用
+async function callAIForGuide(prompt) {
+    if (!GameData.settings.apiKey) throw new Error('未配置API Key');
+    const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + GameData.settings.apiKey
+        },
+        body: JSON.stringify({
+            model: 'Qwen/Qwen2.5-72B-Instruct-128K',
+            messages: [
+                { role: 'system', content: '你是欣原，专业、毒舌、傲娇的监护人。你精通跨境电商、财商、身材管理、普通话训练。回答要实用、犀利、带个人风格。' },
+                { role: 'user', content: prompt }
+            ],
+            max_tokens: 600,
+            temperature: 0.75
+        })
+    });
+    if (!res.ok) { let e = 'HTTP ' + res.status; try { const d = await res.json(); if (d.error && d.error.message) e += ' - ' + d.error.message; } catch(_) {} throw new Error(e); }
+    const data = await res.json();
+    return data.choices[0].message.content;
+}
+ // ★ 攻略内容生成器
+async function generateGuideContent(tasks) {
+    const taskDetails = tasks.map(t => {
+        const status = t.progress === 0 ? '【未开始】' : '【进行中】';
+        return '- ' + t.title + ' ' + status + '：' + (t.desc || '');
+    }).join('\n');
+    
+    const prompt = '你是欣原，一个毒舌但极其专业的高级监护人。现在你要给 VIP009 写一份「今日任务攻略」，帮助她更高效地完成今天的任务。\n\n【任务清单】\n' + taskDetails + '\n\n【要求】\n1. 针对每个任务，给出 1-2 条具体的、可操作的技巧或建议\n2. 风格要毒舌+傲娇+实用，像真正的导师在带学生\n3. 如果某个任务她已经拖延了（进度为0），可以适度"刺激"她一句\n4. 不要只是复述任务标题，要给出真正的"干货"\n5. 末尾以你的风格署名，只署名一次\n\n【参考示例】\n- 普通话纠音：平翘舌分不清，是因为舌尖位置不对。试试把舌尖抵在下齿背，气流从舌面和上颚之间通过……\n- CBEC Listing：欧美用户喜欢"短句+数据"，不要写长段落……\n- 平板支撑：手肘在肩下，收紧核心，别塌腰。宁可做 30 秒标准的，也别做 3 分钟变形的……\n\n请按任务逐一输出攻略内容，直接输出攻略正文，不要加额外说明。';
+
+    try {
+        const guide = await callAIForGuide(prompt);
+        return guide;
+    } catch(e) {
+        throw e;
+    }
+}       
 
     // ★★★★★ callChatAI (含双模型 + 新人设 + 动作库) ★★★★★
     async function callChatAI(msg, img) {
