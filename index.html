@@ -1355,7 +1355,6 @@
     const key = document.getElementById('modal').dataset.taskList;
     const report = document.getElementById('evidenceReport').value.trim();
 
-    // 检查报告是否为空
     if (report.length < 10) {
         showNotif('❌ 报告太短（至少10个字）');
         return;
@@ -1364,12 +1363,10 @@
     const images = [...evidenceImages];
     closeModal();
 
-    // 显示加载状态
     showNotif('📤 正在提交审核，请稍候...');
     addChatMessage('assistant', '[正在审阅你的汇报...]', true);
 
     try {
-        // --- 1. 获取任务对象 ---
         let task = null;
         let list = null;
         if (key === 'punish' || (id && id.startsWith('punish_'))) {
@@ -1390,7 +1387,6 @@
             return;
         }
 
-        // --- 2. 调用 VL 模型识别图片（如果有） ---
         let visionResult = '';
         if (images.length > 0) {
             try {
@@ -1401,7 +1397,6 @@
             }
         }
 
-        // --- 3. 构建审核提示词 ---
         const taskTitle = task.title || '任务';
         const taskDesc = task.desc || '';
         const imgDesc = images.length > 0 ? `\n用户上传了 ${images.length} 张图片证据。图片分析结果：${visionResult}` : '';
@@ -1412,21 +1407,16 @@
 
 请以欣原的口吻审核这份汇报。如果汇报内容详实、真实、有实际成果，请以「PASS」开头给予肯定；如果汇报敷衍、空洞、缺乏实质内容，请严厉拒绝并指出问题。`;
 
-        // --- 4. 调用逻辑模型审核 ---
         const systemPrompt = '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面，但偶尔也会傲娇地认可一下。禁止重复句式。';
         let aiReply = await callAIChat(prompt, systemPrompt);
 
-        // --- 5. 根据审核结果更新任务 ---
         if (aiReply.includes('PASS')) {
-            // ★ 通过审核
             const cleanReply = aiReply.replace('PASS', '').trim();
             addChatMessage('assistant', cleanReply || '嗯，勉强算你通过了。', true);
 
-            // 更新任务进度
             task.progress = Math.min(task.progress + 1, task.max);
             task.lastUpdate = Date.now();
 
-            // ★ 检查任务是否完成
             if (task.progress >= task.max && !task.done) {
                 task.done = true;
                 GameData.user.currency.milkTea += task.reward;
@@ -1439,7 +1429,6 @@
                     triggerMax();
                 }
 
-                // 检查每日任务是否全部完成
                 if (key === 'daily') {
                     const allDone = GameData.tasks.daily.every(t => t.done || t.exempted);
                     if (allDone) {
@@ -1463,7 +1452,6 @@
             updateUI();
 
         } else {
-            // ★ 未通过审核
             addChatMessage('assistant', aiReply || '汇报太敷衍，重写！', true);
             showNotif('❌ 审核未通过，请完善汇报后重新提交');
             GameData.ai.affection = Math.max(0, GameData.ai.affection - 2);
@@ -2754,73 +2742,75 @@
         el.textContent = (streak === 0 ? '🌱' : streak >= 7 ? '🔥' : '✨') + ' ' + streak + ' 天';
     }
 
-    // ============================================================
-    //  VIEW SWITCHING
-    // ============================================================
-    function showView(id) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+   // ============================================================
+//  VIEW SWITCHING
+// ============================================================
+// ============================================================
+//  VIEW SWITCHING
+// ============================================================
+function showView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function openMailView() {
+    showView('mailView');
+    mailTab = 'mails';
+    document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active'));
+    document.getElementById('mailTabMails').classList.add('active');
+    renderMailList();
+}
+
+function openTreasureView() {
+    showView('mailView');
+    mailTab = 'treasure';
+    document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active'));
+    document.getElementById('mailTabTreasure').classList.add('active');
+    renderTreasure();
+}
+
+function openTimeCapsuleView() {
+    showView('timeCapsuleView');
+    renderTimeCapsule();
+}
+
+function openShopView() { showView('shopView'); updateShopGrid(); }
+function closeShopView() { showView('mainView'); updateUI(); }
+
+function openSettingsView() {
+    showView('settingsView');
+    document.getElementById('apiKeyInput').value = GameData.settings.apiKey || '';
+    document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
+    updateCatStatus();
+    const poolEditor = document.getElementById('taskPoolEditor');
+    if (poolEditor) poolEditor.value = JSON.stringify(GameData.taskPool, null, 2);
+}
+function closeSettingsView() { showView('mainView'); updateUI(); }
+
+let mailTab = 'mails';
+function switchMailTab(tab, el) {
+    mailTab = tab;
+    document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active'));
+    if (el) el.classList.add('active');
+    if (tab === 'mails') { renderMailList(); }
+    else { renderTreasure(); }
+}
+
+function switchMainTab(tab, el) {
+    document.querySelectorAll('.bottom-tabs .tab').forEach(t => t.classList.remove('active'));
+    if (el) el.classList.add('active');
+    if (tab === 'tasks') {
+        document.getElementById('taskContent').style.display = 'block';
+        if (document.getElementById('shopView').classList.contains('active')) closeShopView();
+        if (document.getElementById('settingsView').classList.contains('active')) closeSettingsView();
+    } else if (tab === 'shop') {
+        document.getElementById('taskContent').style.display = 'none';
+        openShopView();
+    } else if (tab === 'settings') {
+        document.getElementById('taskContent').style.display = 'none';
+        openSettingsView();
     }
-
-    function openMailView() {
-        showView('mailView');
-        mailTab = 'mails';
-        document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active'));
-        document.getElementById('mailTabMails').classList.add('active');
-        renderMailList();
-    }
-
-    function openTreasureView() {
-        showView('mailView');
-        mailTab = 'treasure';
-        document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active'));
-        document.getElementById('mailTabTreasure').classList.add('active');
-        renderTreasure();
-    }
-
-    function openTimeCapsuleView() {
-        showView('timeCapsuleView');
-        renderTimeCapsule();
-    }
-
-    function openShopView() { showView('shopView'); updateShopGrid(); }
-    function closeShopView() { showView('mainView'); updateUI(); }
-
-    function openSettingsView() {
-        showView('settingsView');
-        document.getElementById('apiKeyInput').value = GameData.settings.apiKey || '';
-        document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
-        updateCatStatus();
-        const poolEditor = document.getElementById('taskPoolEditor');
-        if (poolEditor) poolEditor.value = JSON.stringify(GameData.taskPool, null, 2);
-    }
-    function closeSettingsView() { showView('mainView'); updateUI(); }
-
-    let mailTab = 'mails';
-    function switchMailTab(tab, el) {
-        mailTab = tab;
-        document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active'));
-        if (el) el.classList.add('active');
-        if (tab === 'mails') { renderMailList(); }
-        else { renderTreasure(); }
-    }
-
-    function switchMainTab(tab, el) {
-        document.querySelectorAll('.bottom-tabs .tab').forEach(t => t.classList.remove('active'));
-        if (el) el.classList.add('active');
-        if (tab === 'tasks') {
-            document.getElementById('taskContent').style.display = 'block';
-            if (document.getElementById('shopView').classList.contains('active')) closeShopView();
-            if (document.getElementById('settingsView').classList.contains('active')) closeSettingsView();
-        } else if (tab === 'shop') {
-            document.getElementById('taskContent').style.display = 'none';
-            openShopView();
-        } else if (tab === 'settings') {
-            document.getElementById('taskContent').style.display = 'none';
-            openSettingsView();
-        }
-    }
-
+}
     // ============================================================
     //  CHIBI BUBBLE SYSTEM
     // ============================================================
