@@ -1350,107 +1350,133 @@
             document.getElementById('modal').dataset.taskList = taskId.startsWith('d') ? 'daily' : (taskId.startsWith('m') ? 'main' : 'side');
             document.getElementById('modal').classList.add('active');
         },
-        async submit() {
-            const id = document.getElementById('modal').dataset.taskId;
-            const key = document.getElementById('modal').dataset.taskList;
-            const report = document.getElementById('evidenceReport').value.trim();
-            if (report.length < 10) { showNotif('❌ 报告太短（至少10个字）'); return; }
-            const images = [...evidenceImages];
-            closeModal();
+       async submit() {
+    const id = document.getElementById('modal').dataset.taskId;
+    const key = document.getElementById('modal').dataset.taskList;
+    const report = document.getElementById('evidenceReport').value.trim();
 
-            if (key === 'punish' || (id && id.startsWith('punish_'))) {
-                const pTask = GameData.punishTasks.find(t => t.id === id);
-                if (!pTask || pTask.done) return;
-                showNotif('📤 已递交惩罚任务证据...');
-                addChatMessage('assistant', '[正在审阅你的惩罚任务汇报...]', true);
-                try {
-                    const imgText = images.length > 0 ? '（附带了 '+images.length+' 张图片证据）' : '';
-                    const prompt = '[系统：VIP009 提交惩罚任务「'+pTask.title+'」，汇报：'+report+' '+imgText+'。请以欣原的口吻审查。如果通过，开头加 [PASS] 并点评。如果不通过，不加 [PASS] 并严厉拒绝。]';
-                    let r;
-                    if (images.length > 0) {
-                        const visionResult = await callAIVision('请结合图片审核这份任务汇报。', images[0]);
-                        r = await callAIChat(prompt + '\n\n图片分析结果：' + visionResult, '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面。');
-                    } else {
-                        r = await callAIChat(prompt, '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面。');
-                    }
-                    if (r.includes('[PASS]')) {
-                        const clean = r.replace('[PASS]','').trim();
-                        addChatMessage('assistant', clean, true);
-                        pTask.done = true;
-                        GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 3);
-                        showNotif('✅ 惩罚任务完成！好感度 +3');
-                        punishLevel = 0;
-                        saveData();
-                        updateUI();
-                        renderPunishTasks();
+    // 检查报告是否为空
+    if (report.length < 10) {
+        showNotif('❌ 报告太短（至少10个字）');
+        return;
+    }
+
+    const images = [...evidenceImages];
+    closeModal();
+
+    // 显示加载状态
+    showNotif('📤 正在提交审核，请稍候...');
+    addChatMessage('assistant', '[正在审阅你的汇报...]', true);
+
+    try {
+        // --- 1. 获取任务对象 ---
+        let task = null;
+        let list = null;
+        if (key === 'punish' || (id && id.startsWith('punish_'))) {
+            task = GameData.punishTasks.find(t => t.id === id);
+            list = 'punish';
+        } else if (key === 'daily') {
+            list = GameData.tasks.daily;
+            task = list.find(t => t.id === id);
+        } else if (key === 'main') {
+            list = GameData.tasks.mainQuests;
+            task = list.find(t => t.id === id);
+        } else if (key === 'side') {
+            list = GameData.tasks.sideQuests;
+            task = list.find(t => t.id === id);
+        }
+        if (!task || task.done) {
+            showNotif('⚠️ 任务已完成或不存在');
+            return;
+        }
+
+        // --- 2. 调用 VL 模型识别图片（如果有） ---
+        let visionResult = '';
+        if (images.length > 0) {
+            try {
+                visionResult = await callAIVision('请描述这张图片的内容，并判断它是否与任务相关。', images[0]);
+            } catch (e) {
+                visionResult = '图片识别失败，但文本审核继续运行';
+                showNotif('⚠️ 图片识别失败，文本审核继续');
+            }
+        }
+
+        // --- 3. 构建审核提示词 ---
+        const taskTitle = task.title || '任务';
+        const taskDesc = task.desc || '';
+        const imgDesc = images.length > 0 ? `\n用户上传了 ${images.length} 张图片证据。图片分析结果：${visionResult}` : '';
+
+        const prompt = `VIP009 提交了任务「${taskTitle}」的成果汇报。
+【任务描述】：${taskDesc}
+【用户汇报】：${report}${imgDesc}
+
+请以欣原的口吻审核这份汇报。如果汇报内容详实、真实、有实际成果，请以「PASS」开头给予肯定；如果汇报敷衍、空洞、缺乏实质内容，请严厉拒绝并指出问题。`;
+
+        // --- 4. 调用逻辑模型审核 ---
+        const systemPrompt = '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面，但偶尔也会傲娇地认可一下。禁止重复句式。';
+        let aiReply = await callAIChat(prompt, systemPrompt);
+
+        // --- 5. 根据审核结果更新任务 ---
+        if (aiReply.includes('PASS')) {
+            // ★ 通过审核
+            const cleanReply = aiReply.replace('PASS', '').trim();
+            addChatMessage('assistant', cleanReply || '嗯，勉强算你通过了。', true);
+
+            // 更新任务进度
+            task.progress = Math.min(task.progress + 1, task.max);
+            task.lastUpdate = Date.now();
+
+            // ★ 检查任务是否完成
+            if (task.progress >= task.max && !task.done) {
+                task.done = true;
+                GameData.user.currency.milkTea += task.reward;
+                GameData.treasure.milkTea = GameData.user.currency.milkTea;
+                showNotif(`✅ 任务完成！+${task.reward}🍰`);
+                GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 5);
+
+                if (GameData.ai.affection >= MAX_AF && !window._afTriggered) {
+                    window._afTriggered = true;
+                    triggerMax();
+                }
+
+                // 检查每日任务是否全部完成
+                if (key === 'daily') {
+                    const allDone = GameData.tasks.daily.every(t => t.done || t.exempted);
+                    if (allDone) {
                         setTimeout(() => {
-                            const msgs = ['……行，这次算你过关。下次别让我再看到这种东西。', '勉强合格。你的身体不是用来折磨的。', '你证明了自己还有救。继续。'];
-                            addChatMessage('assistant', msgs[Math.floor(Math.random()*msgs.length)], true);
+                            sendMail('🌱 今日任务全部完成！', '所有每日任务已完成。记得去"刻下印记"，记录你变强的这一天。', 0, 'guide', '欣原');
                         }, 1000);
-                    } else {
-                        addChatMessage('assistant', r, true);
-                        showNotif('❌ 未通过，惩罚任务失败！');
-                        GameData.ai.affection = Math.max(0, GameData.ai.affection - 5);
-                        GameData.user.currency.milkTea = Math.max(0, GameData.user.currency.milkTea - 30);
-                        punishLevel = Math.min(3, punishLevel + 1);
-                        generatePunishTask();
-                        showNotif('💀 惩罚失败！好感度 -5，小奶糕 -30，新惩罚已生成！');
-                        saveData();
-                        updateUI();
-                        renderPunishTasks();
                     }
-                } catch(e) { addChatMessage('assistant', '⚠️ '+e.message, true); }
-                return;
+                }
+
+                setTimeout(() => {
+                    sendMail('📌 任务完成通知', `你完成了「${taskTitle}」\n\n虽然过程磕磕绊绊，但结果勉强合格。\n继续保持，别让我失望。`, 10, 'reward', '欣原');
+                }, 1500);
+
+                updateTaskHistory();
+                checkTaskSchedule();
+            } else {
+                showNotif(`📌 任务进度更新: ${task.progress}/${task.max}`);
             }
 
-            const list = GameData.tasks[key];
-            const task = list.find(t => t.id === id);
-            if (!task || task.done) return;
-            showNotif('📤 已递交...');
-            const imgText = images.length > 0 ? '（附带了 '+images.length+' 张图片证据）' : '';
-            addChatMessage('assistant', '[冷眼扫过你的汇报'+imgText+'] 让我看看你这次交上来的是什么……', true);
+            saveData();
+            updateUI();
 
-            try {
-                const prompt = '[系统：VIP009 呈递「'+task.title+'」，汇报内容：'+report+'。'+(images.length > 0 ? '用户上传了 '+images.length+' 张图片证据，请结合图片审核。' : '')+' 【审核规则】1. 如果汇报内容敷衍、空洞、字数不足、缺乏实质内容 → 必须狠狠痛骂一顿，直接拒批。2. 如果汇报内容真诚、详实、有实际成果 → 勉强认可，开头加 [PASS]。]';
-                let r;
-                if (images.length > 0) {
-                    const visionResult = await callAIVision('请结合图片审核这份任务汇报，判断是否真实可信。', images[0]);
-                    r = await callAIChat(prompt + '\n\n图片分析结果：' + visionResult, '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面，但偶尔也会傲娇地认可一下。禁止重复句式。');
-                } else {
-                    r = await callAIChat(prompt, '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面，但偶尔也会傲娇地认可一下。禁止重复句式。');
-                }
-                if (r.includes('[PASS]')) {
-                    const clean = r.replace('[PASS]','').trim();
-                    addChatMessage('assistant', clean, true);
-                    task.progress = Math.min(task.progress + 1, task.max);
-                    task.lastUpdate = Date.now();
-                    if (task.progress >= task.max && !task.done) {
-                        task.done = true;
-                        GameData.user.currency.milkTea += task.reward;
-                        GameData.treasure.milkTea = GameData.user.currency.milkTea;
-                        showNotif('✅ 任务完成！+'+task.reward+'🍰');
-                        GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 5);
-                        if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
-                        const allDone = GameData.tasks.daily.every(t => t.done || t.exempted);
-                        if (allDone) {
-                            setTimeout(() => { sendMail('🌱 今日任务全部完成！', '所有每日任务已完成。记得去"刻下印记"，记录你变强的这一天。', 0, 'guide', '欣原'); }, 1000);
-                        }
-                        setTimeout(() => { sendMail('📌 任务完成通知', '你完成了「'+task.title+'」\n\n虽然过程磕磕绊绊，但结果勉强合格。\n继续保持，别让我失望。', 10, 'reward', '欣原'); }, 1500);
-                        updateTaskHistory();
-                        checkTaskSchedule();
-                    }
-                    saveData();
-                    updateUI();
-                } else {
-                    addChatMessage('assistant', r, true);
-                    showNotif('❌ 未通过，重新做！附照片证据！');
-                    GameData.ai.affection = Math.max(0, GameData.ai.affection - 3);
-                    saveData();
-                    updateUI();
-                }
-            } catch(e) { addChatMessage('assistant', '⚠️ '+e.message, true); }
+        } else {
+            // ★ 未通过审核
+            addChatMessage('assistant', aiReply || '汇报太敷衍，重写！', true);
+            showNotif('❌ 审核未通过，请完善汇报后重新提交');
+            GameData.ai.affection = Math.max(0, GameData.ai.affection - 2);
+            saveData();
+            updateUI();
         }
-    };
+
+    } catch (error) {
+        console.error('提交审核出错:', error);
+        showNotif('❌ 审核请求失败: ' + error.message);
+        addChatMessage('assistant', `⚠️ 系统错误: ${error.message}`, true);
+    }
+}
 
     // ============================================================
     //  PUNISH TASKS
