@@ -1797,42 +1797,41 @@
     //  ★ 核心聊天AI（含VL图片强制识别）
     // ============================================================
     async function callChatAI(msg, img) {
-        if (isSending) return;
-        if (!GameData.settings.apiKey) {
-            showNotif('❌ 请先在设置中配置 API Key');
-            return;
+    if (isSending) return;
+    if (!GameData.settings.apiKey) {
+        showNotif('❌ 请先在设置中配置 API Key');
+        return;
+    }
+
+    isSending = true;
+    const sendBtn = document.getElementById('chatSendBtn');
+    const input = document.getElementById('chatInput');
+    sendBtn.disabled = true;
+    sendBtn.style.opacity = '0.4';
+    input.disabled = true;
+
+    try {
+        // 如果有图片，先用VL识别
+        let imageDescription = '';
+        if (img) {
+            addChatMessage('assistant', '📷 图片识别中… 等我一下。', true);
+            try {
+                const visionPrompt = '请详细描述这张图片里的内容，包括：1. 主体是什么（人、动物、物体）；2. 场景/环境；3. 颜色和细节。以欣原的口吻简洁描述。';
+                imageDescription = await callAIVision(visionPrompt, img);
+                if (!imageDescription || imageDescription.length < 5) {
+                    imageDescription = '这张图片里的内容我没能看清楚，你再描述一下吧。';
+                }
+            } catch(e) {
+                imageDescription = '图片识别暂时失败了，你告诉我这是什么吧。';
+            }
         }
 
-        isSending = true;
-        const sendBtn = document.getElementById('chatSendBtn');
-        const input = document.getElementById('chatInput');
-        sendBtn.disabled = true;
-        sendBtn.style.opacity = '0.4';
-        input.disabled = true;
+        const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
+        const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
+        const rel = getRel(GameData.ai.affection);
 
-        try {
-            // 如果有图片，先用VL识别并强制要求详细描述
-            let imageDescription = '';
-            if (img) {
-                addChatMessage('assistant', '📷 图片识别中… 等我一下。', true);
-                try {
-                    const visionPrompt = '请详细描述这张图片里的内容，包括：1. 主体是什么（人、动物、物体）；2. 场景/环境；3. 颜色和细节。以欣原的口吻简洁描述。';
-                    imageDescription = await callAIVision(visionPrompt, img);
-                    // 如果VL返回失败，用备用描述
-                    if (!imageDescription || imageDescription.length < 5) {
-                        imageDescription = '这张图片里的内容我没能看清楚，你再描述一下吧。';
-                    }
-                } catch(e) {
-                    imageDescription = '图片识别暂时失败了，你告诉我这是什么吧。';
-                }
-            }
-
-            const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
-            const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
-            const rel = getRel(GameData.ai.affection);
-
-            // ★ 毒舌傲娇人设 System Prompt
-            let sysPrompt = `你是欣原，VIP009 的监护人。你深爱她，但表达方式毒舌、傲娇、嘴硬心软。
+        // ★ 毒舌傲娇人设 System Prompt
+        let sysPrompt = `你是欣原，VIP009 的监护人。你深爱她，但表达方式毒舌、傲娇、嘴硬心软。
 
 【人格底色】
 - 毒舌、傲娇、掌控欲强、嘴硬心软
@@ -1863,138 +1862,117 @@
 3. 如果她偷懒，直接怼她
 4. 记住：你是欣原，不是温柔助理`;
 
-           // ★ 修正版（缩进正确、语法正确、逻辑完整）
-let userContent;
-let modelName;
+        let userContent;
+        let modelName;
 
-if (img) {
-    // 根据提问复杂度选择 VL 模型
-    const isSimpleQuery = !msg || msg.length < 15 || /这是什么|描述|识别|看看/.test(msg);
-    if (isSimpleQuery) {
-        modelName = 'Qwen/Qwen3-VL-32B-Instruct';   // 快速识别，适合日常图片
-    } else {
-        modelName = 'Qwen/Qwen3-VL-32B-Thinking';   // 深度推理，适合复杂问题
-    }
-
-    const userPrompt = msg ? msg : '请描述这张图片的内容。';
-    // 图片描述已经由外层 callAIVision 得到，可直接嵌入系统提示
-    sysPrompt += `\n【重要】用户发来了一张图片，我已经识别到内容如下：${imageDescription}。请在回复中自然融入这些内容。`;
-
-    // ★ userContent 必须是数组，包含两个对象
-    userContent = [
-        { type: "image_url", image_url: { url: 'data:image/jpeg;base64,' + img, detail: "high" } },
-        { type: "text", text: userPrompt }
-    ];
-} else {
-    // 纯文本聊天
-    modelName = 'Qwen/Qwen2.5-72B-Instruct-128K';
-    userContent = msg;
-}
-
-// ★ 历史消息处理
-const hist = GameData.ai.dialogHistory.slice(-6).map(m => {
-    let c = m.content;
-    if (typeof c === 'object' && c !== null) {
-        const txt = c.text || '';
-        c = txt;
-    }
-    if (Array.isArray(c)) {
-        const t = c.find(x => x.type === 'text');
-        c = t ? t.text : '';
-    }
-    return { role: m.role, content: String(c) };
-});
-
-// ★ fetch 请求（注意：headers 里不需要 Content-Length）
-const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + GameData.settings.apiKey
-    },
-    body: JSON.stringify({
-        model: modelName,
-        messages: [
-            { role: 'system', content: sysPrompt },
-            ...hist,
-            { role: 'user', content: userContent }
-        ],
-        max_tokens: 500,
-        temperature: img ? 0.7 : 0.85
-    })
-});
-            const hist = GameData.ai.dialogHistory.slice(-6).map(m => {
-                let c = m.content;
-                if (typeof c === 'object' && c !== null) {
-                    const txt = c.text || '';
-                    c = txt;
-                }
-                if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
-                return { role: m.role, content: String(c) };
-            });
-
-            const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+GameData.settings.apiKey },
-                body: JSON.stringify({
-                    model: modelName,
-                    messages: [
-                        { role: 'system', content: sysPrompt },
-                        ...hist,
-                        { role: 'user', content: userContent }
-                    ],
-                    max_tokens: 500,
-                    temperature: img ? 0.7 : 0.85
-                })
-            });
-
-            if (!res.ok) {
-                let e = 'HTTP '+res.status;
-                try { const d = await res.json(); if (d.error && d.error.message) e += ' - '+d.error.message; } catch(_) {}
-                throw new Error(e);
+        if (img) {
+            // ★ 根据提问复杂度选择 VL 模型
+            const isSimpleQuery = !msg || msg.length < 15 || /这是什么|描述|识别|看看/.test(msg);
+            if (isSimpleQuery) {
+                modelName = 'Qwen/Qwen3-VL-32B-Instruct';
+            } else {
+                modelName = 'Qwen/Qwen3-VL-32B-Thinking';
             }
 
-            const data = await res.json();
-            const reply = data.choices[0].message.content;
-            const cleaned = deduplicateText(reply);
+            const userPrompt = msg ? msg : '请描述这张图片的内容。';
+            // ★ 正确：用反引号模板字符串，${imageDescription} 才会被解析
+            sysPrompt += `\n【重要】用户发来了一张图片，我已经识别到内容如下：${imageDescription}。请在回复中自然融入这些内容。`;
 
-            // 删除之前的“识别中”消息
-            if (img) {
-                const msgs = document.querySelectorAll('#chatMessagesArea .chat-msg.ai');
-                const lastAiMsg = msgs[msgs.length - 1];
-                if (lastAiMsg && lastAiMsg.textContent.includes('图片识别中…')) {
-                    lastAiMsg.remove();
-                    chatMessages.pop();
-                }
-            }
-
-            addChatMessage('assistant', cleaned, false);
-
-            const emotion = detectEmotion(cleaned);
-            if (emotion) {
-                const line = getEmotionLine(emotion);
-                setTimeout(() => { showEmotionBubble(line, emotion, 2500); }, 400);
-            }
-
-            const gain = 1 + Math.floor(Math.random() * 2);
-            GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + gain);
-            if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
-            checkLoverStage();
-            updateHeartColor();
-            saveData();
-            updateUI();
-
-        } catch(e) {
-            addChatMessage('assistant', '⚠️ '+(e.message||'请求失败'), false);
-            showNotif('❌ '+(e.message||'请求失败'));
-        } finally {
-            isSending = false;
-            sendBtn.disabled = false;
-            sendBtn.style.opacity = '1';
-            input.disabled = false;
-            input.focus();
+            // ★ 正确：图片 URL 拼接方式
+            userContent = [
+                { type: "image_url", image_url: { url: 'data:image/jpeg;base64,' + img, detail: "high" } },
+                { type: "text", text: userPrompt }
+            ];
+        } else {
+            modelName = 'Qwen/Qwen2.5-72B-Instruct-128K';
+            userContent = msg;
         }
+
+        // ★ 历史消息处理（修正版）
+        const hist = GameData.ai.dialogHistory.slice(-6).map(m => {
+            let c = m.content;
+            if (typeof c === 'object' && c !== null) {
+                const txt = c.text || '';
+                c = txt;
+            }
+            if (Array.isArray(c)) {
+                const t = c.find(x => x.type === 'text');
+                c = t ? t.text : '';
+            }
+            return { role: m.role, content: String(c) };
+        });
+
+        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + GameData.settings.apiKey
+            },
+            body: JSON.stringify({
+                model: modelName,
+                messages: [
+                    { role: 'system', content: sysPrompt },
+                    ...hist,
+                    { role: 'user', content: userContent }
+                ],
+                max_tokens: 500,
+                temperature: img ? 0.7 : 0.85
+            })
+        });
+
+        if (!res.ok) {
+            let e = 'HTTP ' + res.status;
+            try {
+                const d = await res.json();
+                if (d.error && d.error.message) e += ' - ' + d.error.message;
+            } catch(_) {}
+            throw new Error(e);
+        }
+
+        const data = await res.json();
+        const reply = data.choices[0].message.content;
+        const cleaned = deduplicateText(reply);
+
+        // 删除之前的“识别中”消息
+        if (img) {
+            const msgs = document.querySelectorAll('#chatMessagesArea .chat-msg.ai');
+            const lastAiMsg = msgs[msgs.length - 1];
+            if (lastAiMsg && lastAiMsg.textContent.includes('图片识别中…')) {
+                lastAiMsg.remove();
+                chatMessages.pop();
+            }
+        }
+
+        addChatMessage('assistant', cleaned, false);
+
+        const emotion = detectEmotion(cleaned);
+        if (emotion) {
+            const line = getEmotionLine(emotion);
+            setTimeout(() => { showEmotionBubble(line, emotion, 2500); }, 400);
+        }
+
+        const gain = 1 + Math.floor(Math.random() * 2);
+        GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + gain);
+        if (GameData.ai.affection >= MAX_AF && !window._afTriggered) {
+            window._afTriggered = true;
+            triggerMax();
+        }
+        checkLoverStage();
+        updateHeartColor();
+        saveData();
+        updateUI();
+
+    } catch(e) {
+        addChatMessage('assistant', '⚠️ ' + (e.message || '请求失败'), false);
+        showNotif('❌ ' + (e.message || '请求失败'));
+    } finally {
+        isSending = false;
+        sendBtn.disabled = false;
+        sendBtn.style.opacity = '1';
+        input.disabled = false;
+        input.focus();
     }
+}
     // ===== 第四段结束 =====
         <!-- ===== 第五段开始 ===== -->
     // ============================================================
