@@ -1863,25 +1863,66 @@
 3. 如果她偷懒，直接怼她
 4. 记住：你是欣原，不是温柔助理`;
 
-            let userContent;
-            let modelName;
+           // ★ 修正版（缩进正确、语法正确、逻辑完整）
+let userContent;
+let modelName;
 
-            if (img) {
-                modelName = 'Qwen/Qwen3-VL-32B-Thinking';
-                // 强制要求描述图片，并把识别结果融入回复
-                const userPrompt = msg ? msg : '请描述这张图片的内容。';
-                // 将图片描述作为系统提示的一部分，确保模型回复时包含描述
-                sysPrompt += `\n【重要】用户发来了一张图片，我已经识别到内容如下：${imageDescription}。请在回复中自然融入这段描述，并基于此回答用户的问题。`;
+if (img) {
+    // 根据提问复杂度选择 VL 模型
+    const isSimpleQuery = !msg || msg.length < 15 || /这是什么|描述|识别|看看/.test(msg);
+    if (isSimpleQuery) {
+        modelName = 'Qwen/Qwen3-VL-32B-Instruct';   // 快速识别，适合日常图片
+    } else {
+        modelName = 'Qwen/Qwen3-VL-32B-Thinking';   // 深度推理，适合复杂问题
+    }
 
-                userContent = [
-                    { type: "image_url", image_url: { url: 'data:image/jpeg;base64,'+img, detail: "high" } },
-                    { type: "text", text: userPrompt }
-                ];
-            } else {
-                modelName = 'Qwen/Qwen2.5-72B-Instruct-128K';
-                userContent = msg;
-            }
+    const userPrompt = msg ? msg : '请描述这张图片的内容。';
+    // 图片描述已经由外层 callAIVision 得到，可直接嵌入系统提示
+    sysPrompt += `\n【重要】用户发来了一张图片，我已经识别到内容如下：${imageDescription}。请在回复中自然融入这些内容。`;
 
+    // ★ userContent 必须是数组，包含两个对象
+    userContent = [
+        { type: "image_url", image_url: { url: 'data:image/jpeg;base64,' + img, detail: "high" } },
+        { type: "text", text: userPrompt }
+    ];
+} else {
+    // 纯文本聊天
+    modelName = 'Qwen/Qwen2.5-72B-Instruct-128K';
+    userContent = msg;
+}
+
+// ★ 历史消息处理
+const hist = GameData.ai.dialogHistory.slice(-6).map(m => {
+    let c = m.content;
+    if (typeof c === 'object' && c !== null) {
+        const txt = c.text || '';
+        c = txt;
+    }
+    if (Array.isArray(c)) {
+        const t = c.find(x => x.type === 'text');
+        c = t ? t.text : '';
+    }
+    return { role: m.role, content: String(c) };
+});
+
+// ★ fetch 请求（注意：headers 里不需要 Content-Length）
+const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + GameData.settings.apiKey
+    },
+    body: JSON.stringify({
+        model: modelName,
+        messages: [
+            { role: 'system', content: sysPrompt },
+            ...hist,
+            { role: 'user', content: userContent }
+        ],
+        max_tokens: 500,
+        temperature: img ? 0.7 : 0.85
+    })
+});
             const hist = GameData.ai.dialogHistory.slice(-6).map(m => {
                 let c = m.content;
                 if (typeof c === 'object' && c !== null) {
