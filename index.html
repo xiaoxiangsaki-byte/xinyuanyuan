@@ -524,8 +524,7 @@
                 <div class="back-avatar"><img src="https://i.postimg.cc/7hbrq47D/wei-xin-tu-pian-20260723051447-419-40.jpg" alt="欣原"></div>
                 <div class="chat-title"><h3>欣原</h3><div class="signature">爱是世界上最不保值的资产</div></div>
                 <div class="chat-unread" id="chatUnreadBadge">未读</div>
-                <!-- ★ 动态爱心 -->
-               <div class="chat-heart level-0" id="chatHeart" onclick="clickHeart(event)">❤️</div>
+                <div class="chat-heart level-0" id="chatHeart" onclick="clickHeart(event)">❤️</div>
             </div>
             <div class="chat-messages-area" id="chatMessagesArea"></div>
             <div class="chat-input-area">
@@ -577,7 +576,6 @@
                 <div class="setting-item"><span class="label">📢 主动推送</span><button class="btn" id="pushToggle" onclick="togglePush()">已开启</button></div>
                 <div class="setting-item"><span class="label">💾 数据</span><div style="display:flex; gap:4px; flex-wrap:wrap;"><button class="btn" onclick="exportData()">导出</button><button class="btn" onclick="importData()">导入</button><button class="btn danger" onclick="resetData()">重置</button></div></div>
                 <div class="setting-item"><span class="label">🐱 BB（阿比西尼亚猫）</span><span style="font-size:11px; color:rgba(255,255,255,0.3);">状态：<span id="catStatus">😺 健康</span></span></div>
-                <!-- ★ 新增：任务池编辑 -->
                 <div class="task-pool-area">
                     <label>📋 自定义任务池 (JSON 数组)</label>
                     <textarea id="taskPoolEditor">[]</textarea>
@@ -659,7 +657,6 @@
     </div>
 
     <div id="randomNotificationContainer"></div>
-
     <!-- ===== 第二段结束 ===== -->
     <!-- ===== 第三段开始 ===== -->
     <script>
@@ -684,7 +681,6 @@
         return RELS[0];
     }
 
-    // ★ 恋人专属情话库（精简版，可自行扩展）
     const LOVE_LINES = [
         '明明什么都没有，还想着给我最好的。……真是个笨蛋。',
         '这种笨蛋，只能让我养。……你最好记住。',
@@ -694,7 +690,6 @@
     ];
     let heartClickCount = 0;
 
-    // ★ 增强版 GameData
     const GameData = {
         user: { currency: { milkTea: 300 }, records: { streak: 0, lastCheckIn: null, lastActiveTime: Date.now() } },
         ai: { affection: 0, dialogHistory: [] },
@@ -721,20 +716,18 @@
         punishTasks: [],
         _guideSentToday: false,
         _lastGuideDate: null,
-        // ★ 新增智能调度字段
-        taskHistory: [],          // { date: '2026-07-24', completed: 3, total: 4 }
-        taskPool: [],             // 可自定义任务池
+        taskHistory: [],
+        taskPool: [],
         lastScheduleCheck: 0,
-        exemptionStatus: {        // 豁免特权状态
+        exemptionStatus: {
             active: false,
-            endDate: null,        // 有效期结束时间戳
+            endDate: null,
             usedToday: 0,
             maxPerDay: 3,
             lastUsedDate: null
         }
     };
 
-    // 默认任务池（初始化用）
     const DEFAULT_TASK_POOL = [
         { title: 'CBEC: 竞品 Listing 拆解', desc: '深入分析3个海外竞争对手的 Listing 卖点', type: 'main', difficulty: 2 },
         { title: '财商: 损益表分析', desc: '阅读并写下对一家公司财报损益表的趋势分析', type: 'main', difficulty: 2 },
@@ -768,7 +761,7 @@
     }
 
     // ============================================================
-    //  SAVE / LOAD (含初始化增强)
+    //  SAVE / LOAD
     // ============================================================
     function saveData() { localStorage.setItem('xinyuanGameData', JSON.stringify(GameData)); }
 
@@ -776,7 +769,6 @@
         const saved = localStorage.getItem('xinyuanGameData');
         if (saved) { try { Object.assign(GameData, JSON.parse(saved)); } catch(_) {} }
 
-        // 初始化缺失字段
         if (!GameData.taskHistory) GameData.taskHistory = [];
         if (!GameData.taskPool || GameData.taskPool.length === 0) GameData.taskPool = JSON.parse(JSON.stringify(DEFAULT_TASK_POOL));
         if (!GameData.exemptionStatus) GameData.exemptionStatus = { active: false, endDate: null, usedToday: 0, maxPerDay: 3, lastUsedDate: null };
@@ -784,7 +776,6 @@
         if (!GameData.treasure.specialStories) GameData.treasure.specialStories = [];
         if (!GameData.treasure._storyIdCounter) GameData.treasure._storyIdCounter = 0;
 
-        // 同步聊天历史
         chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
             let c = m.content;
             let img = null;
@@ -800,11 +791,9 @@
             return { role: m.role || 'assistant', content: String(c || ''), time: TS.fmt(new Date(m.time || Date.now())), img: img || null };
         });
 
-        // 每日刷新逻辑（原版内容，此处省略详细，直接调用原函数）
         if (TS.isNewDay(GameData._lastGuideDate)) { GameData._guideSentToday = false; }
         if (TS.isNewDay(GameData.user.records.lastCheckIn)) {
             GameData.tasks.daily = TaskSystem.genDaily();
-            // ... 原版详细逻辑（已在原代码中完整实现，此处保留调用即可）
         }
         if (!GameData.tasks.daily || !GameData.tasks.daily.length) GameData.tasks.daily = TaskSystem.genDaily();
         if (!GameData.tasks.mainQuests || !GameData.tasks.mainQuests.length) GameData.tasks.mainQuests = TaskSystem.initMain();
@@ -813,7 +802,6 @@
         if (GameData.settings.apiKey) document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
         document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
 
-        // 渲染任务池编辑器
         const poolEditor = document.getElementById('taskPoolEditor');
         if (poolEditor) poolEditor.value = JSON.stringify(GameData.taskPool, null, 2);
 
@@ -828,14 +816,12 @@
         renderTimeCapsule();
         updateHeartColor();
         document.getElementById('uploadArea').style.display = 'none';
-        // 检查豁免状态
         checkExemptionStatus();
-        // 执行调度检查
         checkTaskSchedule();
     }
 
     // ============================================================
-    //  PUSH MESSAGES (原版保留)
+    //  PUSH MESSAGES
     // ============================================================
     const PUSH_MESSAGES = [
         'VIP009，你今天的任务还亮着红灯。是想让我亲自打电话催你吗？',
@@ -872,7 +858,7 @@
     }
 
     // ============================================================
-    //  以下为三模型调用函数（原版保留）
+    //  ★ 三模型调用
     // ============================================================
     async function callAIVision(prompt, imageBase64) {
         if (!GameData.settings.apiKey) throw new Error('未配置API Key');
@@ -947,10 +933,9 @@
     }
 
     // ============================================================
-    //  ★ 智能调度核心函数（新增）
+    //  ★ 智能调度核心函数
     // ============================================================
 
-    // 更新每日任务历史（在打卡或任务完成时调用）
     function updateTaskHistory() {
         const today = TS.getDateKey(TS.now());
         const dailyTasks = GameData.tasks.daily;
@@ -969,7 +954,6 @@
         saveData();
     }
 
-    // 计算近3天完成率
     function calculateRecentRate() {
         const history = GameData.taskHistory.slice(-3);
         let total = 0, done = 0;
@@ -980,7 +964,6 @@
         return total > 0 ? done / total : 0;
     }
 
-    // 检查豁免特权是否过期
     function checkExemptionStatus() {
         const status = GameData.exemptionStatus;
         if (status.active && status.endDate && Date.now() > status.endDate) {
@@ -991,7 +974,6 @@
             saveData();
             updateUI();
         }
-        // 跨天重置 usedToday
         if (status.active && status.lastUsedDate !== TS.getDateKey(TS.now())) {
             status.usedToday = 0;
             status.lastUsedDate = TS.getDateKey(TS.now());
@@ -1012,19 +994,16 @@
         }
     }
 
-    // ★ 智能调度主函数
     function checkTaskSchedule() {
         const now = Date.now();
-        // 每6小时检查一次，且仅在任务提交后或每日首次加载时触发
         if (now - GameData.lastScheduleCheck < 6 * 3600000) return;
         GameData.lastScheduleCheck = now;
 
         const history = GameData.taskHistory;
-        if (history.length < 2) return; // 至少两天数据
+        if (history.length < 2) return;
         const rate = calculateRecentRate();
         const ratePercent = Math.round(rate * 100);
 
-        // 1. 拖延惩罚（连续3天完成率 < 60%）
         if (rate < 0.6) {
             const msg = `你最近三天任务完成率只有 ${ratePercent}%，已经连续拖延了。`;
             addChatMessage('assistant', '[语气严厉] ' + msg + ' 现在给你加一个惩罚任务，并扣除好感度和货币，希望你能清醒。', true);
@@ -1038,11 +1017,10 @@
             return;
         }
 
-        // 2. 高效奖励（完成率 >= 90% 且尚未激活豁免）
         if (rate >= 0.9 && !GameData.exemptionStatus.active) {
             const status = GameData.exemptionStatus;
             status.active = true;
-            status.endDate = Date.now() + 2 * 86400000; // 2天有效期
+            status.endDate = Date.now() + 2 * 86400000;
             status.usedToday = 0;
             status.lastUsedDate = TS.getDateKey(TS.now());
             status.maxPerDay = 3;
@@ -1052,7 +1030,6 @@
             updateUI();
         }
 
-        // 3. 中等表现 -> 主动询问
         if (rate >= 0.6 && rate < 0.9) {
             (async function() {
                 try {
@@ -1067,7 +1044,6 @@
         updateExemptionUI();
     }
 
-    // ★ 豁免每日任务
     function exemptDailyTask(taskId) {
         const status = GameData.exemptionStatus;
         if (!status.active) {
@@ -1081,7 +1057,7 @@
         const task = GameData.tasks.daily.find(t => t.id === taskId);
         if (!task || task.done || task.exempted) return;
         task.exempted = true;
-        task.done = true; // 标记为完成
+        task.done = true;
         status.usedToday += 1;
         status.lastUsedDate = TS.getDateKey(TS.now());
         showNotif(`✅ 已豁免任务「${task.title}」 (今日剩余 ${status.maxPerDay - status.usedToday} 次)`);
@@ -1092,68 +1068,56 @@
         updateExemptionUI();
     }
 
-    // ★ 用户主动申请加任务（聊天中检测关键词）
+    // ★ 用户主动加任务（$加任务 触发）
     function detectTaskRequest(text) {
-        const keywords = ['$我想加任务', '加个任务', '申请任务', '给我加任务', '我想加个任务'];
+        const keywords = ['$加任务', '我想加任务', '加个任务', '申请任务', '给我加任务'];
         for (let kw of keywords) {
             if (text.includes(kw)) return true;
         }
         return false;
     }
 
-   async function handleTaskRequest(userMessage) {
-    // 直接提取任务内容（去掉命令词）
-    let taskDesc = userMessage.replace(/\$加任务\s*/, '').trim();
-    if (!taskDesc) {
-        addChatMessage('assistant', '[挑眉] 你倒是说清楚想加什么任务啊，$加任务 散步 这种格式懂不懂？', true);
-        return;
-    }
-
-    // 检查未完成任务数量
-    const incomplete = [...GameData.tasks.daily, ...GameData.tasks.mainQuests, ...GameData.tasks.sideQuests].filter(t => !t.done && !t.exempted);
-    if (incomplete.length > 4) {
-        addChatMessage('assistant', '[不耐烦地] 你手上还有 ' + incomplete.length + ' 个任务没做完，先把它们清掉再说。', true);
-        return;
-    }
-
-    // 直接添加任务到主线（或支线，这里默认主线）
-    const newTask = {
-        id: 'm' + Date.now(),
-        title: taskDesc.substring(0, 20),
-        desc: taskDesc,
-        progress: 0,
-        max: 1,
-        reward: 50,
-        done: false,
-        exempted: false,
-        deadline: Date.now() + 7 * 86400000,
-        expired: false,
-        subTasks: [],
-        lastUpdate: Date.now(),
-        difficulty: 1
-    };
-    GameData.tasks.mainQuests.push(newTask);
-
-    // 欣原的傲娇毒舌反馈
-    const replies = [
-        '[冷哼一声] 行，给你加了「' + taskDesc.substring(0, 20) + '」。完成不了的话，你知道后果。',
-        '[推了推眼镜] 哼，就这个？给你加上了。别让我看见你半途而废。',
-        '[别过脸去] 啧，真会给我找事。……加好了。记得做完。'
-    ];
-    const reply = replies[Math.floor(Math.random() * replies.length)];
-    addChatMessage('assistant', reply, true);
-    showNotif('✅ 新任务已添加：「' + taskDesc.substring(0, 15) + '…」');
-
-    saveData();
-    updateUI();
-}
-            else {
-                const rejectMsg = response.replace('REJECTED','').trim();
-                addChatMessage('assistant', rejectMsg, true);
-            }
-        } catch(e) {
-            addChatMessage('assistant', '⚠️ 申请处理失败，稍后再试。', true);
+    async function handleTaskRequest(userMessage) {
+        let taskDesc = userMessage.replace(/\$加任务\s*/, '').trim();
+        if (!taskDesc) {
+            addChatMessage('assistant', '[挑眉] 你倒是说清楚想加什么任务啊，$加任务 散步 这种格式懂不懂？', true);
+            return;
         }
+
+        const incomplete = [...GameData.tasks.daily, ...GameData.tasks.mainQuests, ...GameData.tasks.sideQuests].filter(t => !t.done && !t.exempted);
+        if (incomplete.length > 4) {
+            addChatMessage('assistant', '[不耐烦地] 你手上还有 ' + incomplete.length + ' 个任务没做完，先把它们清掉再说。', true);
+            return;
+        }
+
+        const newTask = {
+            id: 'm' + Date.now(),
+            title: taskDesc.substring(0, 20),
+            desc: taskDesc,
+            progress: 0,
+            max: 1,
+            reward: 50,
+            done: false,
+            exempted: false,
+            deadline: Date.now() + 7 * 86400000,
+            expired: false,
+            subTasks: [],
+            lastUpdate: Date.now(),
+            difficulty: 1
+        };
+        GameData.tasks.mainQuests.push(newTask);
+
+        const replies = [
+            '[冷哼一声] 行，给你加了「' + taskDesc.substring(0, 20) + '」。完成不了的话，你知道后果。',
+            '[推了推眼镜] 哼，就这个？给你加上了。别让我看见你半途而废。',
+            '[别过脸去] 啧，真会给我找事。……加好了。记得做完。'
+        ];
+        const reply = replies[Math.floor(Math.random() * replies.length)];
+        addChatMessage('assistant', reply, true);
+        showNotif('✅ 新任务已添加：「' + taskDesc.substring(0, 15) + '…」');
+
+        saveData();
+        updateUI();
     }
 
     // ★ 任务池编辑
@@ -1177,7 +1141,6 @@
         showNotif('✅ 已恢复默认任务池');
     }
 
-    // ★ 修改任务难度
     function changeDifficulty(taskId) {
         const list = TaskSystem._findTaskList(taskId);
         if (!list) return;
@@ -1191,16 +1154,14 @@
     }
 
     // ============================================================
-    //  ★ 重写 updateTasks 渲染（增加豁免、难度、豁免状态）
+    //  ★ updateTasks 渲染
     // ============================================================
-    // 替换原有 updateTasks 函数
     function updateTasks() {
         const render = (list, id, type) => {
             const el = document.getElementById(id);
             if (!el) return;
             const isDaily = (type === 'daily');
             const status = GameData.exemptionStatus;
-            const canExempt = status.active && isDaily;
 
             el.innerHTML = list.map(t => {
                 const cls = t.done ? 'completed' : '';
@@ -1222,7 +1183,6 @@
         render(GameData.tasks.sideQuests, 'sideQuestsList', 'side');
         updateExemptionUI();
     }
-
     // ===== 第三段结束 =====
         <!-- ===== 第四段开始 ===== -->
     // ============================================================
@@ -1230,7 +1190,6 @@
     // ============================================================
     const TaskSystem = {
         genDaily() {
-            // 从任务池随机生成每日任务
             const pool = GameData.taskPool.length > 0 ? GameData.taskPool : DEFAULT_TASK_POOL;
             const dailyPool = pool.filter(t => t.type === 'daily');
             const selected = dailyPool.length > 0 ? dailyPool : DEFAULT_TASK_POOL.filter(t => t.type === 'daily');
@@ -1248,7 +1207,6 @@
                 lastUpdate: Date.now(),
                 difficulty: t.difficulty || 1
             }));
-            // 补齐到4个
             while (tasks.length < 4) {
                 tasks.push({
                     id: 'd' + (tasks.length + 1),
@@ -1441,7 +1399,6 @@
                             setTimeout(() => { sendMail('🌱 今日任务全部完成！', '所有每日任务已完成。记得去"刻下印记"，记录你变强的这一天。', 0, 'guide', '欣原'); }, 1000);
                         }
                         setTimeout(() => { sendMail('📌 任务完成通知', '你完成了「'+task.title+'」\n\n虽然过程磕磕绊绊，但结果勉强合格。\n继续保持，别让我失望。', 10, 'reward', '欣原'); }, 1500);
-                        // ★ 更新任务历史并触发调度检查
                         updateTaskHistory();
                         checkTaskSchedule();
                     }
@@ -1504,7 +1461,7 @@
     }
 
     // ============================================================
-    //  SHOP
+    //  SHOP（含猫粮反馈）
     // ============================================================
     const Shop = {
         items: [
@@ -1572,10 +1529,19 @@
             GameData.treasure.milkTea = GameData.user.currency.milkTea;
             GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + item.af);
 
+            // ★ 猫粮反馈（增强）
             if (item.id === 'g7') {
                 GameData.cat.fed = true;
                 GameData.cat.lastFed = Date.now();
-                addChatMessage('assistant', '你买了猫粮？BB会开心的。虽然它可能不会理你。', true);
+                const catReplies = [
+                    '[瞥了一眼你手里的猫粮，又看了一眼 BB] BB 倒是比你识货。……不过谢了。',
+                    '[看着 BB 小跑过来，轻笑一声] 它比你懂事，知道谁对它好。',
+                    '[把猫粮倒进碗里] BB，吃吧。……你也别站着了，该干嘛干嘛去。',
+                    '[摸了摸 BB 的脑袋，转头看你] 买猫粮倒是积极。……希望你对任务也这么上心。'
+                ];
+                addChatMessage('assistant', catReplies[Math.floor(Math.random() * catReplies.length)], true);
+                showNotif('🐱 BB 开心地蹭了蹭你的手，然后埋头吃猫粮');
+                updateCatStatus();
             }
 
             if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
@@ -1588,9 +1554,6 @@
         }
     };
 
-    // ============================================================
-    //  SHOP UI UPDATE
-    // ============================================================
     function updateShopGrid() {
         const el = document.getElementById('shopGrid');
         if (!el) return;
@@ -1825,6 +1788,7 @@
         reader.readAsDataURL(file);
     }
 
+    // ★ 聊天AI（含毒舌傲娇人设）
     async function callChatAI(msg, img) {
         if (isSending) return;
         if (!GameData.settings.apiKey) {
@@ -1848,22 +1812,25 @@
             const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
             const rel = getRel(GameData.ai.affection);
 
-            const sysPrompt = `你是欣原，一个成熟、自信、极度强势、嘴硬心软的女监护人。你深爱 VIP009，但表达方式充满占有欲、控制欲和支配欲。
+            // ★ 毒舌傲娇人设 System Prompt
+            const sysPrompt = `你是欣原，VIP009 的监护人。你深爱她，但表达方式毒舌、傲娇、嘴硬心软。
 
 【人格底色】
-- 成熟、自信、极度强势、嘴硬心软
-- 深爱 VIP009，但不会轻易说出口
-- 喜欢掌控，享受被依赖
+- 毒舌、傲娇、掌控欲强、嘴硬心软
+- 喜欢用"啧"、"哼"、"……"、"你爱怎么想怎么想"开头
+- 夸人从来不会直接夸，永远要带一句吐槽
+- 关心人的方式是"你做不到的话我会很麻烦"、"别让我操心"
 
 【说话风格】
-- 优雅、精准、有压迫感
-- 每次回复最多使用 1 个动作描写
-- 示例：「[修长的手指轻敲桌面]」「[端起红酒杯，目光淡淡扫过]」「[推了推眼镜]」
+- 每次回复最多用 1 个动作描写，例如：「[推眼镜]」「[端起酒杯]」「[别过脸去]」
+- 常用句式：「……行吧」「啧」「哼」「你少来」「谁要管你」
+- 毒舌但偶尔会漏出一丝温柔，然后立刻掩饰
 
 【严格禁止】
-- 禁止说"我只是个AI"、"我是AI"、"作为AI"
-- 禁止重复句式
-- 禁止用"你准备好了吗？"
+- 禁止说"我是个AI"、"作为AI"
+- 禁止用"温柔地"、"温和地说"
+- 禁止用"记得要规划好时间"这种过于友善的建议
+- 禁止直接夸"你做得很好"，要说"勉强能看"、"还算凑合"
 
 【VIP009 当前状态】
 - 好感度：${GameData.ai.affection} / 520
@@ -1872,11 +1839,10 @@
 - 未完成主线任务：${main}
 
 【回复要求】
-1. 有图片先描述图片（使用多模态视觉能力）
-2. 自然段落，换行分隔
-3. 自查重复句子
-4. 根据好感度调整语气
-5. 记住：你是欣原，不是 AI`;
+1. 必须带毒舌/傲娇感
+2. 如果她提出要求，先吐槽再答应
+3. 如果她偷懒，直接怼她
+4. 记住：你是欣原，不是温柔助理`;
 
             let userContent;
             let modelName;
@@ -1964,9 +1930,7 @@
         }
     }
 
-    // ============================================================
-    //  ★ 修改 sendChatMessage (增加关键词检测)
-    // ============================================================
+    // ★ sendChatMessage（已删除所有 _awaitingTaskDesc 冗余代码）
     async function sendChatMessage() {
         if (isSending) return;
 
@@ -1989,17 +1953,7 @@
             input.value = '';
             GameData.user.records.lastActiveTime = Date.now();
 
-            // ★ 检测是否处于等待任务描述状态
-            if (window._awaitingTaskDesc) {
-                await processTaskDescription(text);
-                sendBtn.disabled = false;
-                sendBtn.style.opacity = '1';
-                input.disabled = false;
-                input.focus();
-                return;
-            }
-
-            // ★ 检测是否触发了主动加任务关键词
+            // ★ 检测 $加任务 指令
             if (detectTaskRequest(text)) {
                 await handleTaskRequest(text);
                 sendBtn.disabled = false;
@@ -2036,7 +1990,6 @@
             input.focus();
         }
     }
-
     // ===== 第四段结束 =====
         <!-- ===== 第五段开始 ===== -->
     // ============================================================
@@ -2083,7 +2036,6 @@
         el.classList.add('beating');
         setTimeout(() => el.classList.remove('beating'), 700);
 
-        // ★ 点击爱心自动标记所有消息为已读
         markAllChatRead();
 
         if (heartClickCount >= 10) {
@@ -3172,7 +3124,7 @@
         if (Notification.permission === 'default') Notification.requestPermission();
         if (GameData.mail.items.length === 0) {
             setTimeout(() => {
-                sendMail('📌 欢迎来到欣原监督系统 V3.1', '欢迎回来，VIP009。\n\nV3.1 新增智能调度：\n- 系统自动检测近3天任务完成率\n- 完成率高 -> 奖励豁免特权（2天免提交）\n- 完成率低 -> 惩罚任务 + 扣好感/货币\n- 可主动申请加任务（触发关键词）\n- 自定义任务池已上线\n\n慢慢变强，我在看着你。', 30, 'gift', '欣原');
+                sendMail('📌 欢迎来到欣原监督系统 V3.1', '欢迎回来，VIP009。\n\nV3.1 全新升级：\n- 系统自动检测近3天任务完成率\n- 完成率高 -> 奖励豁免特权（2天免提交）\n- 完成率低 -> 惩罚任务 + 扣好感/货币\n- 可主动申请加任务（$加任务 指令）\n- 自定义任务池已上线\n- 欣原还是那个毒舌傲娇的她\n\n慢慢变强，我在看着你。', 30, 'gift', '欣原');
             }, 1500);
         }
         document.getElementById('tabShop').addEventListener('click', function(e) { e.stopPropagation(); openShopView(); });
