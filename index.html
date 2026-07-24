@@ -212,7 +212,7 @@
         #diaryView .diary-area .diary-history .entry .del-btn:active { color: rgba(255,82,82,0.7); }
         #chibi { position: fixed; bottom: 80px; right: 12px; width: 56px; height: 56px; cursor: grab; z-index: 99999; user-select: none; border-radius: 50%; background: rgba(18,10,30,0.2); backdrop-filter: blur(4px); border: 1px solid rgba(197,163,255,0.05); box-shadow: 0 4px 24px rgba(0,0,0,0.2); transition: transform 0.2s; overflow: hidden; touch-action: none; }
         #chibi img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; pointer-events: none; }
-        /* ★ 气泡样式优化：允许换行，适配长文本 */
+
         .chibi-bubble {
             position: fixed; z-index: 99999;
             background: rgba(18,10,30,0.92); backdrop-filter: blur(12px);
@@ -234,10 +234,11 @@
             border-left: 7px solid transparent; border-right: 7px solid transparent;
             border-top: 7px solid rgba(18,10,30,0.92);
         }
+
         .notification { position: fixed; top: 14px; right: 14px; padding: 6px 14px; background: rgba(18,10,30,0.9); backdrop-filter: blur(12px); border: 1px solid rgba(197,163,255,0.06); border-radius: 10px; color: #fff; font-size: 11px; z-index: 99999; animation: slideIn 0.3s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.4); max-width: 240px; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* ★ 信封模态框样式 */
+        /* 信封样式 —— 仅用于时光笺 */
         .modal .content.envelope {
             background: var(--envelope-bg);
             border: 2px solid var(--envelope-border);
@@ -256,15 +257,6 @@
             right: 16px;
             font-size: 28px;
             filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
-        }
-        .modal .content.envelope .envelope-seal {
-            position: absolute;
-            top: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 20px;
-            color: #c0392b;
-            filter: drop-shadow(0 1px 4px rgba(192,57,43,0.3));
         }
         .modal .content.envelope h3 {
             color: #3d2c1e;
@@ -288,15 +280,6 @@
         }
         .modal .content.envelope .desc::-webkit-scrollbar { width: 3px; }
         .modal .content.envelope .desc::-webkit-scrollbar-thumb { background: var(--envelope-border); border-radius: 4px; }
-        .modal .content.envelope .mail-sender-bottom {
-            text-align: right;
-            font-size: 12px;
-            color: #7a6a5a;
-            margin-top: 12px;
-            padding-top: 8px;
-            border-top: 1px dashed var(--envelope-border);
-            font-style: italic;
-        }
         .modal .content.envelope .actions {
             margin-top: 12px;
             border-top: none;
@@ -316,7 +299,22 @@
             100% { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        .modal .content .desc { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 6px; white-space: pre-wrap; }
+        /* 普通模态框样式（任务审核、邮件普通查看） */
+        .modal .content:not(.envelope) {
+            background: rgba(18,10,30,0.95);
+            border: 1px solid rgba(197,163,255,0.06);
+            border-radius: 14px;
+            padding: 16px;
+            max-width: 340px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal .content:not(.envelope) h3 { color: var(--primary); margin-bottom: 4px; font-size: 14px; }
+        .modal .content:not(.envelope) .desc { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 6px; white-space: pre-wrap; }
+        .modal .content:not(.envelope) .actions .btn.primary { background: linear-gradient(135deg, #c5a3ff, #9c64ff); color: #000; }
+        .modal .content:not(.envelope) .actions .btn.secondary { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.3); }
+
         .modal .content .random-reward-preview { font-size: 10px; color: var(--gold); background: rgba(255,213,79,0.06); padding: 4px 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid rgba(255,213,79,0.06); }
         .modal .content .evidence-hint { font-size: 10px; color: #ff6b6b; background: rgba(255,82,82,0.08); padding: 4px 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid rgba(255,82,82,0.08); display: none; }
         .modal .content .evidence-hint.show { display: block; }
@@ -333,9 +331,6 @@
         .modal .content textarea:focus { border-color: rgba(197,163,255,0.1); }
         .modal .content .actions { display: flex; gap: 6px; justify-content: flex-end; margin-top: 6px; }
         .modal .content .actions .btn { padding: 3px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 11px; }
-        .modal .content .actions .btn.primary { background: linear-gradient(135deg, #c5a3ff, #9c64ff); color: #000; }
-        .modal .content .actions .btn.secondary { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.3); }
-        .modal .content .actions .btn.danger { background: rgba(255,82,82,0.1); color: #ff6b6b; }
 
         .random-notification { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(18,10,30,0.95); backdrop-filter: blur(16px); border: 1px solid rgba(255,213,79,0.15); border-radius: 18px; padding: 20px 24px; z-index: 99997; max-width: 320px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.8); animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center; }
         @keyframes popIn { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
@@ -347,7 +342,6 @@
         .random-notification .btn:active { transform: scale(0.95); }
         .random-notification .btn-secondary { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); margin-left: 6px; }
 
-        /* ★ 特殊彩蛋卡片（时光笺） */
         .story-card {
             background: rgba(245,239,230,0.06);
             border: 1px solid rgba(212,197,176,0.12);
@@ -504,7 +498,8 @@
             <div class="mail-tabs">
                 <span class="mtab active" id="mailTabMails" onclick="switchMailTab('mails', this)">📬 邮件</span>
                 <span class="mtab" id="mailTabTreasure" onclick="switchMailTab('treasure', this)">🔮 珍藏阁</span>
-                <span class="mtab" id="mailTabTimeCapsule" onclick="switchMailTab('timecapsule', this)">💎 时光笺</span>
+                <!-- ★ 时光笺 emoji 改为 💌 -->
+                <span class="mtab" id="mailTabTimeCapsule" onclick="switchMailTab('timecapsule', this)">💌 时光笺</span>
             </div>
             <div class="mail-list" id="mailListContainer"></div>
         </div>
@@ -660,7 +655,6 @@
     // ============================================================
     //  ★ QQ人台词库（扩充）
     // ============================================================
-    // 普通点击台词（原有 + 新增20条）
     const CHIBI_LINES = [
         '少来。', '别碰了。', '上瘾了是吧？', '手拿开。', '你以为你是谁？',
         '这么喜欢我？', 'VIP009，你很闲。', '你的任务做完了？', '在这浪费时间？',
@@ -681,7 +675,6 @@
         '我说过了，别碰我。……算了，你碰吧。',
         '你真的很烦。……但我不讨厌。',
         '(๑´ㅂ`๑)', '(◕‿◕✿)', '(￣ω￣)', '(•́ω•̀)', '(๑´•.̫ • `๑)',
-        // ★ 新增20条
         '……你今天是吃错药了？', '这么热情，我有点不习惯。', '别以为这样我就会夸你。',
         '你手怎么这么凉？……笨。', '……你再这样，我真的会心软。', '喂，看路。',
         '你今天的眼神不太对……在想什么？', '……算了，不跟你计较。', '你靠近一点。……对，就这样。',
@@ -691,7 +684,6 @@
         '……你是在跟我撒娇吗？', '……知道了。你也是。'
     ];
 
-    // ★ 情绪台词库
     const EMOTION_LINES = {
         angry: [
             '……你完了。', '我劝你现在闭嘴。', '你是在挑衅我吗？', '行，你等着。',
@@ -720,7 +712,6 @@
         ]
     };
 
-    // ★ 操作失败台词池
     const FAIL_LINES = [
         '财务还没自由就想买这些？先完成任务。',
         '你的小奶糕不够哦，先攒一攒吧。',
@@ -761,7 +752,7 @@
     }
 
     // ============================================================
-    //  ★ QQ人气泡控制（带情绪参数）
+    //  ★ QQ人气泡控制
     // ============================================================
     let bubbleTimer = null;
 
@@ -787,7 +778,6 @@
         bubbleTimer = setTimeout(() => { el.classList.remove('show'); }, dur);
     }
 
-    // ★ 情绪触发气泡（带情绪边框反馈）
     function showEmotionBubble(text, emotion, dur = 2500) {
         const chibi = document.getElementById('chibi');
         if (chibi) {
@@ -808,7 +798,6 @@
         showChibiBubble(text, dur);
     }
 
-    // ★ 根据关键词映射情绪
     function detectEmotion(text) {
         const lower = text.toLowerCase();
         if (/训|警告|不合格|敷衍|痛骂|别让我失望|重新做|惩罚|你完了|你等着|你是在挑衅/.test(lower)) return 'angry';
@@ -837,7 +826,6 @@
         const saved = localStorage.getItem('xinyuanGameData');
         if (saved) { try { Object.assign(GameData, JSON.parse(saved)); } catch(_) {} }
 
-        // ★ 修复1：从 dialogHistory 重建 chatMessages（唯一数据源）
         chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
             let c = m.content;
             let img = null;
@@ -858,7 +846,6 @@
             };
         });
 
-        // ★ 修复2：检测新的一天 → 重置攻略邮件标记 & 刷新每日任务
         const todayStr = TS.dateStr(TS.now());
         if (TS.isNewDay(GameData._lastGuideDate)) {
             GameData._guideSentToday = false;
@@ -890,6 +877,7 @@
                     try {
                         const tasks = GameData.tasks.daily;
                         const guide = await generateGuideContent(tasks);
+                        // ★ 攻略邮件正文不带署名
                         sendMail('📋 今日任务攻略', guide, 0, 'guide', '一欣原');
                     } catch(e) {
                         const taskNames = GameData.tasks.daily.map(t => t.title).join('、');
@@ -923,7 +911,7 @@
     }
 
     // ============================================================
-    //  MAIL SYSTEM
+    //  ★ MAIL SYSTEM (sendMail 正文不再带署名)
     // ============================================================
     function sendMail(title, desc, reward = 0, type = 'note', from = '一欣原') {
         const typeLabels = { guide: '📖 攻略', reward: '🎁 奖励', gift: '🎀 礼物', care: '💜 关心', note: '✉️ 留言' };
@@ -979,7 +967,6 @@
             if (item.title.includes('时光回溯卡')) { GameData.treasure.offsetCards += 1; showNotif('🎫 获得时光回溯卡 x1'); }
             if (item.title.includes('手写信')) { GameData.treasure.letters += 1; showNotif('💌 获得手写信 x1'); }
             if (item.title.includes('彩蛋') || item.title.includes('特殊')) {
-                // ★ 邮件彩蛋同步入库
                 const story = {
                     id: ++GameData._storyIdCounter,
                     type: 'mail_gift',
@@ -989,7 +976,7 @@
                     from: 'mail'
                 };
                 GameData.treasure.specialStories.unshift(story);
-                showNotif('💎 已存入《紫翼·时光笺》');
+                showNotif('💌 已存入《时光笺》');
                 saveData();
             }
         }
@@ -1084,7 +1071,7 @@
     }
 
     // ============================================================
-    //  TASK POOLS
+    //  TASK POOLS (unchanged)
     // ============================================================
     const POOL_CBEC = [
         { title: "CBEC: 竞品 Listing 拆解", desc: "深入分析3个海外竞争对手的 Listing 卖点并提炼核心关键词" },
@@ -1117,7 +1104,7 @@
     function shufflePick(arr, n = 1) { const s = [...arr].sort(() => Math.random() - 0.5); return s.slice(0, n); }
 
     // ============================================================
-    //  EVIDENCE IMAGES
+    //  EVIDENCE IMAGES (unchanged)
     // ============================================================
     let evidenceImages = [];
 
@@ -1174,7 +1161,7 @@
     }
 
     // ============================================================
-    //  REWARD REACTIONS
+    //  REWARD REACTIONS (unchanged)
     // ============================================================
     const REWARD_REACTIONS = [
         { type: 'story', texts: [
@@ -1205,7 +1192,7 @@
     ];
 
     // ============================================================
-    //  TASK SYSTEM
+    //  TASK SYSTEM (unchanged, except sendMail calls no signature)
     // ============================================================
     const TaskSystem = {
         genDaily() {
@@ -1428,7 +1415,7 @@
     };
 
     // ============================================================
-    //  ★ AI 攻略生成相关函数
+    //  ★ AI 攻略生成 (unchanged)
     // ============================================================
     async function callAIForGuide(prompt) {
         if (!GameData.settings.apiKey) throw new Error('未配置API Key');
@@ -1470,7 +1457,7 @@
     }
 
     // ============================================================
-    //  ★ AI 特殊彩蛋生成（含自我审核）
+    //  ★ AI 特殊彩蛋生成 (unchanged)
     // ============================================================
     async function generateSpecialStory(type) {
         if (!GameData.settings.apiKey) throw new Error('未配置API Key');
@@ -1483,7 +1470,6 @@
 
         const info = typeMap[type] || typeMap.story;
 
-        // ★ 获取最近3条历史内容用于去重
         const recent = GameData.treasure.specialStories.slice(0, 3).map(s => s.content).join('\n---\n');
 
         const systemPrompt = `你是欣原，VIP009 的监护人。你深爱她，但表达方式傲娇、强势、嘴硬心软。
@@ -1527,7 +1513,6 @@
         const data = await res.json();
         let raw = data.choices[0].message.content.trim();
 
-        // 解析标题和正文
         let title = '无题';
         let content = raw;
         const lines = raw.split('\n');
@@ -1606,11 +1591,10 @@
         return result.trim();
     }
 
-    // ★★★★★ callChatAI (双模型 + 新人设 + 动作库 + 情绪反馈) ★★★★★
-    let isSending = false; // ★ 发送锁
+    let isSending = false;
 
     async function callChatAI(msg, img) {
-        if (isSending) return; // ★ 发送锁：正在发送则忽略
+        if (isSending) return;
         if (!GameData.settings.apiKey) {
             showNotif('❌ 请先在设置中配置 API Key');
             return;
@@ -1742,7 +1726,6 @@ ${sleepContext ? '- '+sleepContext : ''}
             const cleaned = deduplicateText(reply);
             addChatMessage('assistant', cleaned, false);
 
-            // ★ 情绪反馈：检测回复中的情绪并显示在 QQ 人上
             const emotion = detectEmotion(cleaned);
             if (emotion) {
                 const line = getEmotionLine(emotion);
@@ -1751,7 +1734,6 @@ ${sleepContext ? '- '+sleepContext : ''}
                 }, 400);
             }
 
-            // 随机邮件触发
             if (Math.random() < 0.10) {
                 const mailTitles = ['欣原的密信', '深夜的叮嘱', '一份小礼物', '来自监督者的问候', '任务攻略'];
                 const mailDescs = ['今晚早点睡，别让我明天看到你顶着黑眼圈来打卡。', '最近表现不错，继续保持。', '给你的小奖励，别太感动。', '这是你应得的，VIP009。', '今天的任务攻略已发送，自己去看。'];
@@ -1782,7 +1764,7 @@ ${sleepContext ? '- '+sleepContext : ''}
     }
 
     // ============================================================
-    //  ★ SHOP（含特殊道具 + 粉钻项链 + 每日限购）
+    //  ★ SHOP (含粉钻项链)
     // ============================================================
     const Shop = {
         items: [
@@ -1798,18 +1780,15 @@ ${sleepContext ? '- '+sleepContext : ''}
             { id:'g10', name:'星空投影灯', icon:'🌌', price:600, af:40, desc:'把银河搬进房间' },
             { id:'g11', name:'手作香薰蜡烛', icon:'🕯️', price:250, af:20, desc:'薰衣草味，安神助眠' },
             { id:'g12', name:'黑胶唱片机', icon:'📀', price:1500, af:100, desc:'复古音质，品味之选' },
-            // ★ 特殊道具（每日限购1次）
             { id:'g13', name:'撒娇兑换券', icon:'🥺', price:500, af:10, desc:'欣原会对你撒娇一次（真的）', special: true, type: 'act_cute' },
             { id:'g14', name:'喵喵券', icon:'🐈', price:300, af:5, desc:'她会学猫叫一次（高冷崩溃）', special: true, type: 'meow' },
             { id:'g15', name:'暧昧故事券', icon:'💜', price:800, af:15, desc:'她会讲一个关于你们的暧昧小故事', special: true, type: 'story' },
-            // ★ 粉钻项链（售价5200）
             { id:'g16', name:'粉钻项链', icon:'💎', price:5200, af:300, desc:'璀璨粉钻，永恒之心' }
         ],
         buy(id) {
             const item = this.items.find(i => i.id === id);
             if (!item) return;
 
-            // ★ 检查特殊道具每日限购
             if (item.special) {
                 const today = TS.dateStr(TS.now());
                 const lastBuy = GameData.treasure.lastSpecialBuyDate;
@@ -1822,16 +1801,14 @@ ${sleepContext ? '- '+sleepContext : ''}
             }
 
             if (GameData.user.currency.milkTea < item.price) {
-                // ★ 商店购买失败 → QQ人气泡（不进入聊天记录）
                 const failMsg = getFailLine();
                 showEmotionBubble(failMsg, 'tsundere', 2500);
                 showNotif('❌ 小奶糕不足');
                 return;
             }
 
-            // ★ 特殊道具：AI生成内容
+            // ★ 特殊道具购买
             if (item.special) {
-                // ★ 购买时直接生效，不弹任务审核
                 const type = item.type || 'story';
                 showNotif('✨ 正在生成专属内容...');
 
@@ -1851,7 +1828,6 @@ ${sleepContext ? '- '+sleepContext : ''}
                         GameData.user.currency.milkTea -= item.price;
                         GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + item.af);
 
-                        // ★ 显示在 QQ 人上（情绪反应）
                         const reactionMap = {
                             story: { line: '……写给你的。看完了别太感动。', emotion: 'gentle' },
                             act_cute: { line: '……哼，就这一次。', emotion: 'tsundere' },
@@ -1860,16 +1836,15 @@ ${sleepContext ? '- '+sleepContext : ''}
                         const react = reactionMap[type] || reactionMap.story;
                         showEmotionBubble(react.line, react.emotion, 2500);
 
-                        showNotif('💎 已存入《紫翼·时光笺》！');
+                        showNotif('💌 已存入《时光笺》！');
                         if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
                         saveData();
                         updateUI();
                         updateShopGrid();
                         renderTimeCapsule();
 
-                        // ★ 如果购买的是故事券，额外在聊天里显示（但气泡已展示，聊天可选）
                         if (type === 'story') {
-                            addChatMessage('assistant', '[翻开一封信纸，目光柔和] 我给你写了一封信，已经放在《紫翼·时光笺》里了。……自己去看。', true);
+                            addChatMessage('assistant', '[翻开一封信纸，目光柔和] 我给你写了一封信，已经放在《时光笺》里了。……自己去看。', true);
                         } else if (type === 'act_cute') {
                             addChatMessage('assistant', '[别过脸去，声音极小] ……哼。你满意了？', true);
                         } else if (type === 'meow') {
@@ -1881,6 +1856,33 @@ ${sleepContext ? '- '+sleepContext : ''}
                         showEmotionBubble('……出错了。下次吧。', 'angry', 2500);
                     }
                 })();
+                return;
+            }
+
+            // ★ 粉钻项链专属处理
+            if (item.id === 'g16') {
+                GameData.user.currency.milkTea -= item.price;
+                GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + item.af);
+                // 专属台词（占位，等你提供）
+                const diamondLine = '……你疯了吗？5200 小奶糕买这个？……算了，既然是你送的，我就收下。';
+                showEmotionBubble(diamondLine, 'gentle', 3000);
+                addChatMessage('assistant', '[指尖轻轻抚过项链，目光微动] ……你居然真的买了。这条链子……很配我。……谢谢。', true);
+                // 可额外存入时光笺
+                const story = {
+                    id: ++GameData._storyIdCounter,
+                    type: 'story',
+                    title: '💎 粉钻之约',
+                    content: '这一天，VIP009 用 5200 个小奶糕换了一条粉钻项链。欣原接过它的时候，指尖微微发烫。\n\n“……你疯了吗？”她嘴上这么说，却再也没有摘下来过。',
+                    date: TS.fmt(TS.now()),
+                    from: 'shop'
+                };
+                GameData.treasure.specialStories.unshift(story);
+                showNotif('💌 已存入《时光笺》！');
+                if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
+                saveData();
+                updateUI();
+                updateShopGrid();
+                renderTimeCapsule();
                 return;
             }
 
@@ -1905,7 +1907,7 @@ ${sleepContext ? '- '+sleepContext : ''}
     };
 
     // ============================================================
-    //  CHIBI —— 点击触发（1.6秒）
+    //  CHIBI CLICK (1.6s)
     // ============================================================
     function triggerChibiClick() {
         const line = CHIBI_LINES[Math.floor(Math.random() * CHIBI_LINES.length)];
@@ -2196,7 +2198,7 @@ ${sleepContext ? '- '+sleepContext : ''}
     }
 
     async function sendChatMessage() {
-        if (isSending) return; // ★ 发送锁
+        if (isSending) return;
 
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
@@ -2207,7 +2209,6 @@ ${sleepContext ? '- '+sleepContext : ''}
         document.getElementById('chatImgPreview').style.display = 'none';
         document.getElementById('chatImgPreview').src = '';
 
-        // ★ 发送锁 + 按钮禁用
         const sendBtn = document.getElementById('chatSendBtn');
         sendBtn.disabled = true;
         sendBtn.style.opacity = '0.4';
@@ -2250,7 +2251,7 @@ ${sleepContext ? '- '+sleepContext : ''}
     }
 
     // ============================================================
-    //  SLEEP REMINDER + PUNISHMENT
+    //  SLEEP REMINDER + PUNISHMENT (unchanged)
     // ============================================================
     function checkSleepReminder() {
         const hour = TS.getHour();
@@ -2635,7 +2636,7 @@ ${sleepContext ? '- '+sleepContext : ''}
         if (!container) return;
         const stories = GameData.treasure.specialStories || [];
         if (stories.length === 0) {
-            container.innerHTML = '<div style="color:rgba(255,255,255,0.15);font-size:12px;padding:20px 0;text-align:center;">💎 时光笺还是空的… 去商店买一张特殊券吧</div>';
+            container.innerHTML = '<div style="color:rgba(255,255,255,0.15);font-size:12px;padding:20px 0;text-align:center;">💌 时光笺还是空的… 去商店买一张特殊券吧</div>';
             return;
         }
         const typeLabels = { story: '💜 故事', act_cute: '🥺 撒娇', meow: '🐈 喵喵', mail_gift: '🎀 礼物' };
@@ -2645,32 +2646,45 @@ ${sleepContext ? '- '+sleepContext : ''}
         }).join('');
     }
 
-    // ★ 打开时光笺详情（信封模态框）
+    // ★ 打开时光笺详情（信封样式）
     function openTimeCapsuleDetail(id) {
         const story = GameData.treasure.specialStories.find(s => s.id === id);
         if (!story) return;
         const modal = document.getElementById('modal');
         const content = document.getElementById('modalContent');
-        content.className = 'content envelope';
+        content.className = 'content envelope';   // 信封样式
         document.getElementById('modalTitle').textContent = '💌 ' + story.title;
         document.getElementById('modalDesc').textContent = story.content + '\n\n　　—— 欣原 · ' + story.date;
         document.getElementById('modalRewardPreview').style.display = 'none';
         document.getElementById('evidenceReport').style.display = 'none';
-        document.getElementById('uploadArea').style.display = 'none';
+        // 隐藏上传区域
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.style.display = 'none';
+        uploadArea.style.visibility = 'hidden';
+        uploadArea.style.height = '0';
+        uploadArea.style.overflow = 'hidden';
+        uploadArea.style.padding = '0';
+        uploadArea.style.margin = '0';
+        uploadArea.style.border = 'none';
+
         document.querySelector('.modal .actions').innerHTML = '<button class="btn secondary" onclick="closeModal()">合上信封</button>';
         modal.classList.add('active');
     }
 
-    // ★ 修复：邮件详情隐藏上传区域
+    // ★ 修复：邮件详情 — 普通样式 + 无双署名 + 隐藏上传
     function openMailDetail(id) {
         const item = GameData.mail.items.find(m => m.id === id);
         if (!item) return;
         markMailRead(id);
+
         const modal = document.getElementById('modal');
         const content = document.getElementById('modalContent');
-        content.className = 'content envelope';
-        document.getElementById('modalTitle').textContent = '💌 ' + item.title;
+        content.className = 'content';   // 普通样式，不加 envelope
+
+        document.getElementById('modalTitle').textContent = '📩 ' + item.title;
+        // 正文 + 右下角署名（仅一次）
         document.getElementById('modalDesc').textContent = item.desc + '\n\n　　—— ' + item.from;
+
         document.getElementById('modalRewardPreview').style.display = 'none';
         document.getElementById('evidenceReport').style.display = 'none';
 
@@ -2685,19 +2699,24 @@ ${sleepContext ? '- '+sleepContext : ''}
         uploadArea.style.border = 'none';
 
         document.getElementById('modal').dataset.mailId = id;
-        document.querySelector('.modal .actions').innerHTML =
-            '<button class="btn secondary" onclick="closeModal()">合上信封</button>'+
-            (item.reward > 0 && !item.claimed ? '<button class="btn primary" onclick="claimMailReward('+id+')">领取奖励 ('+item.reward+'🍰)</button>' : '')+
-            (item.claimed ? '<button class="btn secondary" disabled>已领取</button>' : '');
+
+        let actionsHtml = '<button class="btn secondary" onclick="closeModal()">关闭</button>';
+        if (item.reward > 0 && !item.claimed) {
+            actionsHtml += '<button class="btn primary" onclick="claimMailReward('+id+')">领取奖励 ('+item.reward+'🍰)</button>';
+        }
+        if (item.claimed) {
+            actionsHtml += '<button class="btn secondary" disabled>已领取</button>';
+        }
+        document.querySelector('.modal .actions').innerHTML = actionsHtml;
+
         modal.classList.add('active');
     }
 
-    // ============================================================
-    //  TOOLS
-    // ============================================================
+    // ★ 修复：closeModal 彻底重置 + 恢复上传区域
     function closeModal() {
         document.getElementById('modal').classList.remove('active');
-        // 恢复上传区域默认状态
+
+        // 恢复上传区域默认状态（为下次任务审核准备）
         const uploadArea = document.getElementById('uploadArea');
         uploadArea.style.display = 'block';
         uploadArea.style.visibility = 'visible';
@@ -2706,11 +2725,22 @@ ${sleepContext ? '- '+sleepContext : ''}
         uploadArea.style.padding = '';
         uploadArea.style.margin = '';
         uploadArea.style.border = '';
+
+        // 移除信封样式
         document.getElementById('modalContent').classList.remove('envelope');
+
+        // 清空 dataset 残留
+        document.getElementById('modal').dataset.taskId = '';
+        document.getElementById('modal').dataset.taskList = '';
+        document.getElementById('modal').dataset.mailId = '';
     }
+
     function submitReport() { TaskSystem.submit(); }
     document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
+    // ============================================================
+    //  TOOLS
+    // ============================================================
     function togglePush() {
         GameData.settings.autoPushEnabled = !GameData.settings.autoPushEnabled;
         document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
