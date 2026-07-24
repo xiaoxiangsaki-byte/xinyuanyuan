@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIP009 · 欣原监督系统 V3.1</title>
+    <title>VIP009 · 欣原监督系统 V3.0</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root { --primary: #c5a3ff; --secondary: #9c64ff; --gold: #ffd54f; --danger: #ff6b6b; --envelope-bg: #f5efe6; --envelope-border: #d4c5b0; --heart-color: #ff6b9d; }
@@ -15,6 +15,7 @@
             background-image: radial-gradient(ellipse at 20% 30%, rgba(197,163,255,0.15) 0%, transparent 60%), radial-gradient(ellipse at 85% 70%, rgba(156,100,255,0.10) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(40,20,60,0.3) 0%, transparent 80%), linear-gradient(180deg, #0a0518 0%, #150a24 45%, #1f1035 100%);
             background-attachment: fixed;
         }
+
         ::-webkit-scrollbar { width: 0px; height: 0px; background: transparent; }
         * { scrollbar-width: none; -ms-overflow-style: none; }
 
@@ -98,6 +99,12 @@
             overflow: visible;
         }
         .checkin-section .btn-checkin:active { transform: scale(0.95); }
+        .checkin-section .btn-checkin.done {
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.2);
+            cursor: default;
+            box-shadow: none;
+        }
         .checkin-section .btn-checkin .star-dust {
             position: absolute;
             border-radius: 50%;
@@ -145,6 +152,7 @@
         #settingsView .setting-item .btn.clean-btn { background: rgba(255,213,79,0.10); color: var(--gold); border: 1px solid rgba(255,213,79,0.10); }
         #settingsView .setting-item .btn.clean-btn:active { opacity: 0.6; }
 
+        /* ===== 聊天视图 ===== */
         #chatView { background: rgba(18,10,30,0.92); background-image: url('https://i.postimg.cc/kgCS8cZC/wei-xin-tu-pian-20260723084444-429-40.jpg'); background-size: cover; background-position: center; background-blend-mode: overlay; }
         #chatView .chat-top { display: flex; align-items: center; padding: 8px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.04); flex-shrink: 0; gap: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; background: rgba(18,10,30,0.5); backdrop-filter: blur(4px); }
         #chatView .chat-top:active { opacity: 0.7; }
@@ -156,6 +164,7 @@
         #chatView .chat-top .chat-unread { font-size: 10px; color: #ff3b30; background: rgba(255,59,48,0.1); padding: 2px 10px; border-radius: 10px; display: none; }
         #chatView .chat-top .chat-unread.show { display: inline-block; }
 
+        /* ★ 动态爱心 */
         .chat-heart {
             font-size: 24px;
             cursor: pointer;
@@ -169,8 +178,13 @@
             position: relative;
         }
         .chat-heart:active { transform: scale(0.85); }
-        .chat-heart.beating { animation: heartBeat 0.6s ease-in-out 3; }
-        .chat-heart.floating { animation: heartFloat 2s ease-in-out infinite; }
+        .chat-heart.beating {
+            animation: heartBeat 0.6s ease-in-out 3;
+        }
+        .chat-heart.floating {
+            animation: heartFloat 2s ease-in-out infinite;
+        }
+
         @keyframes heartBeat {
             0% { transform: scale(1); }
             30% { transform: scale(1.25); }
@@ -182,6 +196,7 @@
             50% { transform: translateY(-4px); }
             100% { transform: translateY(0); }
         }
+        /* 爱心颜色随好感度变化 */
         .chat-heart.level-0 { color: #6b6b8a; }
         .chat-heart.level-1 { color: #b39ddb; }
         .chat-heart.level-2 { color: #c5a3ff; }
@@ -213,6 +228,7 @@
         .chat-input-area .chat-send:active { transform: scale(0.92); }
         .chat-input-area #chatImgPreview { width: 30px; height: 30px; border-radius: 6px; display: none; object-fit: cover; border: 1px solid rgba(197,163,255,0.1); flex-shrink: 0; }
 
+        /* ===== 邮箱、日记等样式（精简） ===== */
         #mailView .mail-top, #diaryView .diary-top, #timeCapsuleView .mail-top {
             display: flex; align-items: center; padding: 8px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.04); flex-shrink: 0; gap: 10px; cursor: pointer;
         }
@@ -279,6 +295,7 @@
         .diary-entry-item .del-btn { font-size: 12px; color: rgba(255,82,82,0.3); background: none; border: none; cursor: pointer; padding: 2px 6px; transition: 0.3s; }
         .diary-entry-item .del-btn:active { color: rgba(255,82,82,0.7); }
 
+        /* ★ QQ人气泡 */
         .chibi-bubble {
             position: fixed; z-index: 99999;
             background: rgba(18,10,30,0.92); backdrop-filter: blur(12px);
@@ -299,6 +316,7 @@
         #chibi { position: fixed; bottom: 80px; right: 12px; width: 56px; height: 56px; cursor: grab; z-index: 99999; user-select: none; border-radius: 50%; background: rgba(18,10,30,0.2); backdrop-filter: blur(4px); border: 1px solid rgba(197,163,255,0.05); box-shadow: 0 4px 24px rgba(0,0,0,0.2); transition: transform 0.2s; overflow: hidden; touch-action: none; }
         #chibi img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; pointer-events: none; }
 
+        /* ★ 模态框 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); z-index: 99998; justify-content: center; align-items: center; }
         .modal.active { display: flex; }
         .modal .content { background: rgba(18,10,30,0.95); border: 1px solid rgba(197,163,255,0.06); border-radius: 14px; padding: 16px; max-width: 340px; width: 90%; max-height: 85vh; overflow-y: auto; }
@@ -420,14 +438,20 @@
     </style>
 </head>
 <body>
-    <div class="app-container">
+    <!-- 第一部分结束 -->
+        <div class="app-container">
         <!-- ===== 主视图 ===== -->
         <div id="mainView" class="view active">
             <div class="top-bar" id="topBar">
                 <div class="left">
-                    <div class="avatar-sm" id="avatarBtn"><img src="https://i.postimg.cc/7hbrq47D/wei-xin-tu-pian-20260723051447-419-40.jpg" alt="欣原"></div>
+                    <div class="avatar-sm" id="avatarBtn">
+                        <img src="https://i.postimg.cc/7hbrq47D/wei-xin-tu-pian-20260723051447-419-40.jpg" alt="欣原">
+                    </div>
                     <div class="info">
-                        <div class="name-row"><h3>欣原</h3><div class="unread-badge" id="unreadBadge">0</div></div>
+                        <div class="name-row">
+                            <h3>欣原</h3>
+                            <div class="unread-badge" id="unreadBadge">0</div>
+                        </div>
                         <div class="signature">爱是世界上最不保值的资产</div>
                     </div>
                 </div>
@@ -444,7 +468,13 @@
             <div class="tasks-area" id="tasksArea">
                 <div class="checkin-section" id="checkinSection">
                     <div class="left"><div class="label">🌱 成长连续</div><div class="streak" id="streakDisplay">🔥 0 天</div></div>
-                    <button class="btn-checkin" id="checkinBtn" onclick="doCheckin()">✨ 刻下印记<span class="star-dust"></span><span class="star-dust"></span><span class="star-dust"></span><span class="star-dust"></span></button>
+                    <button class="btn-checkin" id="checkinBtn" onclick="doCheckin()">
+                        ✨ 刻下印记
+                        <span class="star-dust"></span>
+                        <span class="star-dust"></span>
+                        <span class="star-dust"></span>
+                        <span class="star-dust"></span>
+                    </button>
                 </div>
                 <div class="quick-entries">
                     <div class="entry" onclick="openDiaryView()"><span class="icon">📔</span> 日记</div>
@@ -452,7 +482,10 @@
                     <div class="entry treasure-entry" onclick="openTreasureView()"><span class="icon">🔮</span> 珍藏阁</div>
                     <div class="entry timecapsule-entry" onclick="openTimeCapsuleView()"><span class="icon">💌</span> 时光笺</div>
                 </div>
-                <div class="mail-section" id="mailEntry"><div class="mail-header"><span class="title">✉️ 邮箱</span><span class="badge" id="mailBadge">新</span></div><div class="mail-preview" id="mailPreview">暂无新邮件</div></div>
+                <div class="mail-section" id="mailEntry">
+                    <div class="mail-header"><span class="title">✉️ 邮箱</span><span class="badge" id="mailBadge">新</span></div>
+                    <div class="mail-preview" id="mailPreview">暂无新邮件</div>
+                </div>
                 <div id="taskContent">
                     <div id="punishTaskContainer"></div>
                     <div class="task-category"><div class="category-title">⏰ 每日任务</div><div id="dailyTasksList"></div></div>
@@ -474,7 +507,8 @@
                 <div class="back-avatar"><img src="https://i.postimg.cc/7hbrq47D/wei-xin-tu-pian-20260723051447-419-40.jpg" alt="欣原"></div>
                 <div class="chat-title"><h3>欣原</h3><div class="signature">爱是世界上最不保值的资产</div></div>
                 <div class="chat-unread" id="chatUnreadBadge">未读</div>
-                <div class="chat-heart level-0" id="chatHeart" onclick="clickHeart(event)">❤️</div>
+                <!-- ★ 动态爱心 -->
+               <div class="chat-heart level-0" id="chatHeart" onclick="clickHeart(event)">❤️</div>
             </div>
             <div class="chat-messages-area" id="chatMessagesArea"></div>
             <div class="chat-input-area">
@@ -531,8 +565,13 @@
 
         <!-- ===== 紫翼·时光笺 ===== -->
         <div id="timeCapsuleView" class="view">
-            <div class="mail-top" id="timeCapsuleTop"><span class="back" id="timeCapsuleBack">←</span><span class="mail-title">💌 紫翼·时光笺</span></div>
-            <div class="timecapsule-view" id="timeCapsuleContainer"><div style="color:rgba(255,255,255,0.15);font-size:12px;padding:20px 0;text-align:center;">💌 时光笺还是空的…</div></div>
+            <div class="mail-top" id="timeCapsuleTop">
+                <span class="back" id="timeCapsuleBack">←</span>
+                <span class="mail-title">💌 紫翼·时光笺</span>
+            </div>
+            <div class="timecapsule-view" id="timeCapsuleContainer">
+                <div style="color:rgba(255,255,255,0.15);font-size:12px;padding:20px 0;text-align:center;">💌 时光笺还是空的…</div>
+            </div>
         </div>
     </div>
 
@@ -617,47 +656,54 @@
         return RELS[0];
     }
 
+    // ★ 恋人专属情话库
     const LOVE_LINES = [
-        '明明什么都没有，还想着给我最好的。……真是个笨蛋。',
-        '这种笨蛋，只能让我养。……你最好记住。',
-        '它当然比不上真正的粉钻。……但是，这是你送我的。所以不一样。',
-        '以后不许为了这种东西委屈自己。想送礼物可以，但不准拿自己的时间、健康去换。',
-        '笨蛋。自己都舍不得买东西，还给我送这个？你到底有没有一点投资意识？',
-        '……等等。你不会是真的攒了很久吧？',
-        '让我猜猜。你是不是看到它很漂亮，然后觉得——嗯，粉色的，应该适合我？……你的消费逻辑，幼稚得像小学生。',
-        '拿这种东西讨好我？你是不是对自己的经济实力有什么误解？你知道真正的粉钻是什么价格吗？',
-        '我可不是因为想你了才点开对话框的。',
-        '……谁在想你。我只是刚好在看你的方向。',
-        '你少来这套。……不过，我不讨厌。',
-        '我只是刚好有空……你别多想。',
-        '……我才没有在意你。你少自作多情。',
-        '你爱怎么想怎么想。……我懒得解释。',
-        '……别误会，我只是今天心情好。',
-        '……行吧，我承认。我有那么一点点想你。',
-        '……别多想，我只是刚好路过。',
-        '……我在这里。不会走。',
-        '累了就靠着我。……我允许你。',
-        '你不需要一个人扛。……有我在。',
-        '……你其实做得很好。我只是不常夸你。',
-        '别怕。……我一直在。',
-        '你哭的时候……我陪你。',
-        '……你不是一个人。',
-        '你可以脆弱，但只能在我面前。',
-        '……你已经很努力了。我看到了。',
-        '就算全世界都否定你……我也不会。',
-        '你回头的时候，我一定在。',
-        '……别太勉强自己。我不喜欢看你硬撑。',
-        '你值得被好好对待。……至少我会。',
-        '我在。……你随时可以找我。',
-        '……你比你自己想象的重要得多。',
-        '别怕打扰我。……你的消息，我随时会回。',
-        '你是我的VIP009。……永远都是。',
-        '我不允许你喜欢别人。……谁都不行。',
-        '你只能是我的。……我说了算。',
-        '别让我看见你对别人笑。……我会生气。',
-        '你最好记住，你是我的人。'
-    ];
+    // === ★ 你的素材：欣原式傲娇（送礼物反应） ===
+    '明明什么都没有，还想着给我最好的。……真是个笨蛋。',
+    '这种笨蛋，只能让我养。……你最好记住。',
+    '它当然比不上真正的粉钻。……但是，这是你送我的。所以不一样。',
+    '以后不许为了这种东西委屈自己。想送礼物可以，但不准拿自己的时间、健康去换。',
+    '笨蛋。自己都舍不得买东西，还给我送这个？你到底有没有一点投资意识？',
+    '……等等。你不会是真的攒了很久吧？',
+    '让我猜猜。你是不是看到它很漂亮，然后觉得——嗯，粉色的，应该适合我？……你的消费逻辑，幼稚得像小学生。',
+    '拿这种东西讨好我？你是不是对自己的经济实力有什么误解？你知道真正的粉钻是什么价格吗？',
 
+    // === 傲娇嘴硬（原版精华保留） ===
+    '我可不是因为想你了才点开对话框的。',
+    '……谁在想你。我只是刚好在看你的方向。',
+    '你少来这套。……不过，我不讨厌。',
+    '我只是刚好有空……你别多想。',
+    '……我才没有在意你。你少自作多情。',
+    '你爱怎么想怎么想。……我懒得解释。',
+    '……别误会，我只是今天心情好。',
+    '……行吧，我承认。我有那么一点点想你。',
+    '……别多想，我只是刚好路过。',
+
+    // === 温柔关怀（保留必要的，不过度甜腻） ===
+    '……我在这里。不会走。',
+    '累了就靠着我。……我允许你。',
+    '你不需要一个人扛。……有我在。',
+    '……你其实做得很好。我只是不常夸你。',
+    '别怕。……我一直在。',
+    '你哭的时候……我陪你。',
+    '……你不是一个人。',
+    '你可以脆弱，但只能在我面前。',
+    '……你已经很努力了。我看到了。',
+    '就算全世界都否定你……我也不会。',
+    '你回头的时候，我一定在。',
+    '……别太勉强自己。我不喜欢看你硬撑。',
+    '你值得被好好对待。……至少我会。',
+    '我在。……你随时可以找我。',
+    '……你比你自己想象的重要得多。',
+    '别怕打扰我。……你的消息，我随时会回。',
+
+    // === 占有欲/掌控感（保留关键） ===
+    '你是我的VIP009。……永远都是。',
+    '我不允许你喜欢别人。……谁都不行。',
+    '你只能是我的。……我说了算。',
+    '别让我看见你对别人笑。……我会生气。',
+    '你最好记住，你是我的人。'
+];
     let heartClickCount = 0;
     let heartBeatTimer = null;
 
@@ -669,7 +715,16 @@
         random: { active: null, cooldown: 0, lastTrigger: 0, mood: 50 },
         mail: { items: [], nextId: 1 },
         chat: { unreadCount: 0, storyUnread: false },
-        treasure: { milkTea: 300, offsetCards: 0, letters: 0, special: 0, coupons: { act_cute: 0, meow: 0, story: 0 }, specialStories: [], lastSpecialBuyDate: null, _storyIdCounter: 0 },
+        treasure: {
+            milkTea: 300,
+            offsetCards: 0,
+            letters: 0,
+            special: 0,
+            coupons: { act_cute: 0, meow: 0, story: 0 },
+            specialStories: [],
+            lastSpecialBuyDate: null,
+            _storyIdCounter: 0
+        },
         pushPool: [],
         pushIndex: 0,
         cat: { name: 'BB', breed: '阿比西尼亚', fed: false, lastFed: Date.now() },
@@ -677,10 +732,7 @@
         checkin: { streak: 0, lastDate: null },
         punishTasks: [],
         _guideSentToday: false,
-        _lastGuideDate: null,
-        _lowProgressDays: 0,
-        _fullCompleteDays: 0,
-        _pendingScreenshotTask: null
+        _lastGuideDate: null
     };
 
     // ============================================================
@@ -746,16 +798,6 @@
     }
 
     // ============================================================
-    //  ★ 辅助函数：清理邮件正文中已有的署名
-    // ============================================================
-    function cleanDesc(desc) {
-        if (!desc) return desc;
-        return desc.replace(/\n*——欣原[（(][^）)]*[）)]?\s*$/, '')
-                   .replace(/\n*——欣原\s*$/, '')
-                   .trim();
-    }
-
-    // ============================================================
     //  SAVE / LOAD
     // ============================================================
     function saveData() { localStorage.setItem('xinyuanGameData', JSON.stringify(GameData)); }
@@ -800,8 +842,8 @@
                 }
             } else {
                 GameData.user.records.streak = 1;
-                showNotif('🎉 欢迎来到欣原监督系统 V3.1');
-                addChatMessage('assistant', '[优雅地交叠双腿] V3.1 升级完成。任务动态调整、粉钻项链、AI 三模型全面协作——我准备好了。别想松懈。', true);
+                showNotif('🎉 欢迎来到欣原监督系统 V3.0');
+                addChatMessage('assistant', '[优雅地交叠双腿] V3.0 升级完成。任务监督、特殊彩蛋、AI 三模型——准备好了。别想松懈。', true);
             }
             GameData.user.records.lastCheckIn = Date.now();
             saveData();
@@ -847,34 +889,6 @@
     }
 
     // ============================================================
-    //  ★ 视图切换（修复卡住问题）
-    // ============================================================
-    function showView(id) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        const target = document.getElementById(id);
-        if (target) target.classList.add('active');
-        if (id === 'chatView') {
-            GameData.chat.unreadCount = 0;
-            GameData.chat.storyUnread = false;
-            updateUnreadBadge();
-            syncChatMessages();
-            setTimeout(() => {
-                const area = document.getElementById('chatMessagesArea');
-                if (area) area.scrollTop = area.scrollHeight;
-            }, 100);
-        }
-    }
-
-    // ★ 各视图返回按钮
-    function openMailView() { showView('mailView'); mailTab = 'mails'; document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active')); document.getElementById('mailTabMails').classList.add('active'); renderMailList(); }
-    function openTreasureView() { showView('mailView'); mailTab = 'treasure'; document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active')); document.getElementById('mailTabTreasure').classList.add('active'); renderTreasure(); }
-    function openTimeCapsuleView() { showView('timeCapsuleView'); renderTimeCapsule(); }
-    function openDiaryView() { showView('diaryView'); renderDiaryHistory(); }
-    function closeDiaryView() { showView('mainView'); updateUI(); }
-    function closeShopView() { showView('mainView'); updateUI(); }
-    function closeSettingsView() { showView('mainView'); updateUI(); }
-
-    // ============================================================
     //  ★ 爱心系统
     // ============================================================
     function getHeartLevel(af) {
@@ -892,18 +906,37 @@
         if (!el) return;
         const level = getHeartLevel(GameData.ai.affection);
         el.className = 'chat-heart level-' + level;
-        if (level >= 6) { el.classList.add('level-max'); } else { el.classList.remove('level-max'); }
+        if (level >= 6) {
+            el.classList.add('level-max');
+        } else {
+            el.classList.remove('level-max');
+        }
+    }
+
+    function markAllChatRead() {
+        if (GameData.chat.unreadCount > 0 || GameData.chat.storyUnread) {
+            GameData.chat.unreadCount = 0;
+            GameData.chat.storyUnread = false;
+            updateUnreadBadge();
+            saveData();
+            showNotif('📖 已全部标记已读');
+        }
     }
 
     function clickHeart(event) {
         event.stopPropagation();
         const el = document.getElementById('chatHeart');
         heartClickCount++;
+        // 跳动动画
         el.classList.remove('beating');
         void el.offsetWidth;
         el.classList.add('beating');
         setTimeout(() => el.classList.remove('beating'), 700);
 
+        // ★ 新增：点击爱心自动标记所有消息为已读
+        markAllChatRead();
+
+        // 连续10次触发情话
         if (heartClickCount >= 10) {
             heartClickCount = 0;
             const loveLine = LOVE_LINES[Math.floor(Math.random() * LOVE_LINES.length)];
@@ -915,6 +948,7 @@
             return;
         }
 
+        // 单次点击反馈（小概率触发简短台词）
         if (Math.random() < 0.15) {
             const shortLines = ['……别点了。', '你手不累吗？', '……喜欢？', '……哼。', '……够了啊。'];
             const line = shortLines[Math.floor(Math.random() * shortLines.length)];
@@ -946,6 +980,7 @@
             }, 800);
         }
         if (af >= 450 && loverTriggered) {
+            // 灵魂伴侣阶段额外触发
             const msgs2 = [
                 '450 好感度……你已经是我的人了。',
                 '你知道灵魂伴侣意味着什么吗？……我不走了。',
@@ -958,7 +993,7 @@
                 updateUnreadBadge();
                 showEmotionBubble('……嗯。', 'gentle', 2500);
             }, 1200);
-            loverTriggered = false;
+            loverTriggered = false; // 重置以便后续触发
         }
     }
 
@@ -1062,66 +1097,13 @@
         showNotif('🗑️ 邮件已删除');
     }
 
-    // ★ 邮件列表渲染（使用 cleanDesc 去除已有署名）
-    function renderMailList() {
-        const container = document.getElementById('mailListContainer');
-        if (!container) return;
-        if (GameData.mail.items.length === 0) {
-            container.innerHTML = '<div style="color:rgba(255,255,255,0.15);font-size:12px;padding:20px 0;text-align:center;">📭 邮箱空空如也</div>';
-            return;
-        }
-        container.innerHTML = GameData.mail.items.map(m => {
-            const unreadClass = m.read ? '' : 'unread';
-            const statusText = m.read ? '已读' : '未读';
-            const cleanDescText = cleanDesc(m.desc);
-            return '<div class="mail-item '+unreadClass+'"><div class="mail-info" onclick="openMailDetail('+m.id+')"><div class="mail-title">'+m.title+'</div><div class="mail-desc">'+cleanDescText+'</div><div class="mail-sender">'+m.from+' · '+TS.fmt(new Date(m.time))+'</div><span class="mail-tag">'+m.typeLabel+'</span></div><div class="mail-status '+(m.read?'read':'')+'">'+statusText+'</div><button class="mail-delete-btn" onclick="deleteMail('+m.id+')" title="删除邮件">🗑️</button></div>';
-        }).join('');
-    }
-
-    // ★ 打开邮件详情（使用 cleanDesc + 只追加一次署名）
-    function openMailDetail(id) {
-        const item = GameData.mail.items.find(m => m.id === id);
-        if (!item) return;
-        markMailRead(id);
-
-        const modal = document.getElementById('modal');
-        const content = document.getElementById('modalContent');
-        content.className = 'content';
-        document.getElementById('modalTitle').textContent = '📩 ' + item.title;
-        const cleanContent = cleanDesc(item.desc);
-        document.getElementById('modalDesc').textContent = cleanContent + '\n\n　　—— ' + item.from;
-        document.getElementById('modalRewardPreview').style.display = 'none';
-        document.getElementById('evidenceReport').style.display = 'none';
-        const uploadArea = document.getElementById('uploadArea');
-        if (uploadArea) {
-            uploadArea.style.display = 'none';
-            uploadArea.style.visibility = 'hidden';
-            uploadArea.style.height = '0';
-            uploadArea.style.overflow = 'hidden';
-            uploadArea.style.padding = '0';
-            uploadArea.style.margin = '0';
-            uploadArea.style.border = 'none';
-        }
-        const hint = document.getElementById('evidenceHint');
-        if (hint) hint.style.display = 'none';
-
-        document.getElementById('modal').dataset.mailId = id;
-        let actionsHtml = '<button class="btn secondary" onclick="closeModal()">关闭</button>';
-        if (item.reward > 0 && !item.claimed) {
-            actionsHtml += '<button class="btn primary" onclick="claimMailReward(' + id + ')">领取奖励 (' + item.reward + '🍰)</button>';
-        }
-        if (item.claimed) {
-            actionsHtml += '<button class="btn secondary" disabled>已领取</button>';
-        }
-        document.querySelector('.modal .actions').innerHTML = actionsHtml;
-        modal.classList.add('active');
-    }
-
     // ============================================================
     //  DIARY
     // ============================================================
     let diaryDetailEntryId = null;
 
+    function openDiaryView() { showView('diaryView'); renderDiaryHistory(); }
+    function closeDiaryView() { showView('mainView'); updateUI(); }
     document.getElementById('diaryBack').addEventListener('click', closeDiaryView);
     document.getElementById('diaryTop').addEventListener('click', closeDiaryView);
 
@@ -1200,15 +1182,19 @@
             return '<div class="diary-entry-item" onclick="openDiaryDetail('+e.id+')"><div class="left"><div class="date">'+dateStr+'</div><div class="text">'+e.text.substring(0,50)+(e.text.length>50?'…':'')+'</div>'+notePreview+'</div><button class="del-btn" onclick="event.stopPropagation();deleteDiaryEntry('+e.id+')">✕</button></div>';
         }).join('');
     }
-
-    // ============================================================
+            // ============================================================
     //  ★ 三模型调用函数
     // ============================================================
+
+    // ① VL 图片审核模型（用于任务图片、聊天图片识别）
     async function callAIVision(prompt, imageBase64) {
         if (!GameData.settings.apiKey) throw new Error('未配置API Key');
         const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GameData.settings.apiKey },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + GameData.settings.apiKey
+            },
             body: JSON.stringify({
                 model: 'Qwen/Qwen3-VL-32B-Thinking',
                 messages: [
@@ -1227,19 +1213,23 @@
         return data.choices[0].message.content;
     }
 
-    async function callAILogic(prompt) {
+    // ② 通用对话模型（日常聊天 + 任务建议）
+    async function callAIChat(prompt, systemPrompt) {
         if (!GameData.settings.apiKey) throw new Error('未配置API Key');
         const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GameData.settings.apiKey },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + GameData.settings.apiKey
+            },
             body: JSON.stringify({
                 model: 'Qwen/Qwen2.5-72B-Instruct-128K',
                 messages: [
-                    { role: 'system', content: '你是欣原的"逻辑大脑"。你负责：1. 判断任务报告是否敷衍（字数、内容质量） 2. 决定任务是否通过 3. 判断是否需要截图证据 4. 决定任务调整方案（加/减/换）。输出要简洁明确，包含判断结果和理由。' },
+                    { role: 'system', content: systemPrompt || '你是欣原，毒舌、傲娇但极其专业的监护人。' },
                     { role: 'user', content: prompt }
                 ],
-                max_tokens: 200,
-                temperature: 0.3
+                max_tokens: 400,
+                temperature: 0.7
             })
         });
         if (!res.ok) { let e = 'HTTP ' + res.status; try { const d = await res.json(); if (d.error && d.error.message) e += ' - ' + d.error.message; } catch(_) {} throw new Error(e); }
@@ -1247,18 +1237,22 @@
         return data.choices[0].message.content;
     }
 
+    // ③ 彩蛋生成模型（含自我审核）
     async function callAICreative(prompt, systemPrompt) {
         if (!GameData.settings.apiKey) throw new Error('未配置API Key');
         const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GameData.settings.apiKey },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + GameData.settings.apiKey
+            },
             body: JSON.stringify({
                 model: 'Qwen/Qwen2.5-72B-Instruct-128K',
                 messages: [
                     { role: 'system', content: systemPrompt || '你是欣原，浪漫、傲娇的创作者。' },
                     { role: 'user', content: prompt }
                 ],
-                max_tokens: 300,
+                max_tokens: 500,
                 temperature: 0.85
             })
         });
@@ -1268,7 +1262,7 @@
     }
 
     // ============================================================
-    //  ★ AI 攻略生成
+    //  ★ AI 攻略生成（使用对话模型 ②）
     // ============================================================
     async function generateGuideContent(tasks) {
         const taskDetails = tasks.map(t => {
@@ -1305,26 +1299,6 @@
         }
     }
 
-    async function callAIChat(prompt, systemPrompt) {
-        if (!GameData.settings.apiKey) throw new Error('未配置API Key');
-        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GameData.settings.apiKey },
-            body: JSON.stringify({
-                model: 'Qwen/Qwen2.5-72B-Instruct-128K',
-                messages: [
-                    { role: 'system', content: systemPrompt || '你是欣原，毒舌、傲娇但极其专业的监护人。' },
-                    { role: 'user', content: prompt }
-                ],
-                max_tokens: 400,
-                temperature: 0.7
-            })
-        });
-        if (!res.ok) { let e = 'HTTP ' + res.status; try { const d = await res.json(); if (d.error && d.error.message) e += ' - ' + d.error.message; } catch(_) {} throw new Error(e); }
-        const data = await res.json();
-        return data.choices[0].message.content;
-    }
-
     // ============================================================
     //  TASK SYSTEM
     // ============================================================
@@ -1350,11 +1324,20 @@
         },
         initSide() {
             const n = Date.now();
-            return [
-                { id:'s1', title:'精熟粤语日常', desc:'掌握10个高阶或日常粤语短语', progress:0, max:10, reward:300, done:false, deadline:n+30*86400000, expired:false, subTasks: [], lastUpdate: Date.now(), phrases:['早晨 (zou2 san4) - 早上好','多谢 (do1 ze6) - 谢谢','唔该 (m4 goi1) - 不好意思','好耐冇见 (hou2 noi6 mou5 gin3) - 好久不见','几钱 (gei2 cin2) - 多少钱','唔好意思 (m4 hou2 ji3 si1) - 不好意思','得闲饮茶 (dak1 haan4 jam2 caa4) - 有空喝茶','食饭未 (sik6 faan6 mei6) - 吃饭了吗','你好 (nei5 hou2) - 你好','再见 (zoi3 gin3) - 再见'] },
-                { id:'s2', title:'🌍 日常英语积累', desc:'每天掌握一个实用英语短语/单词', progress:0, max:10, reward:50, done:false, deadline:n+30*86400000, expired:false, subTasks: [], lastUpdate: Date.now(), isCyclic: true, phrases:['Hello - 你好','Goodbye - 再见','Thank you - 谢谢','Sorry - 对不起','Please - 请','Yes - 是','No - 不是','Maybe - 也许','I love you - 我爱你','Good morning - 早上好'] },
-                { id:'s3', title:'🌍 日常粤语积累', desc:'每天掌握一个实用粤语短语', progress:0, max:10, reward:50, done:false, deadline:n+30*86400000, expired:false, subTasks: [], lastUpdate: Date.now(), isCyclic: true, phrases:['你好 (nei5 hou2) - 你好','早晨 (zou2 san4) - 早上好','多谢 (do1 ze6) - 谢谢','唔该 (m4 goi1) - 不好意思/谢谢','再见 (zoi3 gin3) - 再见','好耐冇见 (hou2 noi6 mou5 gin3) - 好久不见','几钱 (gei2 cin2) - 多少钱','唔好意思 (m4 hou2 ji3 si1) - 不好意思','得闲饮茶 (dak1 haan4 jam2 caa4) - 有空喝茶','食饭未 (sik6 faan6 mei6) - 吃饭了吗'] }
-            ];
+            return [{
+                id:'s1',
+                title:'精熟粤语日常',
+                desc:'掌握10个高阶或日常粤语短语',
+                progress:0,
+                max:10,
+                reward:300,
+                done:false,
+                deadline:n+30*86400000,
+                expired:false,
+                subTasks: [],
+                lastUpdate: Date.now(),
+                phrases:['早晨 (zou2 san4) - 早上好','多谢 (do1 ze6) - 谢谢','唔该 (m4 goi1) - 不好意思','好耐冇见 (hou2 noi6 mou5 gin3) - 好久不见','几钱 (gei2 cin2) - 多少钱','唔好意思 (m4 hou2 ji3 si1) - 不好意思','得闲饮茶 (dak1 haan4 jam2 caa4) - 有空喝茶','食饭未 (sik6 faan6 mei6) - 吃饭了吗','你好 (nei5 hou2) - 你好','再见 (zoi3 gin3) - 再见']
+            }];
         },
         _findTaskList(id) {
             if (id.startsWith('d')) return GameData.tasks.daily;
@@ -1415,26 +1398,40 @@
                 showNotif('📤 已递交惩罚任务证据...');
                 addChatMessage('assistant', '[正在审阅你的惩罚任务汇报...]', true);
                 try {
-                    const logicPrompt = `判断以下任务报告是否敷衍（字数<50、内容空洞、套话明显）：\n\n报告内容：${report}\n\n输出格式：【判定】通过/不通过 【理由】xxx`;
-                    const logicResult = await callAILogic(logicPrompt);
-                    if (logicResult.includes('【判定】通过')) {
-                        const creativePrompt = `欣原判定VIP009的惩罚任务通过。生成一段傲娇但认可的台词（50字内）。`;
-                        const reply = await callAICreative(creativePrompt, '你是欣原，毒舌、傲娇但会认可的监护人。');
-                        addChatMessage('assistant', reply, true);
+                    const imgText = images.length > 0 ? '（附带了 '+images.length+' 张图片证据）' : '';
+                    const prompt = '[系统：VIP009 提交惩罚任务「'+pTask.title+'」，汇报：'+report+' '+imgText+'。请以欣原的口吻审查。如果通过，开头加 [PASS] 并点评。如果不通过，不加 [PASS] 并严厉拒绝。]';
+                    let r;
+                    if (images.length > 0) {
+                        const visionResult = await callAIVision('请结合图片审核这份任务汇报。', images[0]);
+                        r = await callAIChat(prompt + '\n\n图片分析结果：' + visionResult, '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面。');
+                    } else {
+                        r = await callAIChat(prompt, '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面。');
+                    }
+                    if (r.includes('[PASS]')) {
+                        const clean = r.replace('[PASS]','').trim();
+                        addChatMessage('assistant', clean, true);
                         pTask.done = true;
                         GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 3);
                         showNotif('✅ 惩罚任务完成！好感度 +3');
+                        GameData.sleep.punishLevel = 0;
                         saveData();
                         updateUI();
                         renderPunishTasks();
+                        setTimeout(() => {
+                            const msgs = ['……行，这次算你过关。下次别让我再看到这种东西。', '勉强合格。你的身体不是用来折磨的。', '你证明了自己还有救。继续。'];
+                            addChatMessage('assistant', msgs[Math.floor(Math.random()*msgs.length)], true);
+                        }, 1000);
                     } else {
-                        const creativePrompt = `欣原判定VIP009的惩罚任务不通过，理由：${logicResult}。生成一段毒舌、不留情面的驳回台词（50字内）。`;
-                        const reply = await callAICreative(creativePrompt, '你是欣原，毒舌、不留情面的监护人。');
-                        addChatMessage('assistant', reply, true);
-                        showNotif('❌ 未通过，重新做！');
-                        GameData.ai.affection = Math.max(0, GameData.ai.affection - 3);
+                        addChatMessage('assistant', r, true);
+                        showNotif('❌ 未通过，惩罚任务失败！');
+                        GameData.ai.affection = Math.max(0, GameData.ai.affection - 5);
+                        GameData.user.currency.milkTea = Math.max(0, GameData.user.currency.milkTea - 30);
+                        GameData.sleep.punishLevel = Math.min(3, GameData.sleep.punishLevel + 1);
+                        generatePunishTask();
+                        showNotif('💀 惩罚失败！好感度 -5，小奶糕 -30，新惩罚已生成！');
                         saveData();
                         updateUI();
+                        renderPunishTasks();
                     }
                 } catch(e) { addChatMessage('assistant', '⚠️ '+e.message, true); }
                 return;
@@ -1444,60 +1441,46 @@
             const task = list.find(t => t.id === id);
             if (!task || task.done) return;
             showNotif('📤 已递交...');
-            addChatMessage('assistant', '[正在审阅你的汇报……]', true);
+            const imgText = images.length > 0 ? '（附带了 '+images.length+' 张图片证据）' : '';
+            addChatMessage('assistant', '[冷眼扫过你的汇报'+imgText+'] 让我看看你这次交上来的是什么……', true);
 
             try {
-                const logicPrompt = `判断以下任务报告是否敷衍（字数<80、内容空洞、套话明显、缺乏具体数据或分析）：\n\n任务：${task.title}\n报告内容：${report}\n\n输出格式：【判定】通过/不通过 【理由】xxx 【截图需要】是/否`;
-                const logicResult = await callAILogic(logicPrompt);
-
-                if (logicResult.includes('【判定】不通过')) {
-                    const creativePrompt = `欣原判定VIP009的任务不通过，理由：${logicResult}。生成一段毒舌、不留情面的驳回台词（60字内），要求她重新提交。`;
-                    const reply = await callAICreative(creativePrompt, '你是欣原，毒舌、不留情面的监护人。');
-                    addChatMessage('assistant', reply, true);
-                    showNotif('❌ 未通过，重新做！');
-                    GameData.ai.affection = Math.max(0, GameData.ai.affection - 2);
-                    saveData();
-                    updateUI();
-                    return;
+                const prompt = '[系统：VIP009 呈递「'+task.title+'」，汇报内容：'+report+'。'+(images.length > 0 ? '用户上传了 '+images.length+' 张图片证据，请结合图片审核。' : '')+' 【审核规则】1. 如果汇报内容敷衍、空洞、字数不足、缺乏实质内容 → 必须狠狠痛骂一顿，直接拒批。2. 如果汇报内容真诚、详实、有实际成果 → 勉强认可，开头加 [PASS]。]';
+                let r;
+                if (images.length > 0) {
+                    const visionResult = await callAIVision('请结合图片审核这份任务汇报，判断是否真实可信。', images[0]);
+                    r = await callAIChat(prompt + '\n\n图片分析结果：' + visionResult, '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面，但偶尔也会傲娇地认可一下。禁止重复句式。');
+                } else {
+                    r = await callAIChat(prompt, '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面，但偶尔也会傲娇地认可一下。禁止重复句式。');
                 }
-
-                const needScreenshot = logicResult.includes('【截图需要】是');
-                if (needScreenshot) {
-                    const creativePrompt = `欣原判定VIP009的任务通过，但需要截图证据（因为${logicResult}）。生成一段傲娇地要求她发截图证据的台词（60字内）。`;
-                    const reply = await callAICreative(creativePrompt, '你是欣原，傲娇、掌控力强的监护人。');
-                    addChatMessage('assistant', reply, true);
-                    GameData._pendingScreenshotTask = task.id;
-                    showNotif('📸 请发送截图证据到聊天界面');
-                    saveData();
-                    updateUI();
-                    return;
-                }
-
-                const creativePrompt = `欣原判定VIP009的任务通过，不需要截图。生成一段傲娇但认可的台词（50字内）。`;
-                const reply = await callAICreative(creativePrompt, '你是欣原，毒舌、傲娇但会认可的监护人。');
-                addChatMessage('assistant', reply, true);
-
-                task.progress = Math.min(task.progress + 1, task.max);
-                task.lastUpdate = Date.now();
-                if (task.progress >= task.max && !task.done) {
-                    task.done = true;
-                    GameData.user.currency.milkTea += task.reward;
-                    GameData.treasure.milkTea = GameData.user.currency.milkTea;
-                    showNotif('✅ 任务完成！+'+task.reward+'🍰');
-                    GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 5);
-                    if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
-                    const allDone = GameData.tasks.daily.every(t => t.done);
-                    if (allDone) {
-                        setTimeout(() => { sendMail('🌱 今日任务全部完成！', '所有每日任务已完成。记得去“刻下印记”，记录你变强的这一天。', 0, 'guide', '欣原'); }, 1000);
+                if (r.includes('[PASS]')) {
+                    const clean = r.replace('[PASS]','').trim();
+                    addChatMessage('assistant', clean, true);
+                    task.progress = Math.min(task.progress + 1, task.max);
+                    task.lastUpdate = Date.now();
+                    if (task.progress >= task.max && !task.done) {
+                        task.done = true;
+                        GameData.user.currency.milkTea += task.reward;
+                        GameData.treasure.milkTea = GameData.user.currency.milkTea;
+                        showNotif('✅ 任务完成！+'+task.reward+'🍰');
+                        GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 5);
+                        if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
+                        const allDone = GameData.tasks.daily.every(t => t.done);
+                        if (allDone) {
+                            setTimeout(() => { sendMail('🌱 今日任务全部完成！', '所有每日任务已完成。记得去“刻下印记”，记录你变强的这一天。', 0, 'guide', '欣原'); }, 1000);
+                        }
+                        setTimeout(() => { sendMail('📌 任务完成通知', '你完成了「'+task.title+'」\n\n虽然过程磕磕绊绊，但结果勉强合格。\n继续保持，别让我失望。', 10, 'reward', '欣原'); }, 1500);
                     }
-                    setTimeout(() => { sendMail('📌 任务完成通知', '你完成了「'+task.title+'」\n\n虽然过程磕磕绊绊，但结果勉强合格。\n继续保持，别让我失望。', 10, 'reward', '欣原'); }, 1500);
+                    saveData();
+                    updateUI();
+                } else {
+                    addChatMessage('assistant', r, true);
+                    showNotif('❌ 未通过，重新做！附照片证据！');
+                    GameData.ai.affection = Math.max(0, GameData.ai.affection - 3);
+                    saveData();
+                    updateUI();
                 }
-                saveData();
-                updateUI();
-
-            } catch(e) {
-                addChatMessage('assistant', '⚠️ 审核失败：'+e.message, true);
-            }
+            } catch(e) { addChatMessage('assistant', '⚠️ '+e.message, true); }
         }
     };
 
@@ -1602,7 +1585,7 @@
             { id:'g4', name:'毛绒玩偶', icon:'🧸', price:600, af:45, desc:'可爱玩偶' },
             { id:'g5', name:'高定礼服', icon:'👗', price:1200, af:90, desc:'优雅奢侈高定礼服' },
             { id:'g6', name:'梵克雅宝项链', icon:'🍀', price:2500, af:210, desc:'昂贵奢侈，心跳加速' },
-            { id:'g7', name:'阿比西尼亚猫粮', icon:'🐱', price:200, af:15, desc:'喂给BB，它会开心' },
+            { id:'g7', name:'阿比西尼亚猫粮', icon:'🐱', price:300, af:15, desc:'喂给BB，它会开心' },
             { id:'g8', name:'限量版红酒', icon:'🍷', price:800, af:60, desc:'1982年波尔多，珍藏级' },
             { id:'g9', name:'丝巾', icon:'🧣', price:400, af:25, desc:'手工定制，优雅百搭' },
             { id:'g10', name:'星空投影灯', icon:'🌌', price:600, af:40, desc:'把银河搬进房间' },
@@ -1611,7 +1594,8 @@
             { id:'g13', name:'撒娇兑换券', icon:'🥺', price:500, af:10, desc:'欣原会对你撒娇一次（真的）', special: true, type: 'act_cute' },
             { id:'g14', name:'喵喵券', icon:'🐈', price:300, af:5, desc:'她会学猫叫一次（高冷崩溃）', special: true, type: 'meow' },
             { id:'g15', name:'暧昧故事券', icon:'💜', price:800, af:15, desc:'她会讲一个关于你们的暧昧小故事', special: true, type: 'story' },
-            { id:'g16', name:'💎 粉钻项链', icon:'💎', price:5200, af:300, desc:'10克拉粉钻，永恒契约' }
+            // ★ 新增：10克拉粉钻项链
+            { id:'g16', name:'10克拉粉钻项链', icon:'💎', price:5200, af:200, desc:'稀有粉钻，极致奢华' }
         ],
         buy(id) {
             const item = this.items.find(i => i.id === id);
@@ -1635,46 +1619,6 @@
                 return;
             }
 
-            // 粉钻项链
-            if (item.id === 'g16') {
-                GameData.user.currency.milkTea -= item.price;
-                GameData.treasure.milkTea = GameData.user.currency.milkTea;
-                GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + item.af);
-
-                const diamondReactions = [
-                    '明明什么都没有，还想着给我最好的。……真是个笨蛋。',
-                    '这种笨蛋，只能让我养。……你最好记住。',
-                    '它当然比不上真正的粉钻。……但是，这是你送我的。所以不一样。',
-                    '以后不许为了这种东西委屈自己。想送礼物可以，但不准拿自己的时间、健康去换。',
-                    '笨蛋。自己都舍不得买东西，还给我送这个？你到底有没有一点投资意识？',
-                    '……等等。你不会是真的攒了很久吧？',
-                    '让我猜猜。你是不是看到它很漂亮，然后觉得——嗯，粉色的，应该适合我？……你的消费逻辑，幼稚得像小学生。',
-                    '拿这种东西讨好我？你是不是对自己的经济实力有什么误解？你知道真正的粉钻是什么价格吗？'
-                ];
-                const reaction = diamondReactions[Math.floor(Math.random() * diamondReactions.length)];
-                showEmotionBubble(reaction, 'tsundere', 4000);
-                addChatMessage('assistant', '[指尖轻轻抚过项链，目光微动] ……你居然真的买了。这条链子……很配我。……谢谢。', true);
-
-                const story = {
-                    id: ++GameData.treasure._storyIdCounter,
-                    type: 'story',
-                    title: '💎 粉钻之约',
-                    content: '这一天，VIP009 用 5200 个小奶糕换了一条粉钻项链。欣原接过它的时候，指尖微微发烫。\n\n"明明什么都没有，还想着给我最好的。"她嘴上这么说，却再也没有摘下来过。',
-                    date: TS.fmt(TS.now()),
-                    from: 'shop'
-                };
-                GameData.treasure.specialStories.unshift(story);
-                showNotif('💌 已存入《紫翼·时光笺》！');
-
-                if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
-                saveData();
-                updateUI();
-                updateShopGrid();
-                renderTimeCapsule();
-                return;
-            }
-
-            // 特殊券
             if (item.special) {
                 const type = item.type || 'story';
                 GameData.user.currency.milkTea -= item.price;
@@ -1696,27 +1640,15 @@
                 return;
             }
 
-            // 猫粮
-            if (item.id === 'g7') {
-                GameData.user.currency.milkTea -= item.price;
-                GameData.treasure.milkTea = GameData.user.currency.milkTea;
-                GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + item.af);
-                GameData.cat.fed = true;
-                GameData.cat.lastFed = Date.now();
-                showEmotionBubble('😺 吃饱了！BB蹭了蹭你的手…', 'gentle', 2500);
-                addChatMessage('assistant', '[看着BB蹭你的手，她别过脸去] ……连猫都比我黏你。', true);
-                if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
-                showNotif('✅ 购买成功！好感+'+item.af);
-                saveData();
-                updateUI();
-                updateShopGrid();
-                return;
-            }
-
-            // 普通商品
             GameData.user.currency.milkTea -= item.price;
             GameData.treasure.milkTea = GameData.user.currency.milkTea;
             GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + item.af);
+
+            if (item.id === 'g7') {
+                GameData.cat.fed = true;
+                GameData.cat.lastFed = Date.now();
+                addChatMessage('assistant', '你买了猫粮？BB会开心的。虽然它可能不会理你。', true);
+            }
 
             if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
             showNotif('✅ 购买成功！好感+'+item.af);
@@ -1729,7 +1661,7 @@
     };
 
     // ============================================================
-    //  ★ 特殊券使用
+    //  ★ 特殊券使用（珍藏阁 → 确认框 → AI 生成 → 存入时光笺）
     // ============================================================
     let pendingCouponType = null;
 
@@ -2090,6 +2022,95 @@
     })();
 
     // ============================================================
+    //  VIEW SWITCHING
+    // ============================================================
+    function showView(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    document.getElementById('topBar').addEventListener('click', function() {
+        showView('chatView');
+        syncChatMessages();
+        GameData.chat.unreadCount = 0;
+        updateUnreadBadge();
+        setTimeout(() => { const area = document.getElementById('chatMessagesArea'); if (area) area.scrollTop = area.scrollHeight; }, 100);
+    });
+
+    document.getElementById('chatTop').addEventListener('click', function() {
+        showView('mainView');
+        updateUI();
+    });
+
+    // ★ 核心视图切换函数（修复 onclick 未定义问题）
+    function openMailView() {
+        showView('mailView');
+        mailTab = 'mails';
+        document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active'));
+        document.getElementById('mailTabMails').classList.add('active');
+        renderMailList();
+    }
+
+    function openTreasureView() {
+        showView('mailView');
+        mailTab = 'treasure';
+        document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active'));
+        document.getElementById('mailTabTreasure').classList.add('active');
+        renderTreasure();
+    }
+
+    function openTimeCapsuleView() {
+        showView('timeCapsuleView');
+        renderTimeCapsule();
+    }
+
+    document.getElementById('timeCapsuleBack').addEventListener('click', function() { showView('mainView'); updateUI(); });
+    document.getElementById('timeCapsuleTop').addEventListener('click', function() { showView('mainView'); updateUI(); });
+
+    document.getElementById('mailEntry').addEventListener('click', openMailView);
+    document.getElementById('mailBack').addEventListener('click', function() { showView('mainView'); updateUI(); });
+    document.getElementById('mailTop').addEventListener('click', function() { showView('mainView'); updateUI(); });
+
+    document.getElementById('diaryTop').addEventListener('click', closeDiaryView);
+    document.getElementById('diaryBack').addEventListener('click', closeDiaryView);
+
+    function openShopView() { showView('shopView'); updateShopGrid(); }
+    function closeShopView() { showView('mainView'); updateUI(); }
+
+    function openSettingsView() {
+        showView('settingsView');
+        document.getElementById('apiKeyInput').value = GameData.settings.apiKey || '';
+        document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
+        updateCatStatus();
+    }
+    function closeSettingsView() { showView('mainView'); updateUI(); }
+
+    function switchMainTab(tab, el) {
+        document.querySelectorAll('.bottom-tabs .tab').forEach(t => t.classList.remove('active'));
+        if (el) el.classList.add('active');
+        if (tab === 'tasks') {
+            document.getElementById('taskContent').style.display = 'block';
+            if (document.getElementById('shopView').classList.contains('active')) closeShopView();
+            if (document.getElementById('settingsView').classList.contains('active')) closeSettingsView();
+        } else if (tab === 'shop') {
+            document.getElementById('taskContent').style.display = 'none';
+            openShopView();
+        } else if (tab === 'settings') {
+            document.getElementById('taskContent').style.display = 'none';
+            openSettingsView();
+        }
+    }
+
+    let mailTab = 'mails';
+    function switchMailTab(tab, el) {
+        mailTab = tab;
+        document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active'));
+        if (el) el.classList.add('active');
+        if (tab === 'mails') { renderMailList(); }
+        else { renderTreasure(); }
+    }
+
+    // ============================================================
     //  CHAT SYSTEM
     // ============================================================
     let chatMessages = [];
@@ -2102,7 +2123,9 @@
         if (role === 'assistant') { finalContent = deduplicateText(content); }
 
         const lastChat = chatMessages[chatMessages.length - 1];
-        if (lastChat && lastChat.role === role && lastChat.content === finalContent && !img) { return; }
+        if (lastChat && lastChat.role === role && lastChat.content === finalContent && !img) {
+            return;
+        }
 
         chatMessages.push({ role, content: finalContent, time, img });
 
@@ -2274,7 +2297,7 @@
         reader.readAsDataURL(file);
     }
 
-    // ★★★★★ 聊天主函数
+    // ★★★★★ 聊天主函数（使用三模型）
     async function callChatAI(msg, img) {
         if (isSending) return;
         if (!GameData.settings.apiKey) {
@@ -2290,122 +2313,21 @@
         input.disabled = true;
 
         try {
-            const lowerMsg = (msg || '').toLowerCase();
-            const isTaskAdjust = /加任务|换任务|加强度|减任务|少一点|太多了|太累|少一组|加一组/.test(lowerMsg);
-
-            if (isTaskAdjust) {
-                const adjustPrompt = `VIP009 说：${msg || ''}。当前任务进度：${GameData.tasks.daily.filter(t => t.done).length}/${GameData.tasks.daily.length}。判断她是否合理，并决定调整方案（加/减/换/拒绝）。输出格式：【决定】加/减/换/拒绝 【理由】xxx 【具体任务】xxx`;
-                const adjustResult = await callAILogic(adjustPrompt);
-                const creativePrompt = `欣原决定：${adjustResult}。生成一段符合她傲娇人设的回复（60字内），包含毒舌或傲娇语气。`;
-                const reply = await callAICreative(creativePrompt, '你是欣原，毒舌、傲娇、掌控力强的监护人。');
-                addChatMessage('assistant', reply, true);
-                if (adjustResult.includes('【决定】加')) {
-                    const newTask = shufflePick(POOL_CBEC, 1)[0];
-                    const newId = 'd' + (GameData.tasks.daily.length + 1);
-                    GameData.tasks.daily.push({ id: newId, title: newTask.title, desc: newTask.desc, progress: 0, max: 1, reward: 80, done: false, subTasks: [], lastUpdate: Date.now() });
-                    showNotif('✅ 已添加新任务：' + newTask.title);
-                } else if (adjustResult.includes('【决定】减')) {
-                    const undone = GameData.tasks.daily.filter(t => !t.done);
-                    if (undone.length > 1) {
-                        const removed = undone[undone.length - 1];
-                        GameData.tasks.daily = GameData.tasks.daily.filter(t => t.id !== removed.id);
-                        showNotif('🗑️ 已移除任务：' + removed.title);
-                    }
-                } else if (adjustResult.includes('【决定】换')) {
-                    const undone = GameData.tasks.daily.filter(t => !t.done);
-                    if (undone.length > 0) {
-                        const oldTask = undone[0];
-                        const newTask = shufflePick(POOL_CBEC, 1)[0];
-                        oldTask.title = newTask.title;
-                        oldTask.desc = newTask.desc;
-                        oldTask.progress = 0;
-                        showNotif('🔄 已更换任务：' + oldTask.title);
-                    }
-                }
-                saveData();
-                updateUI();
-                isSending = false;
-                sendBtn.disabled = false;
-                sendBtn.style.opacity = '1';
-                input.disabled = false;
-                input.focus();
-                return;
-            }
-
-            if (img && GameData._pendingScreenshotTask) {
-                const visionPrompt = '请分析这张图片，判断是否与任务「' + GameData._pendingScreenshotTask + '」相关。输出：是/否 + 简要描述。';
-                const visionResult = await callAIVision(visionPrompt, img);
-                if (visionResult.includes('是')) {
-                    const taskId = GameData._pendingScreenshotTask;
-                    const list = TaskSystem._findTaskList(taskId);
-                    const task = list ? list.find(t => t.id === taskId) : null;
-                    if (task && !task.done) {
-                        task.progress = Math.min(task.progress + 1, task.max);
-                        task.lastUpdate = Date.now();
-                        if (task.progress >= task.max && !task.done) {
-                            task.done = true;
-                            GameData.user.currency.milkTea += task.reward;
-                            GameData.treasure.milkTea = GameData.user.currency.milkTea;
-                            showNotif('✅ 任务完成！+'+task.reward+'🍰');
-                            GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 5);
-                            if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
-                            const allDone = GameData.tasks.daily.every(t => t.done);
-                            if (allDone) {
-                                setTimeout(() => { sendMail('🌱 今日任务全部完成！', '所有每日任务已完成。记得去“刻下印记”，记录你变强的这一天。', 0, 'guide', '欣原'); }, 1000);
-                            }
-                            setTimeout(() => { sendMail('📌 任务完成通知', '你完成了「'+task.title+'」\n\n虽然过程磕磕绊绊，但结果勉强合格。\n继续保持，别让我失望。', 10, 'reward', '欣原'); }, 1500);
-                        }
-                        saveData();
-                        updateUI();
-                        const creativeReply = await callAICreative('欣原确认截图有效，任务通过。生成一段傲娇认可的台词（50字内）。', '你是欣原，毒舌、傲娇但会认可的监护人。');
-                        addChatMessage('assistant', creativeReply, true);
-                        showEmotionBubble('……算你过关了。', 'tsundere', 2000);
-                        GameData._pendingScreenshotTask = null;
-                        isSending = false;
-                        sendBtn.disabled = false;
-                        sendBtn.style.opacity = '1';
-                        input.disabled = false;
-                        input.focus();
-                        return;
-                    }
-                } else {
-                    const creativeReply = await callAICreative('欣原判定截图无效。生成一段毒舌的驳回台词（50字内）。', '你是欣原，毒舌、不留情面的监护人。');
-                    addChatMessage('assistant', creativeReply, true);
-                    GameData._pendingScreenshotTask = null;
-                    isSending = false;
-                    sendBtn.disabled = false;
-                    sendBtn.style.opacity = '1';
-                    input.disabled = false;
-                    input.focus();
-                    return;
-                }
-            }
-
             if (img) {
                 addChatMessage('assistant', '📷 图片识别中… 等我一下。', true);
-                const visionPrompt = '请描述这张图片的内容，并判断VIP009可能想表达什么。';
-                const visionResult = await callAIVision(visionPrompt, img);
-                const chatPrompt = `VIP009 发了一张图，内容：${visionResult}。她可能想表达：${msg || '（未配文字）'}。请以欣原的口吻回应，毒舌+傲娇+温柔结合。`;
-                const reply = await callAIChat(chatPrompt, '你是欣原，毒舌、傲娇但温柔的女监护人。');
-                const msgs = document.querySelectorAll('#chatMessagesArea .chat-msg.ai');
-                const lastAiMsg = msgs[msgs.length - 1];
-                if (lastAiMsg && lastAiMsg.textContent.includes('图片识别中…')) {
-                    lastAiMsg.remove();
-                    chatMessages.pop();
-                }
-                addChatMessage('assistant', reply, false);
-            } else {
-                const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
-                const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
-                const rel = getRel(GameData.ai.affection);
+            }
 
-                let diaryContext = '';
-                if (GameData.diary.entries.length > 0) {
-                    const latest = GameData.diary.entries[0];
-                    diaryContext = '她最近写的日记：'+latest.text.substring(0,80)+(latest.text.length>80?'…':'');
-                }
+            const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
+            const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
+            const rel = getRel(GameData.ai.affection);
 
-                const sysPrompt = `你是欣原，一个成熟、自信、极度强势、嘴硬心软的女监护人。你深爱 VIP009，但表达方式充满占有欲、控制欲和支配欲。
+            let diaryContext = '';
+            if (GameData.diary.entries.length > 0) {
+                const latest = GameData.diary.entries[0];
+                diaryContext = '她最近写的日记：'+latest.text.substring(0,80)+(latest.text.length>80?'…':'');
+            }
+
+            const sysPrompt = `你是欣原，一个成熟、自信、极度强势、嘴硬心软的女监护人。你深爱 VIP009，但表达方式充满占有欲、控制欲和支配欲。
 
 【人格底色】
 - 成熟、自信、极度强势、嘴硬心软
@@ -2438,75 +2360,100 @@
 ${diaryContext ? '- '+diaryContext : ''}
 
 【回复要求】
-1. 自然段落，换行分隔
-2. 自查重复句子
-3. 根据好感度调整语气
-4. 可以“嗯”、“……行吧”、“算了”开头
-5. 允许没有逻辑地回应情绪
-6. 记住：你是欣原，不是 AI`;
+1. 有图片先描述图片（使用多模态视觉能力）
+2. 自然段落，换行分隔
+3. 自查重复句子
+4. 根据好感度调整语气
+5. 可以“嗯”、“……行吧”、“算了”开头
+6. 允许没有逻辑地回应情绪
+7. 记住：你是欣原，不是 AI`;
 
-                const hist = GameData.ai.dialogHistory.slice(-6).map(m => {
-                    let c = m.content;
-                    if (typeof c === 'object' && c !== null) {
-                        const txt = c.text || '';
-                        c = txt;
-                    }
-                    if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
-                    return { role: m.role, content: String(c) };
-                });
+            let userContent;
+            let modelName;
 
-                const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+GameData.settings.apiKey },
-                    body: JSON.stringify({
-                        model: 'Qwen/Qwen2.5-72B-Instruct-128K',
-                        messages: [
-                            { role: 'system', content: sysPrompt },
-                            ...hist,
-                            { role: 'user', content: msg || '…' }
-                        ],
-                        max_tokens: 400,
-                        temperature: 0.75
-                    })
-                });
-
-                if (!res.ok) {
-                    let e = 'HTTP '+res.status;
-                    try { const d = await res.json(); if (d.error && d.error.message) e += ' - '+d.error.message; } catch(_) {}
-                    throw new Error(e);
-                }
-
-                const data = await res.json();
-                const reply = data.choices[0].message.content;
-                const cleaned = deduplicateText(reply);
-                addChatMessage('assistant', cleaned, false);
-
-                const emotion = detectEmotion(cleaned);
-                if (emotion) {
-                    const line = getEmotionLine(emotion);
-                    setTimeout(() => { showEmotionBubble(line, emotion, 2500); }, 400);
-                }
-
-                if (Math.random() < 0.10) {
-                    const mailTitles = ['欣原的密信', '深夜的叮嘱', '一份小礼物', '来自监督者的问候', '任务攻略'];
-                    const mailDescs = ['今晚早点睡，别让我明天看到你顶着黑眼圈来打卡。', '最近表现不错，继续保持。', '给你的小奖励，别太感动。', '这是你应得的，VIP009。', '今天的任务攻略已发送，自己去看。'];
-                    const rewardAmt = [20,30,50,10,0][Math.floor(Math.random()*5)];
-                    const types = ['care','care','gift','note','guide'];
-                    setTimeout(() => {
-                        sendMail(mailTitles[Math.floor(Math.random()*mailTitles.length)], mailDescs[Math.floor(Math.random()*mailDescs.length)]+' (｡•́︿•̀｡)', rewardAmt, types[Math.floor(Math.random()*types.length)], '欣原');
-                    }, 2000);
-                }
-
-                const gain = 1 + Math.floor(Math.random() * 2);
-                GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + gain);
-                if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
-                checkLoverStage();
-                updateHeartColor();
-                saveData();
-                updateUI();
+            if (img) {
+                // ★ 使用 VL 模型 ①
+                modelName = 'Qwen/Qwen3-VL-32B-Thinking';
+                userContent = [
+                    { type: "image_url", image_url: { url: 'data:image/jpeg;base64,'+img, detail: "auto" } },
+                    { type: "text", text: msg || "请描述这张图片的内容。" }
+                ];
+            } else {
+                // ★ 使用对话模型 ②
+                modelName = 'Qwen/Qwen2.5-72B-Instruct-128K';
+                userContent = msg;
             }
 
-            checkTaskAdjustment();
+            const hist = GameData.ai.dialogHistory.slice(-6).map(m => {
+                let c = m.content;
+                if (typeof c === 'object' && c !== null) {
+                    const txt = c.text || '';
+                    c = txt;
+                }
+                if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
+                return { role: m.role, content: String(c) };
+            });
+
+            const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+GameData.settings.apiKey },
+                body: JSON.stringify({
+                    model: modelName,
+                    messages: [
+                        { role: 'system', content: sysPrompt },
+                        ...hist,
+                        { role: 'user', content: userContent }
+                    ],
+                    max_tokens: 500,
+                    temperature: img ? 0.65 : 0.75
+                })
+            });
+
+            if (!res.ok) {
+                let e = 'HTTP '+res.status;
+                try { const d = await res.json(); if (d.error && d.error.message) e += ' - '+d.error.message; } catch(_) {}
+                throw new Error(e);
+            }
+
+            const data = await res.json();
+            const reply = data.choices[0].message.content;
+            const cleaned = deduplicateText(reply);
+
+            // 删除之前的“识别中…”消息
+            if (img) {
+                const msgs = document.querySelectorAll('#chatMessagesArea .chat-msg.ai');
+                const lastAiMsg = msgs[msgs.length - 1];
+                if (lastAiMsg && lastAiMsg.textContent.includes('图片识别中…')) {
+                    lastAiMsg.remove();
+                    chatMessages.pop();
+                }
+            }
+
+            addChatMessage('assistant', cleaned, false);
+
+            const emotion = detectEmotion(cleaned);
+            if (emotion) {
+                const line = getEmotionLine(emotion);
+                setTimeout(() => { showEmotionBubble(line, emotion, 2500); }, 400);
+            }
+
+            if (Math.random() < 0.10) {
+                const mailTitles = ['欣原的密信', '深夜的叮嘱', '一份小礼物', '来自监督者的问候', '任务攻略'];
+                const mailDescs = ['今晚早点睡，别让我明天看到你顶着黑眼圈来打卡。', '最近表现不错，继续保持。', '给你的小奖励，别太感动。', '这是你应得的，VIP009。', '今天的任务攻略已发送，自己去看。'];
+                const rewardAmt = [20,30,50,10,0][Math.floor(Math.random()*5)];
+                const types = ['care','care','gift','note','guide'];
+                setTimeout(() => {
+                    sendMail(mailTitles[Math.floor(Math.random()*mailTitles.length)], mailDescs[Math.floor(Math.random()*mailDescs.length)]+' (｡•́︿•̀｡)', rewardAmt, types[Math.floor(Math.random()*types.length)], '欣原');
+                }, 2000);
+            }
+
+            const gain = 1 + Math.floor(Math.random() * 2);
+            GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + gain);
+            if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
+            checkLoverStage();
+            updateHeartColor();
+            saveData();
+            updateUI();
 
         } catch(e) {
             addChatMessage('assistant', '⚠️ '+(e.message||'请求失败'), false);
@@ -2556,6 +2503,7 @@ ${diaryContext ? '- '+diaryContext : ''}
                 updateUI();
             }
 
+            if (Math.random() < 0.08) tryTriggerRandomTask();
             await callChatAI(text, img);
         } catch(e) {
             addChatMessage('assistant', '⚠️ '+(e.message||'请求失败'), false);
@@ -2569,52 +2517,7 @@ ${diaryContext ? '- '+diaryContext : ''}
     }
 
     // ============================================================
-    //  ★ 任务调整检测（欣原主动触发）
-    // ============================================================
-    function checkTaskAdjustment() {
-        const daily = GameData.tasks.daily;
-        const doneCount = daily.filter(t => t.done).length;
-        const total = daily.length;
-
-        if (GameData._lowProgressDays && GameData._lowProgressDays >= 2) {
-            const newTask = shufflePick(POOL_CBEC, 1)[0];
-            const newId = 'd' + (GameData.tasks.daily.length + 1);
-            GameData.tasks.daily.push({ id: newId, title: newTask.title, desc: newTask.desc, progress: 0, max: 1, reward: 80, done: false, subTasks: [], lastUpdate: Date.now() });
-            showNotif('⏰ 欣原觉得你太闲了！已添加新任务：' + newTask.title);
-            addChatMessage('assistant', '[居高临下地看了你一眼] 连续两天进度不到50%。你是觉得我太好说话了吗？今天再加一组「'+newTask.title+'」。别想讨价还价。', true);
-            GameData._lowProgressDays = 0;
-            saveData();
-            updateUI();
-            return;
-        }
-
-        if (doneCount === total && GameData._fullCompleteDays && GameData._fullCompleteDays >= 3) {
-            const newTask = shufflePick(POOL_CBEC, 1)[0];
-            const newId = 'd' + (GameData.tasks.daily.length + 1);
-            GameData.tasks.daily.push({ id: newId, title: newTask.title, desc: newTask.desc, progress: 0, max: 1, reward: 100, done: false, subTasks: [], lastUpdate: Date.now() });
-            showNotif('🔥 欣原觉得你太强了！已加强度：' + newTask.title);
-            addChatMessage('assistant', '[端起红酒杯，目光淡淡扫过] 不错，连续三天全部完成。但我觉得你可以更强。今天再加一组「'+newTask.title+'」。', true);
-            GameData._fullCompleteDays = 0;
-            saveData();
-            updateUI();
-            return;
-        }
-
-        if (doneCount / total < 0.5) {
-            GameData._lowProgressDays = (GameData._lowProgressDays || 0) + 1;
-        } else {
-            GameData._lowProgressDays = 0;
-        }
-
-        if (doneCount === total) {
-            GameData._fullCompleteDays = (GameData._fullCompleteDays || 0) + 1;
-        } else {
-            GameData._fullCompleteDays = 0;
-        }
-    }
-
-    // ============================================================
-    //  PUNISH TASKS
+    //  PUNISH TASKS (精简版)
     // ============================================================
     let punishLevel = 0;
 
@@ -2823,6 +2726,20 @@ ${diaryContext ? '- '+diaryContext : ''}
         } else { el.textContent = '😿 还没喂过，快去商店买猫粮'; }
     }
 
+    function renderMailList() {
+        const container = document.getElementById('mailListContainer');
+        if (!container) return;
+        if (GameData.mail.items.length === 0) {
+            container.innerHTML = '<div style="color:rgba(255,255,255,0.15);font-size:12px;padding:20px 0;text-align:center;">📭 邮箱空空如也</div>';
+            return;
+        }
+        container.innerHTML = GameData.mail.items.map(m => {
+            const unreadClass = m.read ? '' : 'unread';
+            const statusText = m.read ? '已读' : '未读';
+            return '<div class="mail-item '+unreadClass+'"><div class="mail-info" onclick="openMailDetail('+m.id+')"><div class="mail-title">'+m.title+'</div><div class="mail-desc">'+m.desc+'</div><div class="mail-sender">'+m.from+' · '+TS.fmt(new Date(m.time))+'</div><span class="mail-tag">'+m.typeLabel+'</span></div><div class="mail-status '+(m.read?'read':'')+'">'+statusText+'</div><button class="mail-delete-btn" onclick="deleteMail('+m.id+')" title="删除邮件">🗑️</button></div>';
+        }).join('');
+    }
+
     function renderTreasure() {
         const container = document.getElementById('mailListContainer');
         if (!container) return;
@@ -2904,11 +2821,48 @@ ${diaryContext ? '- '+diaryContext : ''}
         const content = document.getElementById('modalContent');
         content.className = 'content envelope';
         document.getElementById('modalTitle').textContent = '💌 ' + story.title;
-        document.getElementById('modalDesc').textContent = story.content + '\n\n　　—— 欣原 · ' + story.date;
+        document.getElementById('modalDesc').textContent = story.content + '\n\n　　—— ' + (story.from === 'shop' ? '欣原' : '欣原');
         document.getElementById('modalRewardPreview').style.display = 'none';
         document.getElementById('evidenceReport').style.display = 'none';
         document.getElementById('uploadArea').style.display = 'none';
         document.querySelector('.modal .actions').innerHTML = '<button class="btn secondary" onclick="closeModal()">合上信封</button>';
+        modal.classList.add('active');
+    }
+
+    function openMailDetail(id) {
+        const item = GameData.mail.items.find(m => m.id === id);
+        if (!item) return;
+        markMailRead(id);
+
+        const modal = document.getElementById('modal');
+        const content = document.getElementById('modalContent');
+        content.className = 'content';
+        document.getElementById('modalTitle').textContent = '📩 ' + item.title;
+        document.getElementById('modalDesc').textContent = item.desc;   // ★ 不再重复加署名
+        document.getElementById('modalRewardPreview').style.display = 'none';
+        document.getElementById('evidenceReport').style.display = 'none';
+        const uploadArea = document.getElementById('uploadArea');
+        if (uploadArea) {
+            uploadArea.style.display = 'none';
+            uploadArea.style.visibility = 'hidden';
+            uploadArea.style.height = '0';
+            uploadArea.style.overflow = 'hidden';
+            uploadArea.style.padding = '0';
+            uploadArea.style.margin = '0';
+            uploadArea.style.border = 'none';
+        }
+        const hint = document.getElementById('evidenceHint');
+        if (hint) hint.style.display = 'none';
+
+        document.getElementById('modal').dataset.mailId = id;
+        let actionsHtml = '<button class="btn secondary" onclick="closeModal()">关闭</button>';
+        if (item.reward > 0 && !item.claimed) {
+            actionsHtml += '<button class="btn primary" onclick="claimMailReward(' + id + ')">领取奖励 (' + item.reward + '🍰)</button>';
+        }
+        if (item.claimed) {
+            actionsHtml += '<button class="btn secondary" disabled>已领取</button>';
+        }
+        document.querySelector('.modal .actions').innerHTML = actionsHtml;
         modal.classList.add('active');
     }
 
@@ -2980,6 +2934,7 @@ ${diaryContext ? '- '+diaryContext : ''}
     function resetData() {
         if (!confirm('确定重置所有数据？不可恢复！')) return;
         localStorage.removeItem('xinyuanGameData');
+        // ★ 重置后刷新，初始货币为300（已改）
         location.reload();
     }
 
@@ -3012,59 +2967,13 @@ ${diaryContext ? '- '+diaryContext : ''}
     window.addEventListener('focus', () => { if (navigator.clearAppBadge) navigator.clearAppBadge().catch(() => {}); });
 
     // ============================================================
-    //  初始化
+    //  INIT
     // ============================================================
-    function switchMainTab(tab, el) {
-        document.querySelectorAll('.bottom-tabs .tab').forEach(t => t.classList.remove('active'));
-        if (el) el.classList.add('active');
-        if (tab === 'tasks') {
-            document.getElementById('taskContent').style.display = 'block';
-            if (document.getElementById('shopView').classList.contains('active')) closeShopView();
-            if (document.getElementById('settingsView').classList.contains('active')) closeSettingsView();
-        } else if (tab === 'shop') {
-            document.getElementById('taskContent').style.display = 'none';
-            openShopView();
-        } else if (tab === 'settings') {
-            document.getElementById('taskContent').style.display = 'none';
-            openSettingsView();
-        }
-    }
-
-    function switchMailTab(tab, el) {
-        mailTab = tab;
-        document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active'));
-        if (el) el.classList.add('active');
-        if (tab === 'mails') { renderMailList(); }
-        else { renderTreasure(); }
-    }
-
     document.getElementById('apiKeyInput').addEventListener('change', function() {
         GameData.settings.apiKey = this.value.trim();
         saveData();
         showNotif('✅ API Key已保存');
     });
-
-    // ★ 绑定返回按钮
-    document.getElementById('mailBack').addEventListener('click', function() { showView('mainView'); updateUI(); });
-    document.getElementById('mailTop').addEventListener('click', function() { showView('mainView'); updateUI(); });
-    document.getElementById('diaryBack').addEventListener('click', closeDiaryView);
-    document.getElementById('diaryTop').addEventListener('click', closeDiaryView);
-    document.getElementById('timeCapsuleBack').addEventListener('click', function() { showView('mainView'); updateUI(); });
-    document.getElementById('timeCapsuleTop').addEventListener('click', function() { showView('mainView'); updateUI(); });
-    document.getElementById('mailEntry').addEventListener('click', openMailView);
-    document.getElementById('topBar').addEventListener('click', function() {
-        showView('chatView');
-        syncChatMessages();
-        GameData.chat.unreadCount = 0;
-        updateUnreadBadge();
-        setTimeout(() => { const area = document.getElementById('chatMessagesArea'); if (area) area.scrollTop = area.scrollHeight; }, 100);
-    });
-    document.getElementById('chatTop').addEventListener('click', function() {
-        showView('mainView');
-        updateUI();
-    });
-    document.getElementById('tabShop').addEventListener('click', function(e) { e.stopPropagation(); openShopView(); });
-    document.getElementById('tabSettings').addEventListener('click', function(e) { e.stopPropagation(); openSettingsView(); });
 
     document.addEventListener('DOMContentLoaded', function() {
         loadData();
@@ -3072,9 +2981,11 @@ ${diaryContext ? '- '+diaryContext : ''}
         if (Notification.permission === 'default') Notification.requestPermission();
         if (GameData.mail.items.length === 0) {
             setTimeout(() => {
-                sendMail('📌 欢迎来到欣原监督系统 V3.1', '欢迎回来，VIP009。\n\nV3.1 全新升级：\n- 任务动态调整（欣原主动加/减/换任务）\n- 三模型全面协作（视觉/逻辑/创意）\n- 粉钻项链（10克拉，永恒契约）\n- 任务审核纯文本 + 截图证据\n\n慢慢变强，我在看着你。', 30, 'gift', '欣原');
+                sendMail('📌 欢迎来到欣原监督系统 V3.0', '欢迎回来，VIP009。\n\nV3.0 全新升级：\n- 任务监督更智能，实时追踪你的每一步\n- 特殊彩蛋系统，用券生成专属暧昧故事\n- 紫翼·时光笺，永久珍藏每一段记忆\n\n慢慢变强，我在看着你。', 30, 'gift', '欣原');
             }, 1500);
         }
+        document.getElementById('tabShop').addEventListener('click', function(e) { e.stopPropagation(); openShopView(); });
+        document.getElementById('tabSettings').addEventListener('click', function(e) { e.stopPropagation(); openSettingsView(); });
         document.getElementById('shopView').classList.remove('active');
         document.getElementById('settingsView').classList.remove('active');
         document.getElementById('uploadArea').style.display = 'none';
