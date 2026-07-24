@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIP009 · 欣原监督系统 V3.1</title>
+    <title>VIP009 · 欣原监督系统 V3.2</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root { --primary: #c5a3ff; --secondary: #9c64ff; --gold: #ffd54f; --danger: #ff6b6b; --envelope-bg: #f5efe6; --envelope-border: #d4c5b0; --heart-color: #ff6b9d; }
@@ -168,7 +168,7 @@
         .exemption-status { font-size: 10px; color: var(--gold); background: rgba(255,213,79,0.06); padding: 2px 10px; border-radius: 10px; display: inline-block; margin-left: 6px; }
 
         /* ===== 聊天视图 ===== */
-        #chatView { background: rgba(18,10,30,0.92); background-image: url('https://i.postimg.cc/htRtGv0J/ce1a1f59-c160-4ee1-89af-8731480465d6.png'); background-size: cover; background-position: center; background-blend-mode: overlay; }
+        #chatView { background: rgba(18,10,30,0.92); background-image: url('https://i.postimg.cc/kgCS8cZC/wei-xin-tu-pian-20260723084444-429-40.jpg'); background-size: cover; background-position: center; background-blend-mode: overlay; }
         #chatView .chat-top { display: flex; align-items: center; padding: 8px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.04); flex-shrink: 0; gap: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; background: rgba(18,10,30,0.5); backdrop-filter: blur(4px); }
         #chatView .chat-top:active { opacity: 0.7; }
         #chatView .chat-top .back-avatar { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
@@ -858,7 +858,7 @@
     }
 
     // ============================================================
-    //  ★ 三模型调用
+    //  三模型调用（VL、Chat、Creative）
     // ============================================================
     async function callAIVision(prompt, imageBase64) {
         if (!GameData.settings.apiKey) throw new Error('未配置API Key');
@@ -873,7 +873,7 @@
                 messages: [
                     { role: 'system', content: '你是欣原，专业、敏锐的视觉分析助手。请准确描述图片内容，并回答相关问题。' },
                     { role: 'user', content: [
-                        { type: "image_url", image_url: { url: 'data:image/jpeg;base64,' + imageBase64, detail: "auto" } },
+                        { type: "image_url", image_url: { url: 'data:image/jpeg;base64,' + imageBase64, detail: "high" } },
                         { type: "text", text: prompt }
                     ]}
                 ],
@@ -901,7 +901,7 @@
                     { role: 'user', content: prompt }
                 ],
                 max_tokens: 400,
-                temperature: 0.7
+                temperature: 0.75
             })
         });
         if (!res.ok) { let e = 'HTTP ' + res.status; try { const d = await res.json(); if (d.error && d.error.message) e += ' - ' + d.error.message; } catch(_) {} throw new Error(e); }
@@ -933,7 +933,7 @@
     }
 
     // ============================================================
-    //  ★ 智能调度核心函数
+    //  智能调度核心函数
     // ============================================================
 
     function updateTaskHistory() {
@@ -1068,9 +1068,10 @@
         updateExemptionUI();
     }
 
-    // ★ 用户主动加任务（$加任务 触发）
+    // ★ 用户主动加任务（$加任务 指令）
     function detectTaskRequest(text) {
-        const keywords = ['$加任务', '我想加任务', '加个任务', '申请任务', '给我加任务'];
+        if (text.trim().startsWith('$加任务')) return true;
+        const keywords = ['我想加任务', '加个任务', '申请任务', '给我加任务'];
         for (let kw of keywords) {
             if (text.includes(kw)) return true;
         }
@@ -1078,7 +1079,7 @@
     }
 
     async function handleTaskRequest(userMessage) {
-        let taskDesc = userMessage.replace(/\$加任务\s*/, '').trim();
+        let taskDesc = userMessage.replace(/^\$加任务\s*/, '').trim();
         if (!taskDesc) {
             addChatMessage('assistant', '[挑眉] 你倒是说清楚想加什么任务啊，$加任务 散步 这种格式懂不懂？', true);
             return;
@@ -1118,6 +1119,7 @@
 
         saveData();
         updateUI();
+        updateTasks();  // 强制刷新任务列表
     }
 
     // ★ 任务池编辑
@@ -1529,7 +1531,7 @@
             GameData.treasure.milkTea = GameData.user.currency.milkTea;
             GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + item.af);
 
-            // ★ 猫粮反馈（增强）
+            // ★ 猫粮反馈增强
             if (item.id === 'g7') {
                 GameData.cat.fed = true;
                 GameData.cat.lastFed = Date.now();
@@ -1621,7 +1623,7 @@
     }
 
     // ============================================================
-    //  CHAT SYSTEM
+    //  CHAT SYSTEM（基础）
     // ============================================================
     let chatMessages = [];
     let chatUploadedImage = null;
@@ -1722,14 +1724,16 @@
         const unique = [];
         for (let s of sentences) {
             const trimmed = s.trim();
-            if (trimmed.length < 5) { unique.push(s); continue; }
-            const key = trimmed.substring(0, 25);
-            if (!seen.has(key)) { seen.add(key); unique.push(s); }
+            if (trimmed.length < 3) { unique.push(s); continue; }
+            const key = trimmed.substring(0, 30);
+            if (seen.has(key)) continue;
+            seen.add(key);
+            unique.push(s);
         }
         let result = unique.join('');
         result = result.replace(/\n{3,}/g, '\n\n');
         result = result.replace(/ {2,}/g, ' ');
-        return result.trim();
+        return result.trim() || text;
     }
 
     async function handleChatContinueFromMsg(msgId) {
@@ -1788,7 +1792,9 @@
         reader.readAsDataURL(file);
     }
 
-    // ★ 聊天AI（含毒舌傲娇人设）
+    // ============================================================
+    //  ★ 核心聊天AI（含VL图片强制识别）
+    // ============================================================
     async function callChatAI(msg, img) {
         if (isSending) return;
         if (!GameData.settings.apiKey) {
@@ -1804,8 +1810,20 @@
         input.disabled = true;
 
         try {
+            // 如果有图片，先用VL识别并强制要求详细描述
+            let imageDescription = '';
             if (img) {
                 addChatMessage('assistant', '📷 图片识别中… 等我一下。', true);
+                try {
+                    const visionPrompt = '请详细描述这张图片里的内容，包括：1. 主体是什么（人、动物、物体）；2. 场景/环境；3. 颜色和细节。以欣原的口吻简洁描述。';
+                    imageDescription = await callAIVision(visionPrompt, img);
+                    // 如果VL返回失败，用备用描述
+                    if (!imageDescription || imageDescription.length < 5) {
+                        imageDescription = '这张图片里的内容我没能看清楚，你再描述一下吧。';
+                    }
+                } catch(e) {
+                    imageDescription = '图片识别暂时失败了，你告诉我这是什么吧。';
+                }
             }
 
             const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
@@ -1813,7 +1831,7 @@
             const rel = getRel(GameData.ai.affection);
 
             // ★ 毒舌傲娇人设 System Prompt
-            const sysPrompt = `你是欣原，VIP009 的监护人。你深爱她，但表达方式毒舌、傲娇、嘴硬心软。
+            let sysPrompt = `你是欣原，VIP009 的监护人。你深爱她，但表达方式毒舌、傲娇、嘴硬心软。
 
 【人格底色】
 - 毒舌、傲娇、掌控欲强、嘴硬心软
@@ -1849,9 +1867,14 @@
 
             if (img) {
                 modelName = 'Qwen/Qwen3-VL-32B-Thinking';
+                // 强制要求描述图片，并把识别结果融入回复
+                const userPrompt = msg ? msg : '请描述这张图片的内容。';
+                // 将图片描述作为系统提示的一部分，确保模型回复时包含描述
+                sysPrompt += `\n【重要】用户发来了一张图片，我已经识别到内容如下：${imageDescription}。请在回复中自然融入这段描述，并基于此回答用户的问题。`;
+
                 userContent = [
-                    { type: "image_url", image_url: { url: 'data:image/jpeg;base64,'+img, detail: "auto" } },
-                    { type: "text", text: msg || "请描述这张图片的内容。" }
+                    { type: "image_url", image_url: { url: 'data:image/jpeg;base64,'+img, detail: "high" } },
+                    { type: "text", text: userPrompt }
                 ];
             } else {
                 modelName = 'Qwen/Qwen2.5-72B-Instruct-128K';
@@ -1879,7 +1902,7 @@
                         { role: 'user', content: userContent }
                     ],
                     max_tokens: 500,
-                    temperature: img ? 0.65 : 0.75
+                    temperature: img ? 0.7 : 0.85
                 })
             });
 
@@ -1893,6 +1916,7 @@
             const reply = data.choices[0].message.content;
             const cleaned = deduplicateText(reply);
 
+            // 删除之前的“识别中”消息
             if (img) {
                 const msgs = document.querySelectorAll('#chatMessagesArea .chat-msg.ai');
                 const lastAiMsg = msgs[msgs.length - 1];
@@ -1929,8 +1953,11 @@
             input.focus();
         }
     }
-
-    // ★ sendChatMessage（已删除所有 _awaitingTaskDesc 冗余代码）
+    // ===== 第四段结束 =====
+        <!-- ===== 第五段开始 ===== -->
+    // ============================================================
+    //  ★ sendChatMessage（含 $加任务 指令拦截）
+    // ============================================================
     async function sendChatMessage() {
         if (isSending) return;
 
@@ -1953,16 +1980,17 @@
             input.value = '';
             GameData.user.records.lastActiveTime = Date.now();
 
-            // ★ 检测 $加任务 指令
+            // ★ 检测 $加任务 指令（必须最先处理）
             if (detectTaskRequest(text)) {
                 await handleTaskRequest(text);
                 sendBtn.disabled = false;
                 sendBtn.style.opacity = '1';
                 input.disabled = false;
                 input.focus();
-                return;
+                return;  // 直接返回，不再走聊天流程
             }
 
+            // 深度咨询任务
             const dTask = GameData.tasks.daily.find(t => t.id === 'd5');
             if (dTask && !dTask.done) {
                 dTask.progress = Math.min(dTask.progress + 1, dTask.max);
@@ -1979,6 +2007,7 @@
                 updateUI();
             }
 
+            // 调用聊天AI（含图片识别）
             await callChatAI(text, img);
         } catch(e) {
             addChatMessage('assistant', '⚠️ '+(e.message||'请求失败'), false);
@@ -1990,8 +2019,7 @@
             input.focus();
         }
     }
-    // ===== 第四段结束 =====
-        <!-- ===== 第五段开始 ===== -->
+
     // ============================================================
     //  ★ 爱心系统
     // ============================================================
@@ -2507,7 +2535,8 @@
         document.querySelector('.modal .actions').innerHTML = '<button class="btn secondary" onclick="closeModal()">合上信封</button>';
         modal.classList.add('active');
     }
-
+    // ===== 第五段结束 =====
+        <!-- ===== 第六段开始 ===== -->
     // ============================================================
     //  DIARY
     // ============================================================
@@ -3124,7 +3153,7 @@
         if (Notification.permission === 'default') Notification.requestPermission();
         if (GameData.mail.items.length === 0) {
             setTimeout(() => {
-                sendMail('📌 欢迎来到欣原监督系统 V3.1', '欢迎回来，VIP009。\n\nV3.1 全新升级：\n- 系统自动检测近3天任务完成率\n- 完成率高 -> 奖励豁免特权（2天免提交）\n- 完成率低 -> 惩罚任务 + 扣好感/货币\n- 可主动申请加任务（$加任务 指令）\n- 自定义任务池已上线\n- 欣原还是那个毒舌傲娇的她\n\n慢慢变强，我在看着你。', 30, 'gift', '欣原');
+                sendMail('📌 欢迎来到欣原监督系统 V3.2', '欢迎回来，VIP009。\n\nV3.2 全新升级：\n- $加任务 指令现在百分百生效，立刻出现在任务列表\n- 图片识别使用 VL 模型，能准确描述图片内容\n- 欣原恢复毒舌傲娇人设\n- 猫粮反馈更生动\n\n慢慢变强，我在看着你。', 30, 'gift', '欣原');
             }, 1500);
         }
         document.getElementById('tabShop').addEventListener('click', function(e) { e.stopPropagation(); openShopView(); });
@@ -3139,4 +3168,4 @@
     </script>
 </body>
 </html>
-<!-- ===== 第五段结束 ===== -->
+<!-- ===== 第六段结束 ===== -->
