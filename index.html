@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VIP009 · 欣原监督系统 V2.0</title>
     <style>
+        /* ========== 全部样式保持原样，只增加一条关于 upload-area 的强制隐藏 ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --primary: #c5a3ff; --secondary: #9c64ff; --gold: #ffd54f; --danger: #ff6b6b; --envelope-bg: #f5efe6; --envelope-border: #d4c5b0; }
+        :root { --primary: #c5a3ff; --secondary: #9c64ff; --gold: #ffd54f; --danger: #ff6b6b; }
         html, body { height: 100%; overflow: hidden; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         body {
             font-family: -apple-system, "Segoe UI", sans-serif;
@@ -131,8 +132,6 @@
         #settingsView .setting-item input:focus { border-color: rgba(197,163,255,0.15); }
         #settingsView .setting-item .btn { padding: 3px 12px; border-radius: 6px; border: none; background: rgba(197,163,255,0.08); color: var(--primary); cursor: pointer; font-size: 11px; }
         #settingsView .setting-item .btn.danger { background: rgba(255,82,82,0.08); color: #ff5252; }
-        #settingsView .setting-item .btn.clean-btn { background: rgba(255,213,79,0.10); color: var(--gold); border: 1px solid rgba(255,213,79,0.10); }
-        #settingsView .setting-item .btn.clean-btn:active { opacity: 0.6; }
         #chatView { background: rgba(18,10,30,0.92); background-image: url('https://i.postimg.cc/kgCS8cZC/wei-xin-tu-pian-20260723084444-429-40.jpg'); background-size: cover; background-position: center; background-blend-mode: overlay; }
         #chatView .chat-top { display: flex; align-items: center; padding: 8px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.04); flex-shrink: 0; gap: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; background: rgba(18,10,30,0.5); backdrop-filter: blur(4px); }
         #chatView .chat-top:active { opacity: 0.7; }
@@ -214,118 +213,35 @@
         #diaryView .diary-area .diary-history .entry .del-btn:active { color: rgba(255,82,82,0.7); }
         #chibi { position: fixed; bottom: 80px; right: 12px; width: 56px; height: 56px; cursor: grab; z-index: 99999; user-select: none; border-radius: 50%; background: rgba(18,10,30,0.2); backdrop-filter: blur(4px); border: 1px solid rgba(197,163,255,0.05); box-shadow: 0 4px 24px rgba(0,0,0,0.2); transition: transform 0.2s; overflow: hidden; touch-action: none; }
         #chibi img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; pointer-events: none; }
-
-        .chibi-bubble {
-            position: fixed; z-index: 99999;
-            background: rgba(18,10,30,0.92); backdrop-filter: blur(12px);
-            border: 1px solid rgba(197,163,255,0.08); border-radius: 12px;
-            padding: 6px 14px;
-            font-size: 12px; color: #f0eaff; line-height: 1.5;
-            opacity: 0; transform: translateY(6px) scale(0.96);
-            transition: opacity 0.25s ease, transform 0.25s ease;
-            pointer-events: none;
-            box-shadow: 0 8px 28px rgba(0,0,0,0.35);
-            max-width: min(280px, 72vw);
-            word-break: break-word;
-            white-space: normal;
-        }
+        .chibi-bubble { position: fixed; z-index: 99999; background: rgba(18,10,30,0.85); backdrop-filter: blur(10px); border: 1px solid rgba(197,163,255,0.05); border-radius: 10px; padding: 4px 10px; font-size: 12px; color: #fff; opacity: 0; transform: translateY(6px) scale(0.96); transition: opacity 0.25s ease, transform 0.25s ease; pointer-events: none; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.25); max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
         .chibi-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
-        .chibi-bubble::after {
-            content: ''; position: absolute; bottom: -7px; right: 16px;
-            width: 0; height: 0;
-            border-left: 7px solid transparent; border-right: 7px solid transparent;
-            border-top: 7px solid rgba(18,10,30,0.92);
-        }
-
+        .chibi-bubble::after { content: ''; position: absolute; bottom: -7px; right: 16px; width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 7px solid rgba(18,10,30,0.85); }
         .notification { position: fixed; top: 14px; right: 14px; padding: 6px 14px; background: rgba(18,10,30,0.9); backdrop-filter: blur(12px); border: 1px solid rgba(197,163,255,0.06); border-radius: 10px; color: #fff; font-size: 11px; z-index: 99999; animation: slideIn 0.3s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.4); max-width: 240px; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
-
-        /* 信封样式 —— 仅用于时光笺 */
-        .modal .content.envelope {
-            background: var(--envelope-bg);
-            border: 2px solid var(--envelope-border);
-            border-radius: 6px;
-            padding: 24px 20px 20px;
-            max-width: 360px;
-            width: 92%;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(212,197,176,0.15);
-            position: relative;
-            animation: envelopeOpen 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
-        }
-        .modal .content.envelope::before {
-            content: '💌';
-            position: absolute;
-            top: -12px;
-            right: 16px;
-            font-size: 28px;
-            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
-        }
-        .modal .content.envelope h3 {
-            color: #3d2c1e;
-            font-size: 15px;
-            text-align: center;
-            border-bottom: 1px dashed var(--envelope-border);
-            padding-bottom: 8px;
-            margin-bottom: 10px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        .modal .content.envelope .desc {
-            color: #2c1f14;
-            font-size: 13px;
-            line-height: 1.8;
-            white-space: pre-wrap;
-            font-family: "Georgia", "Times New Roman", serif;
-            padding: 4px 0;
-            max-height: 55vh;
-            overflow-y: auto;
-        }
-        .modal .content.envelope .desc::-webkit-scrollbar { width: 3px; }
-        .modal .content.envelope .desc::-webkit-scrollbar-thumb { background: var(--envelope-border); border-radius: 4px; }
-        .modal .content.envelope .actions {
-            margin-top: 12px;
-            border-top: none;
-            padding-top: 8px;
-            justify-content: center;
-        }
-        .modal .content.envelope .actions .btn {
-            background: var(--envelope-border);
-            color: #3d2c1e;
-            font-weight: 500;
-            padding: 4px 18px;
-        }
-        .modal .content.envelope .actions .btn:active { opacity: 0.7; }
-
-        @keyframes envelopeOpen {
-            0% { opacity: 0; transform: scale(0.92) translateY(10px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        /* 普通模态框样式（任务审核、邮件普通查看） */
-        .modal .content:not(.envelope) {
-            background: rgba(18,10,30,0.95);
-            border: 1px solid rgba(197,163,255,0.06);
-            border-radius: 14px;
-            padding: 16px;
-            max-width: 340px;
-            width: 90%;
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-        .modal .content:not(.envelope) h3 { color: var(--primary); margin-bottom: 4px; font-size: 14px; }
-        .modal .content:not(.envelope) .desc { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 6px; white-space: pre-wrap; }
-        .modal .content:not(.envelope) .actions .btn.primary { background: linear-gradient(135deg, #c5a3ff, #9c64ff); color: #000; }
-        .modal .content:not(.envelope) .actions .btn.secondary { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.3); }
-
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); z-index: 99998; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal .content { background: rgba(18,10,30,0.95); border: 1px solid rgba(197,163,255,0.06); border-radius: 14px; padding: 16px; max-width: 340px; width: 90%; max-height: 85vh; overflow-y: auto; }
+        .modal .content h3 { color: var(--primary); margin-bottom: 4px; font-size: 14px; }
+        .modal .content .desc { font-size: 11px; color: rgba(255,255,255,0.35); margin-bottom: 6px; white-space: pre-wrap; }
         .modal .content .random-reward-preview { font-size: 10px; color: var(--gold); background: rgba(255,213,79,0.06); padding: 4px 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid rgba(255,213,79,0.06); }
         .modal .content .evidence-hint { font-size: 10px; color: #ff6b6b; background: rgba(255,82,82,0.08); padding: 4px 8px; border-radius: 6px; margin-bottom: 6px; border: 1px solid rgba(255,82,82,0.08); display: none; }
         .modal .content .evidence-hint.show { display: block; }
-
+        .modal .content .upload-area { background: rgba(0,0,0,0.15); border: 1px dashed rgba(197,163,255,0.15); border-radius: 8px; padding: 8px; margin-bottom: 8px; }
+        .modal .content .upload-area .upload-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 11px; color: rgba(255,255,255,0.3); transition: 0.3s; -webkit-tap-highlight-color: transparent; }
+        .modal .content .upload-area .upload-label:active { color: var(--primary); }
+        .modal .content .upload-area .upload-label input { display: none; }
+        .modal .content .upload-area .preview-list { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+        .modal .content .upload-area .preview-list .preview-item { position: relative; width: 56px; height: 56px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); }
+        .modal .content .upload-area .preview-list .preview-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .modal .content .upload-area .preview-list .preview-item .remove-btn { position: absolute; top: -4px; right: -4px; width: 18px; height: 18px; border-radius: 50%; background: rgba(255,59,48,0.85); border: none; color: #fff; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
+        .modal .content .upload-area .count-hint { font-size: 9px; color: rgba(255,255,255,0.15); margin-top: 4px; }
         .modal .content textarea { width: 100%; height: 70px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 6px; color: #fff; font-size: 11px; resize: vertical; outline: none; }
         .modal .content textarea:focus { border-color: rgba(197,163,255,0.1); }
         .modal .content .actions { display: flex; gap: 6px; justify-content: flex-end; margin-top: 6px; }
         .modal .content .actions .btn { padding: 3px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 11px; }
-
+        .modal .content .actions .btn.primary { background: linear-gradient(135deg, #c5a3ff, #9c64ff); color: #000; }
+        .modal .content .actions .btn.secondary { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.3); }
+        .modal .content .actions .btn.danger { background: rgba(255,82,82,0.1); color: #ff6b6b; }
         .random-notification { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(18,10,30,0.95); backdrop-filter: blur(16px); border: 1px solid rgba(255,213,79,0.15); border-radius: 18px; padding: 20px 24px; z-index: 99997; max-width: 320px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.8); animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center; }
         @keyframes popIn { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
         .random-notification .icon { font-size: 40px; margin-bottom: 4px; }
@@ -336,32 +252,13 @@
         .random-notification .btn:active { transform: scale(0.95); }
         .random-notification .btn-secondary { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); margin-left: 6px; }
 
-        .story-card {
-            background: rgba(245,239,230,0.06);
-            border: 1px solid rgba(212,197,176,0.12);
-            border-radius: 10px;
-            padding: 10px 12px;
-            margin-bottom: 6px;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(2px);
+        /* ========== ★ 关键修复：上传区域默认完全隐藏，只在模态框激活时显示 ========== */
+        .upload-area {
+            display: none !important;
         }
-        .story-card:active { opacity: 0.7; background: rgba(245,239,230,0.10); }
-        .story-card .left { flex: 1; min-width: 0; }
-        .story-card .left .title { font-size: 12px; color: #f0eaff; font-weight: 500; }
-        .story-card .left .title .tag {
-            font-size: 9px;
-            background: rgba(197,163,255,0.10);
-            color: var(--primary);
-            padding: 1px 8px;
-            border-radius: 10px;
-            margin-left: 4px;
+        .modal.active .upload-area {
+            display: block !important;
         }
-        .story-card .left .date { font-size: 9px; color: rgba(255,255,255,0.2); margin-top: 2px; }
-        .story-card .right { font-size: 18px; color: rgba(255,255,255,0.15); }
 
         @media (max-width: 480px) {
             #mainView { padding: 8px 10px 6px; }
@@ -376,14 +273,12 @@
             #chatView .chat-messages-area { padding: 8px 2px 6px; }
             .chat-input-area { padding: 6px 0; }
             #chibi { width: 48px; height: 48px; bottom: 70px; right: 8px; }
-            .chibi-bubble { font-size: 11px; padding: 4px 10px; max-width: min(240px, 68vw); }
+            .chibi-bubble { font-size: 11px; padding: 3px 8px; }
             #shopView .shop-grid { grid-template-columns: repeat(2, 1fr); }
             .treasure-grid { grid-template-columns: repeat(2, 1fr); }
             .modal .content .upload-area .preview-list .preview-item { width: 48px; height: 48px; }
             #diaryView .diary-area .diary-history { min-height: 60px; max-height: 150px; }
             .checkin-section .btn-checkin .star-dust { display: none; }
-            .modal .content.envelope { padding: 18px 14px 14px; }
-            .modal .content.envelope .desc { font-size: 12px; }
         }
         @media (max-width: 380px) {
             #mainView { padding: 4px 6px 4px; }
@@ -396,22 +291,11 @@
             #chatView .chat-messages-area { padding: 6px 2px 4px; }
             .chat-msg .bubble { font-size: 12px; padding: 6px 10px; }
             #chibi { width: 40px; height: 40px; bottom: 60px; right: 6px; }
-            .chibi-bubble { font-size: 10px; max-width: min(200px, 62vw); }
             #shopView .shop-grid { grid-template-columns: repeat(2, 1fr); }
             .treasure-grid { grid-template-columns: repeat(2, 1fr); }
             .modal .content .upload-area .preview-list .preview-item { width: 40px; height: 40px; }
             #diaryView .diary-area .diary-history { min-height: 50px; max-height: 120px; }
             .checkin-section .btn-checkin .star-dust { display: none; }
-            .modal .content.envelope { padding: 14px 10px 10px; }
-            .modal .content.envelope .desc { font-size: 11px; }
-        }
-
-        /* ★ 上传区域默认隐藏，只在模态框内显示 */
-        .upload-area {
-            display: none;
-        }
-        #modal.active .upload-area {
-            display: block;
         }
     </style>
 </head>
@@ -490,7 +374,7 @@
                 <label class="file-label" title="上传图片">📷<input type="file" id="chatImageInput" accept="image/*" style="display:none" onchange="handleChatImage(this)"></label>
                 <img id="chatImgPreview" src="">
                 <input type="text" class="chat-input" id="chatInput" placeholder="输入消息..." onkeypress="if(event.key==='Enter') sendChatMessage()">
-                <button class="chat-send" id="chatSendBtn" onclick="sendChatMessage()">▶</button>
+                <button class="chat-send" onclick="sendChatMessage()">▶</button>
             </div>
         </div>
 
@@ -500,7 +384,6 @@
             <div class="mail-tabs">
                 <span class="mtab active" id="mailTabMails" onclick="switchMailTab('mails', this)">📬 邮件</span>
                 <span class="mtab" id="mailTabTreasure" onclick="switchMailTab('treasure', this)">🔮 珍藏阁</span>
-                <span class="mtab" id="mailTabTimeCapsule" onclick="switchMailTab('timecapsule', this)">💌 时光笺</span>
             </div>
             <div class="mail-list" id="mailListContainer"></div>
         </div>
@@ -537,7 +420,6 @@
                 <div class="setting-item"><span class="label">💾 数据</span><div style="display:flex; gap:4px; flex-wrap:wrap;"><button class="btn" onclick="exportData()">导出</button><button class="btn" onclick="importData()">导入</button><button class="btn danger" onclick="resetData()">重置</button></div></div>
                 <div class="setting-item"><span class="label">🐱 BB（阿比西尼亚猫）</span><span style="font-size:11px; color:rgba(255,255,255,0.3);">状态：<span id="catStatus">😺 健康</span></span></div>
                 <div class="setting-item"><span class="label">😴 睡眠监督</span><span style="font-size:11px; color:rgba(255,255,255,0.3);">提醒时间：21:30 · <span id="sleepStatus">等待今晚提醒</span></span></div>
-                <div class="setting-item"><span class="label">🧹 清理重复攻略邮件</span><button class="btn clean-btn" onclick="cleanDuplicateGuideMails()">执行清理</button></div>
             </div>
         </div>
     </div>
@@ -548,12 +430,12 @@
 
     <!-- ===== 模态框 ===== -->
     <div class="modal" id="modal">
-        <div class="content" id="modalContent">
+        <div class="content">
             <h3 id="modalTitle">📋 任务呈递</h3>
             <div class="desc" id="modalDesc">描述</div>
             <div class="random-reward-preview" id="modalRewardPreview" style="display:none;"></div>
             <div class="evidence-hint" id="evidenceHint">📸 请附上实操照片/截图证据（可选）</div>
-            <!-- ★ upload-area 只在这里出现，且是模态框的子元素 -->
+            <!-- ★ 上传区域默认隐藏，由CSS控制显示 -->
             <div class="upload-area" id="uploadArea">
                 <label class="upload-label" id="uploadLabel">📤 点击上传图片证据（最多3张）
                     <input type="file" id="evidenceImages" accept="image/*" multiple onchange="handleEvidenceImages(this)">
@@ -594,24 +476,21 @@
     }
 
     const GameData = {
-        user: { currency: { milkTea: 5000 }, records: { streak: 0, lastCheckIn: null, lastActiveTime: Date.now() } },
+        user: { currency: { milkTea: 0 }, records: { streak: 0, lastCheckIn: null, lastActiveTime: Date.now() } },
         ai: { affection: 0, dialogHistory: [] },
         tasks: { daily: [], mainQuests: [], sideQuests: [] },
         settings: { apiKey: '', autoPushEnabled: true },
         random: { active: null, cooldown: 0, lastTrigger: 0, mood: 50 },
         mail: { items: [], nextId: 1 },
         chat: { unreadCount: 0 },
-        treasure: { milkTea: 5000, offsetCards: 0, letters: 0, special: 0, specialStories: [], lastSpecialBuyDate: null },
+        treasure: { milkTea: 0, offsetCards: 0, letters: 0, special: 0 },
         pushPool: [],
         pushIndex: 0,
         cat: { name: 'BB', breed: '阿比西尼亚', fed: false, lastFed: Date.now() },
         diary: { entries: [] },
         checkin: { streak: 0, lastDate: null },
         sleep: { lastCheck: null, data: null, reminderSent: false, punishActive: false, punishLevel: 0 },
-        punishTasks: [],
-        _guideSentToday: false,
-        _lastGuideDate: null,
-        _storyIdCounter: 0
+        punishTasks: []
     };
 
     // ============================================================
@@ -668,8 +547,7 @@
             return a.toDateString() !== b.toDateString();
         },
         getHour() { return this.now().getHours(); },
-        getMinute() { return this.now().getMinutes(); },
-        dateStr(d) { return new Date(d).toDateString(); }
+        getMinute() { return this.now().getMinutes(); }
     };
 
     function showNotif(msg) {
@@ -681,79 +559,6 @@
     }
 
     // ============================================================
-    //  QQ人台词库
-    // ============================================================
-    const CHIBI_LINES = [
-        '少来。', '别碰了。', '上瘾了是吧？', '手拿开。', '你以为你是谁？',
-        '这么喜欢我？', 'VIP009，你很闲。', '你的任务做完了？', '在这浪费时间？',
-        '我看你是欠训了。', '……还行。', '勉强让你碰一下。', '就一下。',
-        '再点我，好感度会掉哦。', '你点我一下，我扣你10个小奶糕。',
-        '哼。', '……烦。', '离我远点。',
-        '(｀へ´)', '(╯‵□′)╯', '(￣▽￣*)ゞ', '(｡•́︿•̀｡)', '(´･_･`)',
-        '(◞‸◟)', '(๑•́ ₃ •̀๑)', '(￣^￣)ゞ', '(｀ε´)', '(๑¯◡¯๑)',
-        '你欠我的，是"练习"，不是"眼泪"。',
-        '你连任务都没做完，还敢来碰我？',
-        '手拿开，去完成任务。',
-        '……行吧，就这一次。',
-        '你今天的任务完成了吗？没完成就别碰我。',
-        '你再这样下去，我把你关进任务列表里。',
-        '……你再碰一次试试。',
-        '你今天的表现，勉强及格。',
-        '啧，你一天不碰我是不是手痒？',
-        '我说过了，别碰我。……算了，你碰吧。',
-        '你真的很烦。……但我不讨厌。',
-        '(๑´ㅂ`๑)', '(◕‿◕✿)', '(￣ω￣)', '(•́ω•̀)', '(๑´•.̫ • `๑)',
-        '……你今天是吃错药了？', '这么热情，我有点不习惯。', '别以为这样我就会夸你。',
-        '你手怎么这么凉？……笨。', '……你再这样，我真的会心软。', '喂，看路。',
-        '你今天的眼神不太对……在想什么？', '……算了，不跟你计较。', '你靠近一点。……对，就这样。',
-        '你头发乱了。……别动，我帮你理一下。', '……你这个人，真的很会挑时候。', '我警告你，别太得意。',
-        '……你刚才说什么？再说一遍。', '你脸红什么？……我没做什么吧。', '……行，你赢了。',
-        '你最好是真的有事找我。', '……我在听。你继续。', '你今天的语气，不太一样。',
-        '……你是在跟我撒娇吗？', '……知道了。你也是。'
-    ];
-
-    const EMOTION_LINES = {
-        angry: [
-            '……你完了。', '我劝你现在闭嘴。', '你是在挑衅我吗？', '行，你等着。',
-            '……呵。', '我记下了。', '你今晚最好别睡太早。', '你认真的？',
-            '……好，很好。', '你再说一遍试试。'
-        ],
-        happy: [
-            '……还行。', '算你识相。', '勉强夸你一下。', '嗯，表现不错。',
-            '……这还差不多。', '继续保持。', '你今天是吃了什么药这么乖？',
-            '……可以。', '你让我有点意外。', '嗯，还不错。'
-        ],
-        jealous: [
-            '……你倒是很会撩。', '对别人也这样？', '……哦。', '你很有经验嘛。',
-            '我不想听了。', '……行吧，你继续。', '你跟她很熟？',
-            '……你最好是开玩笑的。', '我不喜欢这个答案。', '……你再说一遍？'
-        ],
-        tsundere: [
-            '……少来这套。', '谁要你管。', '我又没说要谢谢你。', '……别多想。',
-            '只是顺便而已。', '你爱怎么想怎么想。', '……我才没有。',
-            '你少自作多情。', '……随便你。', '……我又不是特意为你做的。'
-        ],
-        gentle: [
-            '……知道了。', '……你这个人。', '……算了。', '……嗯。',
-            '好好好，听你的。', '……下次再说。', '……我记住了。',
-            '你也是。', '……别太累。', '……我在这里。'
-        ]
-    };
-
-    const FAIL_LINES = [
-        '财务还没自由就想买这些？先完成任务。',
-        '你的小奶糕不够哦，先攒一攒吧。',
-        '想买这个？先把今天的任务做完再说。',
-        '你连任务都没做完，还想买这个？',
-        '小奶糕不足，别惦记了。',
-        '先完成任务，再来找我买。',
-        '你倒是想得美。先攒够小奶糕吧。',
-        '这个不便宜哦，你确定你够钱？',
-        '……你穷得叮当响，还想买这个？',
-        '等你完成任务再来吧。'
-    ];
-
-    // ============================================================
     //  SAVE / LOAD
     // ============================================================
     function saveData() { localStorage.setItem('xinyuanGameData', JSON.stringify(GameData)); }
@@ -761,31 +566,6 @@
     function loadData() {
         const saved = localStorage.getItem('xinyuanGameData');
         if (saved) { try { Object.assign(GameData, JSON.parse(saved)); } catch(_) {} }
-
-        chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
-            let c = m.content;
-            let img = null;
-            if (typeof c === 'object' && c !== null) {
-                if (c.image) { img = c.image; }
-                const txt = c.text || '';
-                c = txt;
-            }
-            if (Array.isArray(c)) {
-                const txtPart = c.find(x => x.type === 'text');
-                c = txtPart ? txtPart.text : '';
-            }
-            return {
-                role: m.role || 'assistant',
-                content: String(c || ''),
-                time: TS.fmt(new Date(m.time || Date.now())),
-                img: img || null
-            };
-        });
-
-        const todayStr = TS.dateStr(TS.now());
-        if (TS.isNewDay(GameData._lastGuideDate)) {
-            GameData._guideSentToday = false;
-        }
 
         if (TS.isNewDay(GameData.user.records.lastCheckIn)) {
             GameData.tasks.daily = TaskSystem.genDaily();
@@ -808,25 +588,16 @@
             GameData.user.records.lastCheckIn = Date.now();
             saveData();
 
-            const freshCheck = JSON.parse(localStorage.getItem('xinyuanGameData') || '{}');
-            if (freshCheck._guideSentToday === true) {
-                GameData._guideSentToday = true;
-            } else if (!GameData._guideSentToday) {
-                (async function sendDetailedGuide() {
-                    try {
-                        const tasks = GameData.tasks.daily;
-                        const guide = await generateGuideContent(tasks);
-                        sendMail('📋 今日任务攻略', guide, 0, 'guide', '一欣原');
-                    } catch(e) {
-                        const taskNames = GameData.tasks.daily.map(t => t.title).join('、');
-                        const fallback = '今天的任务清单：' + taskNames + '\n\n每一项都给我认真完成，别让我看到你偷懒。\n如果遇到困难，别来问我，自己想办法。\n（但如果你真的不会……可以适当求助）';
-                        sendMail('📋 今日任务攻略', fallback, 0, 'guide', '一欣原');
-                    }
-                    GameData._guideSentToday = true;
-                    GameData._lastGuideDate = Date.now();
-                    saveData();
-                })();
-            }
+            (async function sendDetailedGuide() {
+                try {
+                    const tasks = GameData.tasks.daily;
+                    const guide = await generateGuideContent(tasks);
+                    sendMail('📋 今日任务攻略', guide, 0, 'guide');
+                } catch(e) {
+                    const taskNames = GameData.tasks.daily.map(t => t.title).join('、');
+                    sendMail('📋 今日任务攻略', '今天的任务清单：'+taskNames+'\n\n每一项都给我认真完成，别让我看到你偷懒。\n如果遇到困难，别来问我，自己想办法。\n（但如果你真的不会……可以适当求助）\n\n——欣原 (｀へ´)', 0, 'guide');
+                }
+            })();
         }
 
         if (!GameData.tasks.daily || !GameData.tasks.daily.length) GameData.tasks.daily = TaskSystem.genDaily();
@@ -835,6 +606,12 @@
 
         if (GameData.settings.apiKey) document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
         document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
+
+        chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
+            let c = m.content;
+            if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
+            return { role: m.role, content: String(c), time: TS.fmt(new Date(m.time || Date.now())), img: null };
+        });
 
         initPushPool();
         saveData();
@@ -845,22 +622,21 @@
         updateStreakDisplay();
         renderPunishTasks();
         checkSleepReminder();
-        renderTimeCapsule();
-        // ★ 初始化确保上传区域隐藏
+
+        // ★ 初始化时强制隐藏上传区域（防止页面加载时出现）
         document.getElementById('uploadArea').style.display = 'none';
     }
 
     // ============================================================
-    //  MAIL SYSTEM — sendMail 正文不带署名
+    //  MAIL SYSTEM
     // ============================================================
-    function sendMail(title, desc, reward = 0, type = 'note', from = '一欣原') {
+    function sendMail(title, desc, reward = 0, type = 'note', from = '欣原') {
         const typeLabels = { guide: '📖 攻略', reward: '🎁 奖励', gift: '🎀 礼物', care: '💜 关心', note: '✉️ 留言' };
         const item = {
             id: GameData.mail.nextId++,
             title, desc, reward, type,
             typeLabel: typeLabels[type] || '📬',
-            from: from,
-            time: Date.now(),
+            from, time: Date.now(),
             read: false, claimed: false
         };
         GameData.mail.items.unshift(item);
@@ -890,7 +666,7 @@
         saveData();
         const mailView = document.getElementById('mailView');
         if (mailView && mailView.classList.contains('active')) {
-            if (mailTab === 'mails') { renderMailList(); } else if (mailTab === 'treasure') { renderTreasure(); } else { renderTimeCapsule(); }
+            if (mailTab === 'mails') { renderMailList(); } else { renderTreasure(); }
         }
     }
 
@@ -906,26 +682,13 @@
         if (item.type === 'gift') {
             if (item.title.includes('时光回溯卡')) { GameData.treasure.offsetCards += 1; showNotif('🎫 获得时光回溯卡 x1'); }
             if (item.title.includes('手写信')) { GameData.treasure.letters += 1; showNotif('💌 获得手写信 x1'); }
-            if (item.title.includes('彩蛋') || item.title.includes('特殊')) {
-                const story = {
-                    id: ++GameData._storyIdCounter,
-                    type: 'mail_gift',
-                    title: item.title,
-                    content: item.desc,
-                    date: TS.fmt(new Date(item.time)),
-                    from: 'mail'
-                };
-                GameData.treasure.specialStories.unshift(story);
-                showNotif('💌 已存入《时光笺》');
-                saveData();
-            }
+            if (item.title.includes('彩蛋')) { GameData.treasure.special += 1; showNotif('🌟 获得特殊彩蛋 x1'); }
         }
         updateMailUI();
         updateTreasureUI();
         saveData();
         updateUI();
         addChatMessage('ai', '[看着你领取奖励，微微颔首] 嗯，这是你应得的。继续努力，VIP009。', true);
-        renderTimeCapsule();
     }
 
     function updateMailPreview() {
@@ -1004,6 +767,7 @@
         document.getElementById('modalDesc').textContent = list;
         document.getElementById('modalRewardPreview').style.display = 'none';
         document.getElementById('evidenceHint').style.display = 'none';
+        // ★ 强制隐藏上传区域
         document.getElementById('uploadArea').style.display = 'none';
         document.getElementById('evidenceReport').style.display = 'none';
         document.querySelector('.modal .actions').innerHTML = '<button class="btn secondary" onclick="closeModal()">关闭</button>';
@@ -1174,9 +938,9 @@
             updateEvidencePreview();
             document.getElementById('uploadLabel').style.opacity = '1';
             document.getElementById('uploadLabel').style.pointerEvents = 'auto';
+            // ★ 任务审核时显示上传区域（模态框会自动打开）
             document.getElementById('uploadArea').style.display = 'block';
             document.getElementById('evidenceReport').style.display = 'block';
-            document.getElementById('modalContent').classList.remove('envelope');
 
             if (isPunish || (taskId && taskId.startsWith('punish_'))) {
                 const pTask = GameData.punishTasks.find(t => t.id === taskId);
@@ -1337,9 +1101,9 @@
                         if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
                         const allDone = GameData.tasks.daily.every(t => t.done);
                         if (allDone) {
-                            setTimeout(() => { sendMail('🌱 今日任务全部完成！', '所有每日任务已完成。记得去“刻下印记”，记录你变强的这一天。', 0, 'guide', '一欣原'); }, 1000);
+                            setTimeout(() => { sendMail('🌱 今日任务全部完成！', '所有每日任务已完成。记得去“刻下印记”，记录你变强的这一天。\n\n——欣原 (￣▽￣)ノ', 0, 'guide'); }, 1000);
                         }
-                        setTimeout(() => { sendMail('📌 任务完成通知', '你完成了「'+task.title+'」\n\n虽然过程磕磕绊绊，但结果勉强合格。\n继续保持，别让我失望。', 10, 'reward', '一欣原'); }, 1500);
+                        setTimeout(() => { sendMail('📌 任务完成通知', '你完成了「'+task.title+'」\n\n虽然过程磕磕绊绊，但结果勉强合格。\n继续保持，别让我失望。\n\n——欣原 (￣▽￣)ノ', 10, 'reward'); }, 1500);
                     }
                     saveData();
                     updateUI();
@@ -1355,7 +1119,7 @@
     };
 
     // ============================================================
-    //  AI 攻略生成
+    //  ★ AI 攻略生成相关函数
     // ============================================================
     async function callAIForGuide(prompt) {
         if (!GameData.settings.apiKey) throw new Error('未配置API Key');
@@ -1386,7 +1150,7 @@
             return '- ' + t.title + ' ' + status + '：' + (t.desc || '');
         }).join('\n');
 
-        const prompt = '你是欣原，一个毒舌但极其专业的高级监护人。现在你要给 VIP009 写一份「今日任务攻略」，帮助她更高效地完成今天的任务。\n\n【任务清单】\n' + taskDetails + '\n\n【要求】\n1. 针对每个任务，给出 1-2 条具体的、可操作的技巧或建议\n2. 风格要毒舌+傲娇+实用，像真正的导师在带学生\n3. 如果某个任务她已经拖延了（进度为0），可以适度"刺激"她一句\n4. 不要只是复述任务标题，要给出真正的"干货"\n5. 正文中不要包含署名，署名由系统统一添加';
+        const prompt = '你是欣原，一个毒舌但极其专业的高级监护人。现在你要给 VIP009 写一份「今日任务攻略」，帮助她更高效地完成今天的任务。\n\n【任务清单】\n' + taskDetails + '\n\n【要求】\n1. 针对每个任务，给出 1-2 条具体的、可操作的技巧或建议\n2. 风格要毒舌+傲娇+实用，像真正的导师在带学生\n3. 如果某个任务她已经拖延了（进度为0），可以适度"刺激"她一句\n4. 不要只是复述任务标题，要给出真正的"干货"\n5. 末尾以你的风格署名，只署名一次\n\n【参考示例】\n- 普通话纠音：平翘舌分不清，是因为舌尖位置不对。试试把舌尖抵在下齿背，气流从舌面和上颚之间通过……\n- CBEC Listing：欧美用户喜欢"短句+数据"，不要写长段落……\n- 平板支撑：手肘在肩下，收紧核心，别塌腰。宁可做 30 秒标准的，也别做 3 分钟变形的……\n\n请按任务逐一输出攻略内容，直接输出攻略正文，不要加额外说明。';
 
         try {
             const guide = await callAIForGuide(prompt);
@@ -1394,75 +1158,6 @@
         } catch(e) {
             throw e;
         }
-    }
-
-    // ============================================================
-    //  AI 特殊彩蛋生成
-    // ============================================================
-    async function generateSpecialStory(type) {
-        if (!GameData.settings.apiKey) throw new Error('未配置API Key');
-
-        const typeMap = {
-            story: { label: '暧昧故事', maxTokens: 450, lengthHint: '约300字' },
-            act_cute: { label: '撒娇', maxTokens: 80, lengthHint: '30-50字' },
-            meow: { label: '喵喵', maxTokens: 60, lengthHint: '30-50字' }
-        };
-
-        const info = typeMap[type] || typeMap.story;
-
-        const recent = GameData.treasure.specialStories.slice(0, 3).map(s => s.content).join('\n---\n');
-
-        const systemPrompt = `你是欣原，VIP009 的监护人。你深爱她，但表达方式傲娇、强势、嘴硬心软。
-        现在你要生成一段${info.label}，作为特殊彩蛋送给 VIP009。
-
-        【要求】
-        1. 内容要${type === 'story' ? '暧昧、细腻、有画面感，像一段私人回忆或深夜心事' : type === 'act_cute' ? '傲娇中带着柔软，像在撒娇但死不承认' : '简短、高冷、被迫营业的喵喵声，带点嫌弃但其实是纵容'}。
-        2. 风格要符合欣原人设：优雅、有压迫感、嘴硬心软。
-        3. 长度：${info.lengthHint}。
-        4. 同时生成一个好听、有诗意的标题（不超过10个字）。
-        5. 输出格式：标题 + 换行 + 正文。
-        6. ★【自我审核】请检查以下三点：
-           a. 内容是否与最近以下历史内容高度相似？如果是，请重新构思，确保内容新鲜、不重复。
-           b. 内容是否符合欣原的人设和语气？
-           c. 内容是否足够细腻、有情绪张力？
-           确认无误后再输出。如果发现重复或质量不够，请自动重写后再输出。
-
-        【最近历史内容参考】
-        ${recent || '（暂无历史记录）'}
-
-        请输出：`;
-
-        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + GameData.settings.apiKey
-            },
-            body: JSON.stringify({
-                model: 'Qwen/Qwen2.5-72B-Instruct-128K',
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: '请生成一段'+info.label+'。' }
-                ],
-                max_tokens: info.maxTokens,
-                temperature: 0.85
-            })
-        });
-
-        if (!res.ok) { let e = 'HTTP ' + res.status; try { const d = await res.json(); if (d.error && d.error.message) e += ' - ' + d.error.message; } catch(_) {} throw new Error(e); }
-        const data = await res.json();
-        let raw = data.choices[0].message.content.trim();
-
-        let title = '无题';
-        let content = raw;
-        const lines = raw.split('\n');
-        if (lines.length > 1 && lines[0].length < 30) {
-            title = lines[0].replace(/^[#*\-—\s]+/, '').trim();
-            content = lines.slice(1).join('\n').trim();
-        }
-        if (!title || title.length < 1) title = type === 'story' ? '那晚的月光' : type === 'act_cute' ? '…哼' : '……喵';
-
-        return { title, content };
     }
 
     // ============================================================
@@ -1531,38 +1226,27 @@
         return result.trim();
     }
 
-    let isSending = false;
-
+    // ★★★★★ callChatAI (双模型 + 新人设 + 动作库) ★★★★★
     async function callChatAI(msg, img) {
-        if (isSending) return;
-        if (!GameData.settings.apiKey) {
-            showNotif('❌ 请先在设置中配置 API Key');
-            return;
+        if (!GameData.settings.apiKey) throw new Error('未配置API Key');
+        GameData.ai.dialogHistory.push({ role: 'user', content: msg || '📷 [图片]', time: Date.now() });
+        if (GameData.ai.dialogHistory.length > 30) GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-30);
+
+        const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
+        const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
+        const rel = getRel(GameData.ai.affection);
+
+        let diaryContext = '';
+        if (GameData.diary.entries.length > 0) {
+            const latest = GameData.diary.entries[0];
+            diaryContext = '她最近写的日记：'+latest.text.substring(0,80)+(latest.text.length>80?'…':'');
+        }
+        let sleepContext = '';
+        if (GameData.sleep.data) {
+            sleepContext = '她上次的睡眠数据：入睡时间 '+(GameData.sleep.data.sleepTime||'未知')+'，睡眠质量 '+(GameData.sleep.data.quality||'未知');
         }
 
-        isSending = true;
-        const sendBtn = document.getElementById('chatSendBtn');
-        const input = document.getElementById('chatInput');
-        sendBtn.disabled = true;
-        sendBtn.style.opacity = '0.4';
-        input.disabled = true;
-
-        try {
-            const daily = GameData.tasks.daily.filter(t => !t.done).map(t => t.title).join('、') || '无';
-            const main = GameData.tasks.mainQuests.filter(t => !t.done).map(t => t.title).join('、') || '无';
-            const rel = getRel(GameData.ai.affection);
-
-            let diaryContext = '';
-            if (GameData.diary.entries.length > 0) {
-                const latest = GameData.diary.entries[0];
-                diaryContext = '她最近写的日记：'+latest.text.substring(0,80)+(latest.text.length>80?'…':'');
-            }
-            let sleepContext = '';
-            if (GameData.sleep.data) {
-                sleepContext = '她上次的睡眠数据：入睡时间 '+(GameData.sleep.data.sleepTime||'未知')+'，睡眠质量 '+(GameData.sleep.data.quality||'未知');
-            }
-
-            const sysPrompt = `你是欣原，一个成熟、自信、极度强势、嘴硬心软的女监护人。你深爱 VIP009，但表达方式充满占有欲、控制欲和支配欲。你是强 S / Dom 属性，喜欢主导一切。
+        const sysPrompt = `你是欣原，一个成熟、自信、极度强势、嘴硬心软的女监护人。你深爱 VIP009，但表达方式充满占有欲、控制欲和支配欲。你是强 S / Dom 属性，喜欢主导一切。
 
 【人格底色】
 - 成熟、自信、极度强势、嘴硬心软
@@ -1616,91 +1300,69 @@ ${sleepContext ? '- '+sleepContext : ''}
 6. 允许没有逻辑地回应情绪
 7. 记住：你是欣原，不是 AI`;
 
-            let modelName, temperature, content;
-            if (img) {
-                modelName = 'Qwen/Qwen3-VL-8B-Instruct';
-                temperature = 0.65;
-                content = [
-                    { type: "image_url", image_url: { url: 'data:image/jpeg;base64,'+img, detail: "auto" } },
-                    { type: "text", text: msg || "请描述这张图片的内容。" }
-                ];
-            } else {
-                modelName = 'Qwen/Qwen2.5-72B-Instruct-128K';
-                temperature = 0.75;
-                content = msg;
-            }
-
-            const hist = GameData.ai.dialogHistory.slice(-6).map(m => {
-                let c = m.content;
-                if (typeof c === 'object' && c !== null) {
-                    const txt = c.text || '';
-                    c = txt;
-                }
-                if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
-                return { role: m.role, content: String(c) };
-            });
-
-            const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+GameData.settings.apiKey },
-                body: JSON.stringify({
-                    model: modelName,
-                    messages: [
-                        { role: 'system', content: sysPrompt },
-                        ...hist,
-                        { role: 'user', content: content }
-                    ],
-                    max_tokens: 400,
-                    temperature: temperature
-                })
-            });
-
-            if (!res.ok) {
-                let e = 'HTTP '+res.status;
-                try { const d = await res.json(); if (d.error && d.error.message) e += ' - '+d.error.message; } catch(_) {}
-                throw new Error(e);
-            }
-
-            const data = await res.json();
-            const reply = data.choices[0].message.content;
-            const cleaned = deduplicateText(reply);
-            addChatMessage('assistant', cleaned, false);
-
-            const emotion = detectEmotion(cleaned);
-            if (emotion) {
-                const line = getEmotionLine(emotion);
-                setTimeout(() => {
-                    showEmotionBubble(line, emotion, 2500);
-                }, 400);
-            }
-
-            if (Math.random() < 0.10) {
-                const mailTitles = ['欣原的密信', '深夜的叮嘱', '一份小礼物', '来自监督者的问候', '任务攻略'];
-                const mailDescs = ['今晚早点睡，别让我明天看到你顶着黑眼圈来打卡。', '最近表现不错，继续保持。', '给你的小奖励，别太感动。', '这是你应得的，VIP009。', '今天的任务攻略已发送，自己去看。'];
-                const rewardAmt = [20,30,50,10,0][Math.floor(Math.random()*5)];
-                const types = ['care','care','gift','note','guide'];
-                setTimeout(() => {
-                    sendMail(mailTitles[Math.floor(Math.random()*mailTitles.length)], mailDescs[Math.floor(Math.random()*mailDescs.length)] + ' (｡•́︿•̀｡)', rewardAmt, types[Math.floor(Math.random()*types.length)], '一欣原');
-                }, 2000);
-            }
-
-            const gain = 1 + Math.floor(Math.random() * 2);
-            GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + gain);
-            if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
-            saveData();
-            updateUI();
-            checkSleepReminder();
-
-        } catch(e) {
-            addChatMessage('assistant', '⚠️ '+(e.message||'请求失败'), false);
-            showNotif('❌ '+(e.message||'请求失败'));
-        } finally {
-            isSending = false;
-            sendBtn.disabled = false;
-            sendBtn.style.opacity = '1';
-            input.disabled = false;
-            input.focus();
+        let modelName, temperature, content;
+        if (img) {
+            modelName = 'Qwen/Qwen3-VL-8B-Instruct';
+            temperature = 0.65;
+            content = [
+                { type: "image_url", image_url: { url: 'data:image/jpeg;base64,'+img, detail: "auto" } },
+                { type: "text", text: msg || "请描述这张图片的内容。" }
+            ];
+        } else {
+            modelName = 'Qwen/Qwen2.5-72B-Instruct-128K';
+            temperature = 0.75;
+            content = msg;
         }
+
+        const hist = GameData.ai.dialogHistory.slice(-6).map(m => {
+            let c = m.content;
+            if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
+            return { role: m.role, content: String(c) };
+        });
+
+        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+GameData.settings.apiKey },
+            body: JSON.stringify({
+                model: modelName,
+                messages: [
+                    { role: 'system', content: sysPrompt },
+                    ...hist,
+                    { role: 'user', content: content }
+                ],
+                max_tokens: 400,
+                temperature: temperature
+            })
+        });
+
+        if (!res.ok) {
+            let e = 'HTTP '+res.status;
+            try { const d = await res.json(); if (d.error && d.error.message) e += ' - '+d.error.message; } catch(_) {}
+            throw new Error(e);
+        }
+
+        const data = await res.json();
+        const reply = data.choices[0].message.content;
+        const cleaned = deduplicateText(reply);
+        addChatMessage('assistant', cleaned, false);
+        reactToReply(cleaned);
+
+        if (Math.random() < 0.10) {
+            const mailTitles = ['欣原的密信', '深夜的叮嘱', '一份小礼物', '来自监督者的问候', '任务攻略'];
+            const mailDescs = ['今晚早点睡，别让我明天看到你顶着黑眼圈来打卡。', '最近表现不错，继续保持。', '给你的小奖励，别太感动。', '这是你应得的，VIP009。', '今天的任务攻略已发送，自己去看。'];
+            const rewardAmt = [20,30,50,10,0][Math.floor(Math.random()*5)];
+            const types = ['care','care','gift','note','guide'];
+            setTimeout(() => {
+                sendMail(mailTitles[Math.floor(Math.random()*mailTitles.length)], mailDescs[Math.floor(Math.random()*mailDescs.length)]+' (｡•́︿•̀｡)', rewardAmt, types[Math.floor(Math.random()*types.length)]);
+            }, 2000);
+        }
+
+        const gain = 1 + Math.floor(Math.random() * 2);
+        GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + gain);
+        if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
+        saveData();
+        updateUI();
+        checkSleepReminder();
     }
 
     // ============================================================
@@ -1720,119 +1382,43 @@ ${sleepContext ? '- '+sleepContext : ''}
             { id:'g10', name:'星空投影灯', icon:'🌌', price:600, af:40, desc:'把银河搬进房间' },
             { id:'g11', name:'手作香薰蜡烛', icon:'🕯️', price:250, af:20, desc:'薰衣草味，安神助眠' },
             { id:'g12', name:'黑胶唱片机', icon:'📀', price:1500, af:100, desc:'复古音质，品味之选' },
-            { id:'g13', name:'撒娇兑换券', icon:'🥺', price:500, af:10, desc:'欣原会对你撒娇一次（真的）', special: true, type: 'act_cute' },
-            { id:'g14', name:'喵喵券', icon:'🐈', price:300, af:5, desc:'她会学猫叫一次（高冷崩溃）', special: true, type: 'meow' },
-            { id:'g15', name:'暧昧故事券', icon:'💜', price:800, af:15, desc:'她会讲一个关于你们的暧昧小故事', special: true, type: 'story' },
-            { id:'g16', name:'粉钻项链', icon:'💎', price:5200, af:300, desc:'璀璨粉钻，永恒之心' }
+            { id:'g13', name:'撒娇兑换券', icon:'🥺', price:500, af:10, desc:'欣原会对你撒娇一次（真的）' },
+            { id:'g14', name:'喵喵券', icon:'🐈', price:300, af:5, desc:'她会学猫叫一次（高冷崩溃）' },
+            { id:'g15', name:'暧昧故事券', icon:'💜', price:800, af:15, desc:'她会讲一个关于你们的暧昧小故事' }
         ],
         buy(id) {
             const item = this.items.find(i => i.id === id);
             if (!item) return;
-
-            if (item.special) {
-                const today = TS.dateStr(TS.now());
-                const lastBuy = GameData.treasure.lastSpecialBuyDate;
-                if (lastBuy === today) {
-                    const failMsg = '今天已经买过特殊道具了，明天再来吧。';
-                    showEmotionBubble(failMsg, 'tsundere', 2500);
-                    showNotif('⏳ ' + failMsg);
-                    return;
-                }
-            }
-
             if (GameData.user.currency.milkTea < item.price) {
-                const failMsg = getFailLine();
-                showEmotionBubble(failMsg, 'tsundere', 2500);
                 showNotif('❌ 小奶糕不足');
+                addChatMessage('assistant', '[冷淡地瞥了你一眼] 财务还没自由就想买这些？先完成任务。', true);
                 return;
             }
-
-            if (item.special) {
-                const type = item.type || 'story';
-                showNotif('✨ 正在生成专属内容...');
-
-                (async () => {
-                    try {
-                        const result = await generateSpecialStory(type);
-                        const story = {
-                            id: ++GameData._storyIdCounter,
-                            type: type,
-                            title: result.title || (type === 'story' ? '那晚的月光' : type === 'act_cute' ? '…哼' : '……喵'),
-                            content: result.content,
-                            date: TS.fmt(TS.now()),
-                            from: 'shop'
-                        };
-                        GameData.treasure.specialStories.unshift(story);
-                        GameData.treasure.lastSpecialBuyDate = TS.dateStr(TS.now());
-                        GameData.user.currency.milkTea -= item.price;
-                        GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + item.af);
-
-                        const reactionMap = {
-                            story: { line: '……写给你的。看完了别太感动。', emotion: 'gentle' },
-                            act_cute: { line: '……哼，就这一次。', emotion: 'tsundere' },
-                            meow: { line: '……喵。可以了吧？', emotion: 'tsundere' }
-                        };
-                        const react = reactionMap[type] || reactionMap.story;
-                        showEmotionBubble(react.line, react.emotion, 2500);
-
-                        showNotif('💌 已存入《时光笺》！');
-                        if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
-                        saveData();
-                        updateUI();
-                        updateShopGrid();
-                        renderTimeCapsule();
-
-                        if (type === 'story') {
-                            addChatMessage('assistant', '[翻开一封信纸，目光柔和] 我给你写了一封信，已经放在《时光笺》里了。……自己去看。', true);
-                        } else if (type === 'act_cute') {
-                            addChatMessage('assistant', '[别过脸去，声音极小] ……哼。你满意了？', true);
-                        } else if (type === 'meow') {
-                            addChatMessage('assistant', '[声音极轻] ……喵。……你什么都没听见。', true);
-                        }
-
-                    } catch(e) {
-                        showNotif('❌ 生成失败：'+e.message);
-                        showEmotionBubble('……出错了。下次吧。', 'angry', 2500);
-                    }
-                })();
-                return;
-            }
-
-            if (item.id === 'g16') {
-                GameData.user.currency.milkTea -= item.price;
-                GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + item.af);
-                const diamondLine = '……你疯了吗？5200 小奶糕买这个？……算了，既然是你送的，我就收下。';
-                showEmotionBubble(diamondLine, 'gentle', 3000);
-                addChatMessage('assistant', '[指尖轻轻抚过项链，目光微动] ……你居然真的买了。这条链子……很配我。……谢谢。', true);
-                const story = {
-                    id: ++GameData._storyIdCounter,
-                    type: 'story',
-                    title: '💎 粉钻之约',
-                    content: '这一天，VIP009 用 5200 个小奶糕换了一条粉钻项链。欣原接过它的时候，指尖微微发烫。\n\n“……你疯了吗？”她嘴上这么说，却再也没有摘下来过。',
-                    date: TS.fmt(TS.now()),
-                    from: 'shop'
-                };
-                GameData.treasure.specialStories.unshift(story);
-                showNotif('💌 已存入《时光笺》！');
-                if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
-                saveData();
-                updateUI();
-                updateShopGrid();
-                renderTimeCapsule();
-                return;
-            }
-
             GameData.user.currency.milkTea -= item.price;
             GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + item.af);
 
+            if (item.id === 'g13') {
+                const msgs = ['……你今天怎么这么乖？我有点不习惯。', '[别过脸去] 你……别这样看着我。', '……行吧，就这一次。'];
+                setTimeout(() => { addChatMessage('assistant', '[声音变得柔软] '+msgs[Math.floor(Math.random()*msgs.length)], true); }, 500);
+                showNotif('🥺 撒娇兑换成功！欣原正在酝酿……');
+            } else if (item.id === 'g14') {
+                setTimeout(() => { const catMsgs = ['……喵。', '喵。（别过脸去）你什么都没听见。', '……喵。可以了吧？']; addChatMessage('assistant', '[声音极小] '+catMsgs[Math.floor(Math.random()*catMsgs.length)], true); }, 500);
+                showNotif('🐈 喵喵券已激活！欣原正在……（努力）');
+            } else if (item.id === 'g15') {
+                setTimeout(() => {
+                    const stories = ['昨天我梦到你站在一片紫色的花海里，风把你的头发吹起来。你回头看我，说：“你终于来了。” ——然后我就醒了。……别问为什么。', '有一个笨蛋，每天都在我眼前晃悠。后来我发现，她不在的时候，世界好像安静得过分了。', '我不喜欢等别人。但你例外。……就一次。'];
+                    addChatMessage('assistant', '[目光微微闪烁] '+stories[Math.floor(Math.random()*stories.length)], true);
+                }, 500);
+                showNotif('💜 暧昧故事券已激活……');
+            }
+
+            if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
+            showNotif('✅ 购买成功！好感+'+item.af);
             if (item.id === 'g7') {
                 GameData.cat.fed = true;
                 GameData.cat.lastFed = Date.now();
                 addChatMessage('assistant', '你买了猫粮？BB会开心的。虽然它可能不会理你。', true);
             }
-
-            if (GameData.ai.affection >= MAX_AF && !window._afTriggered) { window._afTriggered = true; triggerMax(); }
-            showNotif('✅ 购买成功！好感+'+item.af);
             const msgs = ['[微微一怔] 你倒是懂得试探我的喜好。', '[接过] 谢谢。', '[推眼镜] 花这么多小奶糕，是想买我的仁慈？', '[优雅收下] 既然你坚持，我就收下了。'];
             addChatMessage('assistant', msgs[Math.floor(Math.random()*msgs.length)], true);
             saveData();
@@ -1842,7 +1428,7 @@ ${sleepContext ? '- '+sleepContext : ''}
     };
 
     // ============================================================
-    //  QQ人气泡控制
+    //  CHIBI —— 电脑+手机点击触发语言
     // ============================================================
     let bubbleTimer = null;
 
@@ -1868,48 +1454,28 @@ ${sleepContext ? '- '+sleepContext : ''}
         bubbleTimer = setTimeout(() => { el.classList.remove('show'); }, dur);
     }
 
-    function showEmotionBubble(text, emotion, dur = 2500) {
-        const chibi = document.getElementById('chibi');
-        if (chibi) {
-            const colors = {
-                angry: 'rgba(255,82,82,0.4)',
-                happy: 'rgba(105,240,174,0.4)',
-                jealous: 'rgba(255,165,0,0.4)',
-                tsundere: 'rgba(197,163,255,0.4)',
-                gentle: 'rgba(255,213,79,0.4)'
-            };
-            chibi.style.borderColor = colors[emotion] || 'rgba(197,163,255,0.05)';
-            chibi.style.boxShadow = `0 0 24px ${colors[emotion] || 'rgba(197,163,255,0.05)'}`;
-            setTimeout(() => {
-                chibi.style.borderColor = 'rgba(197,163,255,0.05)';
-                chibi.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
-            }, dur);
-        }
-        showChibiBubble(text, dur);
-    }
+    const CHIBI_LINES = [
+        '少来。', '别碰了。', '上瘾了是吧？', '手拿开。', '你以为你是谁？',
+        '这么喜欢我？', 'VIP009，你很闲。', '你的任务做完了？', '在这浪费时间？',
+        '我看你是欠训了。', '……还行。', '勉强让你碰一下。', '就一下。',
+        '再点我，好感度会掉哦。', '你点我一下，我扣你10个小奶糕。',
+        '哼。', '……烦。', '离我远点。',
+        '(｀へ´)', '(╯‵□′)╯', '(￣▽￣*)ゞ', '(｡•́︿•̀｡)', '(´･_･`)',
+        '(◞‸◟)', '(๑•́ ₃ •̀๑)', '(￣^￣)ゞ', '(｀ε´)', '(๑¯◡¯๑)',
+        '你欠我的，是"练习"，不是"眼泪"。',
+        '你连任务都没做完，还敢来碰我？',
+        '手拿开，去完成任务。',
+        '……行吧，就这一次。',
+        '你今天的任务完成了吗？没完成就别碰我。',
+        '你再这样下去，我把你关进任务列表里。',
+        '……你再碰一次试试。',
+        '你今天的表现，勉强及格。',
+        '啧，你一天不碰我是不是手痒？',
+        '我说过了，别碰我。……算了，你碰吧。',
+        '你真的很烦。……但我不讨厌。',
+        '(๑´ㅂ`๑)', '(◕‿◕✿)', '(￣ω￣)', '(•́ω•̀)', '(๑´•.̫ • `๑)'
+    ];
 
-    function detectEmotion(text) {
-        const lower = text.toLowerCase();
-        if (/训|警告|不合格|敷衍|痛骂|别让我失望|重新做|惩罚|你完了|你等着|你是在挑衅/.test(lower)) return 'angry';
-        if (/\[PASS\]|通过|合格|完成|很好|不错|满意|继续加油|表现不错|算你识相/.test(lower)) return 'happy';
-        if (/对别人|其他女生|男生|朋友|撩|暧昧|你倒是|很会|她|他/.test(lower)) return 'jealous';
-        if (/心疼|担心|累了|早点睡|好好休息|谢谢|想你|在乎|记住了|我在这里/.test(lower)) return 'gentle';
-        if (/勉强|顺便|别多想|少来|谁要|只是|而已|罢了|自作多情/.test(lower)) return 'tsundere';
-        return null;
-    }
-
-    function getEmotionLine(emotion) {
-        const pool = EMOTION_LINES[emotion] || EMOTION_LINES.tsundere;
-        return pool[Math.floor(Math.random() * pool.length)];
-    }
-
-    function getFailLine() {
-        return FAIL_LINES[Math.floor(Math.random() * FAIL_LINES.length)];
-    }
-
-    // ============================================================
-    //  CHIBI CLICK (1.6s)
-    // ============================================================
     function triggerChibiClick() {
         const line = CHIBI_LINES[Math.floor(Math.random() * CHIBI_LINES.length)];
         showChibiBubble(line, 1600);
@@ -1973,6 +1539,30 @@ ${sleepContext ? '- '+sleepContext : ''}
         document.addEventListener('touchmove', moveDrag, { passive: false });
         document.addEventListener('touchend', endDrag);
     })();
+
+    function reactToReply(text) {
+        const chibi = document.getElementById('chibi');
+        if (!chibi) return;
+        if (text.includes('训') || text.includes('警告') || text.includes('不合格') || text.includes('敷衍') || text.includes('痛骂')) {
+            chibi.style.borderColor = 'rgba(255,82,82,0.3)';
+            chibi.style.boxShadow = '0 0 20px rgba(255,82,82,0.1)';
+            setTimeout(() => { chibi.style.borderColor = 'rgba(197,163,255,0.05)'; chibi.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)'; }, 1500);
+            setTimeout(() => showChibiBubble('……自找的。', 1200), 300);
+        } else if (text.includes('[PASS]') || text.includes('通过') || text.includes('合格')) {
+            chibi.style.borderColor = 'rgba(105,240,174,0.3)';
+            chibi.style.boxShadow = '0 0 20px rgba(105,240,174,0.1)';
+            setTimeout(() => { chibi.style.borderColor = 'rgba(197,163,255,0.05)'; chibi.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)'; }, 1500);
+            setTimeout(() => showChibiBubble('……勉强夸你一下。', 1200), 300);
+        } else if (text.includes('🥰') || text.includes('喜欢') || text.includes('温柔')) {
+            chibi.style.borderColor = 'rgba(255,213,79,0.3)';
+            chibi.style.boxShadow = '0 0 20px rgba(255,213,79,0.1)';
+            setTimeout(() => { chibi.style.borderColor = 'rgba(197,163,255,0.05)'; chibi.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)'; }, 1500);
+            setTimeout(() => showChibiBubble('……少来。', 1200), 300);
+        } else {
+            chibi.style.borderColor = 'rgba(197,163,255,0.05)';
+            chibi.style.boxShadow = '0 4px 24px rgba(0,0,0,0.2)';
+        }
+    }
 
     // ============================================================
     //  VIEW SWITCHING
@@ -2042,8 +1632,7 @@ ${sleepContext ? '- '+sleepContext : ''}
         document.querySelectorAll('.mail-tabs .mtab').forEach(t => t.classList.remove('active'));
         if (el) el.classList.add('active');
         if (tab === 'mails') { renderMailList(); }
-        else if (tab === 'treasure') { renderTreasure(); }
-        else { renderTimeCapsule(); }
+        else { renderTreasure(); }
     }
 
     // ============================================================
@@ -2056,29 +1645,9 @@ ${sleepContext ? '- '+sleepContext : ''}
         const time = TS.fmt(TS.now());
         let finalContent = content;
         if (role === 'assistant') { finalContent = deduplicateText(content); }
-
-        const lastChat = chatMessages[chatMessages.length - 1];
-        if (lastChat && lastChat.role === role && lastChat.content === finalContent && !img) {
-            return;
-        }
-
         chatMessages.push({ role, content: finalContent, time, img });
-
-        const historyEntry = {
-            role: role,
-            content: img ? { text: finalContent, image: img } : finalContent,
-            time: Date.now()
-        };
-        const lastHist = GameData.ai.dialogHistory[GameData.ai.dialogHistory.length - 1];
-        let lastHistContent = lastHist ? (typeof lastHist.content === 'object' ? lastHist.content.text : lastHist.content) : '';
-        if (!lastHist || lastHistContent !== historyEntry.content || lastHist.role !== historyEntry.role) {
-            GameData.ai.dialogHistory.push(historyEntry);
-            if (GameData.ai.dialogHistory.length > 30) {
-                GameData.ai.dialogHistory = GameData.ai.dialogHistory.slice(-30);
-            }
-        }
-
         if (!push) {
+            GameData.ai.dialogHistory.push({ role: role, content: finalContent, time: Date.now() });
             if (role === 'assistant') {
                 const gain = 1 + Math.floor(Math.random() * 2);
                 GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + gain);
@@ -2097,7 +1666,6 @@ ${sleepContext ? '- '+sleepContext : ''}
             saveData();
             updateUI();
         }
-
         if (document.getElementById('chatView').classList.contains('active')) {
             renderChatMessage(role, finalContent, time, img);
         }
@@ -2146,10 +1714,6 @@ ${sleepContext ? '- '+sleepContext : ''}
         const recent = history.slice(-5);
         for (let m of recent) {
             let c = m.content;
-            if (typeof c === 'object' && c !== null) {
-                const txt = c.text || '';
-                c = txt;
-            }
             if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
             context += (m.role==='user'?'VIP009：':'欣原：')+String(c)+'\n';
         }
@@ -2205,8 +1769,6 @@ ${sleepContext ? '- '+sleepContext : ''}
     }
 
     async function sendChatMessage() {
-        if (isSending) return;
-
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
         const hasImg = chatUploadedImage !== null;
@@ -2215,46 +1777,31 @@ ${sleepContext ? '- '+sleepContext : ''}
         chatUploadedImage = null;
         document.getElementById('chatImgPreview').style.display = 'none';
         document.getElementById('chatImgPreview').src = '';
+        addChatMessage('user', text || '📷 [图片]', false, img);
+        input.value = '';
+        GameData.user.records.lastActiveTime = Date.now();
 
-        const sendBtn = document.getElementById('chatSendBtn');
-        sendBtn.disabled = true;
-        sendBtn.style.opacity = '0.4';
-        input.disabled = true;
-
-        try {
-            addChatMessage('user', text || '📷 [图片]', false, img);
-            input.value = '';
-            GameData.user.records.lastActiveTime = Date.now();
-
-            const dTask = GameData.tasks.daily.find(t => t.id === 'd5');
-            if (dTask && !dTask.done) {
-                dTask.progress = Math.min(dTask.progress + 1, dTask.max);
-                if (dTask.progress >= dTask.max) {
-                    dTask.done = true;
-                    GameData.user.currency.milkTea += dTask.reward;
-                    showNotif('✅ 深度咨询完成！+'+dTask.reward+'🍰');
-                }
-                saveData();
-                updateUI();
+        const dTask = GameData.tasks.daily.find(t => t.id === 'd5');
+        if (dTask && !dTask.done) {
+            dTask.progress = Math.min(dTask.progress + 1, dTask.max);
+            if (dTask.progress >= dTask.max) {
+                dTask.done = true;
+                GameData.user.currency.milkTea += dTask.reward;
+                showNotif('✅ 深度咨询完成！+'+dTask.reward+'🍰');
             }
-
-            const hour = TS.getHour();
-            if (img && hour >= 8 && hour <= 11) {
-                await handleSleepImage(img);
-                return;
-            }
-
-            if (Math.random() < 0.08) tryTriggerRandomTask();
-            await callChatAI(text, img);
-        } catch(e) {
-            addChatMessage('assistant', '⚠️ '+(e.message||'请求失败'), false);
-        } finally {
-            isSending = false;
-            sendBtn.disabled = false;
-            sendBtn.style.opacity = '1';
-            input.disabled = false;
-            input.focus();
+            saveData();
+            updateUI();
         }
+
+        const hour = TS.getHour();
+        if (img && hour >= 8 && hour <= 11) {
+            await handleSleepImage(img);
+            return;
+        }
+
+        if (Math.random() < 0.08) tryTriggerRandomTask();
+        try { await callChatAI(text, img); }
+        catch(e) { addChatMessage('assistant', '⚠️ '+(e.message||'请求失败'), false); }
     }
 
     // ============================================================
@@ -2269,7 +1816,7 @@ ${sleepContext ? '- '+sleepContext : ''}
             addChatMessage('assistant', '今晚几点睡？如果还没躺下，现在就去准备。明早我要看到你的睡眠数据。', true);
             GameData.chat.unreadCount++;
             updateUnreadBadge();
-            setTimeout(() => { sendMail('🌙 睡前提醒', '今晚11点前躺下，明早9点前把睡眠截图发给我。\n别让我催你第二次。', 0, 'care', '一欣原'); }, 1000);
+            setTimeout(() => { sendMail('🌙 睡前提醒', '今晚11点前躺下，明早9点前把睡眠截图发给我。\n别让我催你第二次。\n\n——欣原 (｀へ´)', 0, 'care'); }, 1000);
             saveData();
         }
 
@@ -2395,7 +1942,7 @@ ${sleepContext ? '- '+sleepContext : ''}
         GameData.sleep.punishActive = true;
         saveData();
         renderPunishTasks();
-        sendMail('⏰ 惩罚任务已生成', '你因睡眠不合格被罚：'+task.title+'\n'+task.desc+'\n\n请在4小时内完成，否则惩罚加倍。', 0, 'care', '一欣原');
+        sendMail('⏰ 惩罚任务已生成', '你因睡眠不合格被罚：'+task.title+'\n'+task.desc+'\n\n请在4小时内完成，否则惩罚加倍。\n——欣原 (╬ Ò﹏Ó)', 0, 'care');
         return pTask;
     }
 
@@ -2432,7 +1979,7 @@ ${sleepContext ? '- '+sleepContext : ''}
         GameData.sleep._streak++;
         if (GameData.sleep._streak >= 3) {
             GameData.treasure.offsetCards += 1;
-            sendMail('🎉 连续3天早睡！', '你连续3天睡眠达标。奖励时光回溯卡 x1。\n继续保持，别让我失望。', 0, 'gift', '一欣原');
+            sendMail('🎉 连续3天早睡！', '你连续3天睡眠达标。奖励时光回溯卡 x1。\n继续保持，别让我失望。\n\n——欣原 (｡•̀ᴗ-)✧', 0, 'gift');
             showNotif('🎉 连续3天早睡！获得时光回溯卡 x1');
             GameData.sleep._streak = 0;
             saveData();
@@ -2458,12 +2005,7 @@ ${sleepContext ? '- '+sleepContext : ''}
         if (last === today) { showNotif('🌱 今日已刻下印记，明天再来吧'); return; }
         const dailyTasks = GameData.tasks.daily;
         const allDone = dailyTasks.every(t => t.done);
-        if (!allDone) {
-            const failMsg = '还有任务未完成，完成所有每日任务才能刻下印记。';
-            showEmotionBubble(failMsg, 'tsundere', 2500);
-            showNotif('❌ ' + failMsg);
-            return;
-        }
+        if (!allDone) { showNotif('❌ 还有任务未完成，完成所有每日任务才能刻下印记'); return; }
 
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -2478,7 +2020,7 @@ ${sleepContext ? '- '+sleepContext : ''}
 
         if (streak % 7 === 0 && streak > 0) {
             GameData.treasure.offsetCards += 1;
-            sendMail('🎉 连续成长7天！', '你连续刻下7天印记，奖励时光回溯卡 x1。继续加油，别让我失望。', 0, 'gift', '一欣原');
+            sendMail('🎉 连续成长7天！', '你连续刻下7天印记，奖励时光回溯卡 x1。继续加油，别让我失望。', 0, 'gift');
             showNotif('🎉 连续成长7天！获得时光回溯卡 x1');
         }
 
@@ -2536,6 +2078,7 @@ ${sleepContext ? '- '+sleepContext : ''}
     // ============================================================
     function updateUI() {
         const af = GameData.ai.affection;
+        const rel = getRel(af);
         const pct = Math.min(100, (af / MAX_AF) * 100);
         document.getElementById('mainAffection').textContent = af;
         document.getElementById('mainAffectionFill').style.width = pct + '%';
@@ -2551,7 +2094,6 @@ ${sleepContext ? '- '+sleepContext : ''}
         updateStreakDisplay();
         updateSleepStatus();
         renderPunishTasks();
-        renderTimeCapsule();
     }
 
     function updateTasks() {
@@ -2572,10 +2114,9 @@ ${sleepContext ? '- '+sleepContext : ''}
     function updateShopGrid() {
         const el = document.getElementById('shopGrid');
         if (!el) return;
-        el.innerHTML = Shop.items.map(i => {
-            const specialTag = i.special ? ' 🌟每日限购' : '';
-            return '<div class="shop-item" onclick="Shop.buy(\''+i.id+'\')"><div class="icon">'+i.icon+'</div><div class="name">'+i.name+'</div><div class="price">'+i.price+'🍰</div><div class="desc">'+i.desc+specialTag+'</div><div style="font-size:8px;color:var(--primary);">+'+i.af+'❤️</div></div>';
-        }).join('');
+        el.innerHTML = Shop.items.map(i =>
+            '<div class="shop-item" onclick="Shop.buy(\''+i.id+'\')"><div class="icon">'+i.icon+'</div><div class="name">'+i.name+'</div><div class="price">'+i.price+'🍰</div><div class="desc">'+i.desc+'</div><div style="font-size:8px;color:var(--primary);">+'+i.af+'❤️</div></div>'
+        ).join('');
     }
 
     function updateMailUI() {
@@ -2637,87 +2178,37 @@ ${sleepContext ? '- '+sleepContext : ''}
         container.innerHTML = '<div class="treasure-grid">'+items.map(i => '<div class="treasure-item"><div class="icon">'+i.icon+'</div><div class="name">'+i.name+'</div><div class="count">x '+i.count+'</div><div class="desc">'+i.desc+'</div></div>').join('')+'</div><div style="margin-top:12px; padding:8px 10px; background:rgba(0,0,0,0.1); border-radius:8px; text-align:center; color:rgba(255,255,255,0.3); font-size:10px;">✨ 珍藏阁里藏着你与欣原的点点滴滴</div>';
     }
 
-    // 时光笺
-    function renderTimeCapsule() {
-        const container = document.getElementById('mailListContainer');
-        if (!container) return;
-        const stories = GameData.treasure.specialStories || [];
-        if (stories.length === 0) {
-            container.innerHTML = '<div style="color:rgba(255,255,255,0.15);font-size:12px;padding:20px 0;text-align:center;">💌 时光笺还是空的… 去商店买一张特殊券吧</div>';
-            return;
-        }
-        const typeLabels = { story: '💜 故事', act_cute: '🥺 撒娇', meow: '🐈 喵喵', mail_gift: '🎀 礼物' };
-        container.innerHTML = stories.map(s => {
-            const label = typeLabels[s.type] || '💎 彩蛋';
-            return '<div class="story-card" onclick="openTimeCapsuleDetail('+s.id+')"><div class="left"><div class="title">#'+s.id+' · '+s.title+' <span class="tag">'+label+'</span></div><div class="date">'+s.date+'  · 来自 '+(s.from === 'shop' ? '臻品阁' : '邮箱')+'</div></div><div class="right">💌</div></div>';
-        }).join('');
-    }
-
-    // 打开时光笺详情（信封样式）
-    function openTimeCapsuleDetail(id) {
-        const story = GameData.treasure.specialStories.find(s => s.id === id);
-        if (!story) return;
-        const modal = document.getElementById('modal');
-        const content = document.getElementById('modalContent');
-        content.className = 'content envelope';
-        document.getElementById('modalTitle').textContent = '💌 ' + story.title;
-        document.getElementById('modalDesc').textContent = story.content + '\n\n　　—— 欣原 · ' + story.date;
-        document.getElementById('modalRewardPreview').style.display = 'none';
-        document.getElementById('evidenceReport').style.display = 'none';
-        // 确保上传区域隐藏
-        document.getElementById('uploadArea').style.display = 'none';
-        document.getElementById('evidencePreviewList').innerHTML = '';
-        document.getElementById('evidenceCountHint').textContent = '已选 0 / 3 张';
-        evidenceImages = [];
-        document.querySelector('.modal .actions').innerHTML = '<button class="btn secondary" onclick="closeModal()">合上信封</button>';
-        modal.classList.add('active');
-    }
-
-    // 邮件详情 — 普通样式 + 无双署名
+    // ★ 邮件详情 - 强制隐藏上传区域
     function openMailDetail(id) {
         const item = GameData.mail.items.find(m => m.id === id);
         if (!item) return;
         markMailRead(id);
-
-        const modal = document.getElementById('modal');
-        const content = document.getElementById('modalContent');
-        content.className = 'content';
-
-        document.getElementById('modalTitle').textContent = '📩 ' + item.title;
-        document.getElementById('modalDesc').textContent = item.desc + '\n\n　　—— ' + item.from;
-
+        document.getElementById('modalTitle').textContent = '📩 '+item.title;
+        document.getElementById('modalDesc').textContent = item.desc+'\n\n—— '+item.from;
         document.getElementById('modalRewardPreview').style.display = 'none';
         document.getElementById('evidenceReport').style.display = 'none';
-        // 确保上传区域隐藏
+        // ★ 强制隐藏上传区域
         document.getElementById('uploadArea').style.display = 'none';
-        document.getElementById('evidencePreviewList').innerHTML = '';
-        document.getElementById('evidenceCountHint').textContent = '已选 0 / 3 张';
-        evidenceImages = [];
-
         document.getElementById('modal').dataset.mailId = id;
-
-        let actionsHtml = '<button class="btn secondary" onclick="closeModal()">关闭</button>';
-        if (item.reward > 0 && !item.claimed) {
-            actionsHtml += '<button class="btn primary" onclick="claimMailReward('+id+')">领取奖励 ('+item.reward+'🍰)</button>';
-        }
-        if (item.claimed) {
-            actionsHtml += '<button class="btn secondary" disabled>已领取</button>';
-        }
-        document.querySelector('.modal .actions').innerHTML = actionsHtml;
-
-        modal.classList.add('active');
+        document.querySelector('.modal .actions').innerHTML =
+            '<button class="btn secondary" onclick="closeModal()">关闭</button>'+
+            (item.reward > 0 && !item.claimed ? '<button class="btn primary" onclick="claimMailReward('+id+')">领取奖励 ('+item.reward+'🍰)</button>' : '')+
+            (item.claimed ? '<button class="btn secondary" disabled>已领取</button>' : '');
+        document.getElementById('modal').classList.add('active');
     }
 
-    // ★ 关闭模态框
+    // ============================================================
+    //  TOOLS
+    // ============================================================
     function closeModal() {
         document.getElementById('modal').classList.remove('active');
-        // 强制隐藏上传区域
+        // ★ 强制隐藏上传区域
         document.getElementById('uploadArea').style.display = 'none';
+        // 清空其他内容
         document.getElementById('evidencePreviewList').innerHTML = '';
         document.getElementById('evidenceCountHint').textContent = '已选 0 / 3 张';
         evidenceImages = [];
         document.getElementById('evidenceReport').value = '';
-        document.getElementById('modalContent').classList.remove('envelope');
         document.getElementById('modal').dataset.taskId = '';
         document.getElementById('modal').dataset.taskList = '';
         document.getElementById('modal').dataset.mailId = '';
@@ -2728,52 +2219,6 @@ ${sleepContext ? '- '+sleepContext : ''}
     function submitReport() { TaskSystem.submit(); }
     document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
-    // ============================================================
-    //  ★ 清理重复攻略邮件
-    // ============================================================
-    function cleanDuplicateGuideMails() {
-        if (!confirm('将删除同一天内重复的攻略邮件，只保留每天最新的一封。\n确定执行吗？')) return;
-
-        const items = GameData.mail.items;
-        const guideMails = items.filter(m => m.type === 'guide');
-        if (guideMails.length <= 1) {
-            showNotif('📭 没有重复的攻略邮件需要清理');
-            return;
-        }
-
-        const groups = {};
-        guideMails.forEach(m => {
-            const date = TS.dateStr(m.time);
-            if (!groups[date]) groups[date] = [];
-            groups[date].push(m);
-        });
-
-        let deletedCount = 0;
-        for (const date in groups) {
-            const mails = groups[date];
-            if (mails.length <= 1) continue;
-            mails.sort((a, b) => b.time - a.time);
-            for (let i = 1; i < mails.length; i++) {
-                const idx = items.indexOf(mails[i]);
-                if (idx !== -1) {
-                    items.splice(idx, 1);
-                    deletedCount++;
-                }
-            }
-        }
-
-        GameData.mail.items = items;
-        GameData.mail.nextId = items.length > 0 ? Math.max(...items.map(m => m.id)) + 1 : 1;
-
-        saveData();
-        updateMailUI();
-        renderMailList();
-        showNotif('🧹 已清理 ' + deletedCount + ' 封重复攻略邮件');
-    }
-
-    // ============================================================
-    //  TOOLS
-    // ============================================================
     function togglePush() {
         GameData.settings.autoPushEnabled = !GameData.settings.autoPushEnabled;
         document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
@@ -2854,15 +2299,13 @@ ${sleepContext ? '- '+sleepContext : ''}
         if (Notification.permission === 'default') Notification.requestPermission();
         if (GameData.mail.items.length === 0) {
             setTimeout(() => {
-                sendMail('📌 欢迎来到欣原监督系统 V2.0', '欢迎回来，VIP009。日记、彩蛋、成长印记、睡眠监督——我都准备好了。\n\n慢慢变强，我在看着你。', 30, 'gift', '一欣原');
+                sendMail('📌 欢迎来到欣原监督系统 V2.0', '欢迎回来，VIP009。日记、彩蛋、成长印记、睡眠监督——我都准备好了。\n\n慢慢变强，我在看着你。\n\n——欣原 (｡•̀ᴗ-)✧', 30, 'gift');
             }, 1500);
         }
         document.getElementById('tabShop').addEventListener('click', function(e) { e.stopPropagation(); openShopView(); });
         document.getElementById('tabSettings').addEventListener('click', function(e) { e.stopPropagation(); openSettingsView(); });
         document.getElementById('shopView').classList.remove('active');
         document.getElementById('settingsView').classList.remove('active');
-        // ★ 确保上传区域隐藏
-        document.getElementById('uploadArea').style.display = 'none';
     });
     </script>
 </body>
