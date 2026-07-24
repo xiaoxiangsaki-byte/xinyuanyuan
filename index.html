@@ -16,7 +16,7 @@
             background-attachment: fixed;
         }
 
-        /* ★ 隐藏所有滚动条（保留滚动功能） */
+        /* 隐藏滚动条 */
         ::-webkit-scrollbar { width: 0px; height: 0px; background: transparent; }
         * { scrollbar-width: none; -ms-overflow-style: none; }
 
@@ -68,7 +68,6 @@
         .checkin-section .left { display: flex; flex-direction: column; gap: 1px; }
         .checkin-section .left .label { font-size: 11px; color: rgba(255,255,255,0.3); }
         .checkin-section .left .streak { font-size: 13px; color: var(--gold); font-weight: 600; }
-        /* ★ 刻下印记按钮：星尘紫渐变 + 动态漂浮光点 */
         .checkin-section .btn-checkin {
             position: relative;
             padding: 4px 18px;
@@ -81,8 +80,8 @@
             letter-spacing: 0.5px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(156, 100, 255, 0.15);
-            border: 1px solid rgba(197, 163, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(156,100,255,0.15);
+            border: 1px solid rgba(197,163,255,0.2);
             overflow: visible;
         }
         .checkin-section .btn-checkin:active { transform: scale(0.95); }
@@ -92,41 +91,19 @@
             cursor: default;
             box-shadow: none;
         }
-        /* ★ 动态漂浮光点（星尘） */
         .checkin-section .btn-checkin .star-dust {
             position: absolute;
             border-radius: 50%;
-            background: rgba(197, 163, 255, 0.3);
-            box-shadow: 0 0 6px rgba(197, 163, 255, 0.2);
+            background: rgba(197,163,255,0.3);
+            box-shadow: 0 0 6px rgba(197,163,255,0.2);
             pointer-events: none;
             animation: floatDust 3s ease-in-out infinite alternate;
         }
-        .checkin-section .btn-checkin .star-dust:nth-child(1) {
-            width: 4px; height: 4px;
-            top: -6px; left: 10%;
-            animation-delay: 0s;
-        }
-        .checkin-section .btn-checkin .star-dust:nth-child(2) {
-            width: 3px; height: 3px;
-            bottom: -4px; right: 15%;
-            animation-delay: 1.2s;
-        }
-        .checkin-section .btn-checkin .star-dust:nth-child(3) {
-            width: 5px; height: 5px;
-            top: 50%; left: -8px;
-            animation-delay: 2.5s;
-            transform: translateY(-50%);
-        }
-        .checkin-section .btn-checkin .star-dust:nth-child(4) {
-            width: 3px; height: 3px;
-            top: 20%; right: -6px;
-            animation-delay: 0.6s;
-        }
-        @keyframes floatDust {
-            0% { transform: translate(0, 0) scale(1); opacity: 0.2; }
-            100% { transform: translate(6px, -8px) scale(1.2); opacity: 0.7; }
-        }
-
+        .checkin-section .btn-checkin .star-dust:nth-child(1) { width: 4px; height: 4px; top: -6px; left: 10%; animation-delay: 0s; }
+        .checkin-section .btn-checkin .star-dust:nth-child(2) { width: 3px; height: 3px; bottom: -4px; right: 15%; animation-delay: 1.2s; }
+        .checkin-section .btn-checkin .star-dust:nth-child(3) { width: 5px; height: 5px; top: 50%; left: -8px; animation-delay: 2.5s; transform: translateY(-50%); }
+        .checkin-section .btn-checkin .star-dust:nth-child(4) { width: 3px; height: 3px; top: 20%; right: -6px; animation-delay: 0.6s; }
+        @keyframes floatDust { 0% { transform: translate(0,0) scale(1); opacity: 0.2; } 100% { transform: translate(6px,-8px) scale(1.2); opacity: 0.7; } }
         .quick-entries { display: flex; gap: 6px; margin-bottom: 6px; }
         .quick-entries .entry { flex: 1; background: rgba(0,0,0,0.12); border-radius: 8px; padding: 6px 4px; text-align: center; border: 1px solid rgba(255,255,255,0.02); cursor: pointer; transition: 0.3s; -webkit-tap-highlight-color: transparent; font-size: 10px; color: rgba(255,255,255,0.3); }
         .quick-entries .entry:active { opacity: 0.6; }
@@ -292,7 +269,7 @@
             .treasure-grid { grid-template-columns: repeat(2, 1fr); }
             .modal .content .upload-area .preview-list .preview-item { width: 48px; height: 48px; }
             #diaryView .diary-area .diary-history { min-height: 60px; max-height: 150px; }
-            .checkin-section .btn-checkin .star-dust { display: none; } /* 手机端隐藏星尘，保持简洁 */
+            .checkin-section .btn-checkin .star-dust { display: none; }
         }
         @media (max-width: 380px) {
             #mainView { padding: 4px 6px 4px; }
@@ -600,43 +577,42 @@
             }
             GameData.user.records.lastCheckIn = Date.now();
             saveData();
+
             // ★ 攻略邮件升级：调用 AI 生成详细攻略
-// ★ 攻略邮件升级：调用 AI 生成详细攻略
-(async function sendDetailedGuide() {
-    try {
-        const tasks = GameData.tasks.daily;
-        const guide = await generateGuideContent(tasks);
-        sendMail('📋 今日任务攻略', guide, 0, 'guide');
-    } catch(e) {
-        // 如果生成失败，用旧版兜底
-        const taskNames = GameData.tasks.daily.map(t => t.title).join('、');
-        sendMail('📋 今日任务攻略', '今天的任务清单：'+taskNames+'\n\n每一项都给我认真完成，别让我看到你偷懒。\n如果遇到困难，别来问我，自己想办法。\n（但如果你真的不会……可以适当求助）\n\n——欣原 (｀へ´)', 0, 'guide');
-    }
-})();
+            (async function sendDetailedGuide() {
+                try {
+                    const tasks = GameData.tasks.daily;
+                    const guide = await generateGuideContent(tasks);
+                    sendMail('📋 今日任务攻略', guide, 0, 'guide');
+                } catch(e) {
+                    const taskNames = GameData.tasks.daily.map(t => t.title).join('、');
+                    sendMail('📋 今日任务攻略', '今天的任务清单：'+taskNames+'\n\n每一项都给我认真完成，别让我看到你偷懒。\n如果遇到困难，别来问我，自己想办法。\n（但如果你真的不会……可以适当求助）\n\n——欣原 (｀へ´)', 0, 'guide');
+                }
+            })();
+        }
 
-// 以下这些是 loadData 原有的逻辑，不要删！
-if (!GameData.tasks.daily || !GameData.tasks.daily.length) GameData.tasks.daily = TaskSystem.genDaily();
-if (!GameData.tasks.mainQuests || !GameData.tasks.mainQuests.length) GameData.tasks.mainQuests = TaskSystem.initMain();
-if (!GameData.tasks.sideQuests || !GameData.tasks.sideQuests.length) GameData.tasks.sideQuests = TaskSystem.initSide();
+        if (!GameData.tasks.daily || !GameData.tasks.daily.length) GameData.tasks.daily = TaskSystem.genDaily();
+        if (!GameData.tasks.mainQuests || !GameData.tasks.mainQuests.length) GameData.tasks.mainQuests = TaskSystem.initMain();
+        if (!GameData.tasks.sideQuests || !GameData.tasks.sideQuests.length) GameData.tasks.sideQuests = TaskSystem.initSide();
 
-if (GameData.settings.apiKey) document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
-document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
+        if (GameData.settings.apiKey) document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
+        document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
 
-chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
-    let c = m.content;
-    if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
-    return { role: m.role, content: String(c), time: TS.fmt(new Date(m.time || Date.now())), img: null };
-});
+        chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
+            let c = m.content;
+            if (Array.isArray(c)) { const t = c.find(x => x.type === 'text'); c = t ? t.text : ''; }
+            return { role: m.role, content: String(c), time: TS.fmt(new Date(m.time || Date.now())), img: null };
+        });
 
-initPushPool();
-saveData();
-updateUI();
-updateMailUI();
-updateUnreadBadge();
-updateCatStatus();
-updateStreakDisplay();
-renderPunishTasks();
-checkSleepReminder();
+        initPushPool();
+        saveData();
+        updateUI();
+        updateMailUI();
+        updateUnreadBadge();
+        updateCatStatus();
+        updateStreakDisplay();
+        renderPunishTasks();
+        checkSleepReminder();
     }
 
     // ============================================================
@@ -1132,7 +1108,49 @@ checkSleepReminder();
     };
 
     // ============================================================
-    //  AI FUNCTIONS
+    //  ★ AI 攻略生成相关函数
+    // ============================================================
+    async function callAIForGuide(prompt) {
+        if (!GameData.settings.apiKey) throw new Error('未配置API Key');
+        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + GameData.settings.apiKey
+            },
+            body: JSON.stringify({
+                model: 'Qwen/Qwen2.5-72B-Instruct-128K',
+                messages: [
+                    { role: 'system', content: '你是欣原，专业、毒舌、傲娇的监护人。你精通跨境电商、财商、身材管理、普通话训练。回答要实用、犀利、带个人风格。' },
+                    { role: 'user', content: prompt }
+                ],
+                max_tokens: 600,
+                temperature: 0.75
+            })
+        });
+        if (!res.ok) { let e = 'HTTP ' + res.status; try { const d = await res.json(); if (d.error && d.error.message) e += ' - ' + d.error.message; } catch(_) {} throw new Error(e); }
+        const data = await res.json();
+        return data.choices[0].message.content;
+    }
+
+    async function generateGuideContent(tasks) {
+        const taskDetails = tasks.map(t => {
+            const status = t.progress === 0 ? '【未开始】' : '【进行中】';
+            return '- ' + t.title + ' ' + status + '：' + (t.desc || '');
+        }).join('\n');
+
+        const prompt = '你是欣原，一个毒舌但极其专业的高级监护人。现在你要给 VIP009 写一份「今日任务攻略」，帮助她更高效地完成今天的任务。\n\n【任务清单】\n' + taskDetails + '\n\n【要求】\n1. 针对每个任务，给出 1-2 条具体的、可操作的技巧或建议\n2. 风格要毒舌+傲娇+实用，像真正的导师在带学生\n3. 如果某个任务她已经拖延了（进度为0），可以适度"刺激"她一句\n4. 不要只是复述任务标题，要给出真正的"干货"\n5. 末尾以你的风格署名，只署名一次\n\n【参考示例】\n- 普通话纠音：平翘舌分不清，是因为舌尖位置不对。试试把舌尖抵在下齿背，气流从舌面和上颚之间通过……\n- CBEC Listing：欧美用户喜欢"短句+数据"，不要写长段落……\n- 平板支撑：手肘在肩下，收紧核心，别塌腰。宁可做 30 秒标准的，也别做 3 分钟变形的……\n\n请按任务逐一输出攻略内容，直接输出攻略正文，不要加额外说明。';
+
+        try {
+            const guide = await callAIForGuide(prompt);
+            return guide;
+        } catch(e) {
+            throw e;
+        }
+    }
+
+    // ============================================================
+    //  AI FUNCTIONS (审核 + 对话)
     // ============================================================
     async function callAIForVerify(p, images = []) {
         if (!GameData.settings.apiKey) throw new Error('未配置API Key');
@@ -1196,47 +1214,8 @@ checkSleepReminder();
         result = result.replace(/ {2,}/g, ' ');
         return result.trim();
     }
-        // ★ 攻略生成专用 AI 调用
-async function callAIForGuide(prompt) {
-    if (!GameData.settings.apiKey) throw new Error('未配置API Key');
-    const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + GameData.settings.apiKey
-        },
-        body: JSON.stringify({
-            model: 'Qwen/Qwen2.5-72B-Instruct-128K',
-            messages: [
-                { role: 'system', content: '你是欣原，专业、毒舌、傲娇的监护人。你精通跨境电商、财商、身材管理、普通话训练。回答要实用、犀利、带个人风格。' },
-                { role: 'user', content: prompt }
-            ],
-            max_tokens: 600,
-            temperature: 0.75
-        })
-    });
-    if (!res.ok) { let e = 'HTTP ' + res.status; try { const d = await res.json(); if (d.error && d.error.message) e += ' - ' + d.error.message; } catch(_) {} throw new Error(e); }
-    const data = await res.json();
-    return data.choices[0].message.content;
-}
- // ★ 攻略内容生成器
-async function generateGuideContent(tasks) {
-    const taskDetails = tasks.map(t => {
-        const status = t.progress === 0 ? '【未开始】' : '【进行中】';
-        return '- ' + t.title + ' ' + status + '：' + (t.desc || '');
-    }).join('\n');
-    
-    const prompt = '你是欣原，一个毒舌但极其专业的高级监护人。现在你要给 VIP009 写一份「今日任务攻略」，帮助她更高效地完成今天的任务。\n\n【任务清单】\n' + taskDetails + '\n\n【要求】\n1. 针对每个任务，给出 1-2 条具体的、可操作的技巧或建议\n2. 风格要毒舌+傲娇+实用，像真正的导师在带学生\n3. 如果某个任务她已经拖延了（进度为0），可以适度"刺激"她一句\n4. 不要只是复述任务标题，要给出真正的"干货"\n5. 末尾以你的风格署名，只署名一次\n\n【参考示例】\n- 普通话纠音：平翘舌分不清，是因为舌尖位置不对。试试把舌尖抵在下齿背，气流从舌面和上颚之间通过……\n- CBEC Listing：欧美用户喜欢"短句+数据"，不要写长段落……\n- 平板支撑：手肘在肩下，收紧核心，别塌腰。宁可做 30 秒标准的，也别做 3 分钟变形的……\n\n请按任务逐一输出攻略内容，直接输出攻略正文，不要加额外说明。';
 
-    try {
-        const guide = await callAIForGuide(prompt);
-        return guide;
-    } catch(e) {
-        throw e;
-    }
-}       
-
-    // ★★★★★ callChatAI (含双模型 + 新人设 + 动作库) ★★★★★
+    // ★★★★★ callChatAI (双模型 + 新人设 + 动作库) ★★★★★
     async function callChatAI(msg, img) {
         if (!GameData.settings.apiKey) throw new Error('未配置API Key');
         GameData.ai.dialogHistory.push({ role: 'user', content: msg || '📷 [图片]', time: Date.now() });
@@ -1438,7 +1417,7 @@ ${sleepContext ? '- '+sleepContext : ''}
     };
 
     // ============================================================
-    //  CHIBI —— ★ 修复：电脑+手机点击触发语言，超丰富台词库
+    //  CHIBI —— 电脑+手机点击触发语言
     // ============================================================
     let bubbleTimer = null;
 
@@ -1464,7 +1443,6 @@ ${sleepContext ? '- '+sleepContext : ''}
         bubbleTimer = setTimeout(() => { el.classList.remove('show'); }, dur);
     }
 
-    // ★ 台词库（嘴硬毒舌 + 傲娇 + 颜文字）
     const CHIBI_LINES = [
         '少来。', '别碰了。', '上瘾了是吧？', '手拿开。', '你以为你是谁？',
         '这么喜欢我？', 'VIP009，你很闲。', '你的任务做完了？', '在这浪费时间？',
@@ -1473,7 +1451,7 @@ ${sleepContext ? '- '+sleepContext : ''}
         '哼。', '……烦。', '离我远点。',
         '(｀へ´)', '(╯‵□′)╯', '(￣▽￣*)ゞ', '(｡•́︿•̀｡)', '(´･_･`)',
         '(◞‸◟)', '(๑•́ ₃ •̀๑)', '(￣^￣)ゞ', '(｀ε´)', '(๑¯◡¯๑)',
-        '你欠我的，是“练习”，不是“眼泪”。',
+        '你欠我的，是"练习"，不是"眼泪"。',
         '你连任务都没做完，还敢来碰我？',
         '手拿开，去完成任务。',
         '……行吧，就这一次。',
