@@ -1226,290 +1226,297 @@
     //  TASK SYSTEM
     // ============================================================
     const TaskSystem = {
-        genDaily() {
-            const pool = GameData.taskPool.length > 0 ? GameData.taskPool : DEFAULT_TASK_POOL;
-            const dailyPool = pool.filter(t => t.type === 'daily');
-            const selected = dailyPool.length > 0 ? dailyPool : DEFAULT_TASK_POOL.filter(t => t.type === 'daily');
-            const shuffled = [...selected].sort(() => Math.random() - 0.5);
-            const tasks = shuffled.slice(0, 4).map((t, idx) => ({
-                id: 'd' + (idx + 1),
-                title: t.title,
-                desc: t.desc || '完成这项任务',
+    genDaily() {
+        const pool = GameData.taskPool.length > 0 ? GameData.taskPool : DEFAULT_TASK_POOL;
+        const dailyPool = pool.filter(t => t.type === 'daily');
+        const selected = dailyPool.length > 0 ? dailyPool : DEFAULT_TASK_POOL.filter(t => t.type === 'daily');
+        const shuffled = [...selected].sort(() => Math.random() - 0.5);
+        const tasks = shuffled.slice(0, 4).map((t, idx) => ({
+            id: 'd' + (idx + 1),
+            title: t.title,
+            desc: t.desc || '完成这项任务',
+            progress: 0,
+            max: 1,
+            reward: 80 + idx * 10,
+            done: false,
+            exempted: false,
+            subTasks: [],
+            lastUpdate: Date.now(),
+            difficulty: t.difficulty || 1
+        }));
+        while (tasks.length < 4) {
+            tasks.push({
+                id: 'd' + (tasks.length + 1),
+                title: '额外任务: 自我提升',
+                desc: '完成一项自我提升的练习',
                 progress: 0,
                 max: 1,
-                reward: 80 + idx * 10,
+                reward: 80,
                 done: false,
                 exempted: false,
                 subTasks: [],
                 lastUpdate: Date.now(),
-                difficulty: t.difficulty || 1
-            }));
-            while (tasks.length < 4) {
-                tasks.push({
-                    id: 'd' + (tasks.length + 1),
-                    title: '额外任务: 自我提升',
-                    desc: '完成一项自我提升的练习',
-                    progress: 0,
-                    max: 1,
-                    reward: 80,
-                    done: false,
-                    exempted: false,
-                    subTasks: [],
-                    lastUpdate: Date.now(),
-                    difficulty: 1
-                });
-            }
-            return tasks;
-        },
-        initMain() {
-            const pool = GameData.taskPool.length > 0 ? GameData.taskPool : DEFAULT_TASK_POOL;
-            const mainPool = pool.filter(t => t.type === 'main');
-            const selected = mainPool.length > 0 ? mainPool : DEFAULT_TASK_POOL.filter(t => t.type === 'main');
-            const shuffled = [...selected].sort(() => Math.random() - 0.5);
-            const n = Date.now();
-            return shuffled.slice(0, 4).map((t, idx) => ({
-                id: 'm' + (idx + 1),
-                title: t.title,
-                desc: t.desc || '完成主线任务',
-                progress: 0,
-                max: 5 + idx * 2,
-                reward: 600 + idx * 200,
-                done: false,
-                exempted: false,
-                deadline: n + 30 * 86400000,
-                expired: false,
-                subTasks: [],
-                lastUpdate: Date.now(),
-                difficulty: t.difficulty || 2
-            }));
-        },
-        initSide() {
-            const pool = GameData.taskPool.length > 0 ? GameData.taskPool : DEFAULT_TASK_POOL;
-            const sidePool = pool.filter(t => t.type === 'side');
-            const selected = sidePool.length > 0 ? sidePool : DEFAULT_TASK_POOL.filter(t => t.type === 'side');
-            const shuffled = [...selected].sort(() => Math.random() - 0.5);
-            const n = Date.now();
-            return shuffled.slice(0, 2).map((t, idx) => ({
-                id: 's' + (idx + 1),
-                title: t.title,
-                desc: t.desc || '完成支线任务',
-                progress: 0,
-                max: 5,
-                reward: 200 + idx * 100,
-                done: false,
-                exempted: false,
-                deadline: n + 30 * 86400000,
-                expired: false,
-                subTasks: [],
-                lastUpdate: Date.now(),
-                difficulty: t.difficulty || 1
-            }));
-        },
-        _findTaskList(id) {
-            if (id.startsWith('d')) return GameData.tasks.daily;
-            if (id.startsWith('m')) return GameData.tasks.mainQuests;
-            if (id.startsWith('s')) return GameData.tasks.sideQuests;
-            return null;
-        },
-        triggerVerify(taskId, isPunish) {
-            evidenceImages = [];
-            updateEvidencePreview();
-            document.getElementById('uploadLabel').style.opacity = '1';
-            document.getElementById('uploadLabel').style.pointerEvents = 'auto';
-            document.getElementById('uploadArea').style.display = 'block';
-            document.getElementById('evidenceReport').style.display = 'block';
-
-            if (isPunish || (taskId && taskId.startsWith('punish_'))) {
-                const pTask = GameData.punishTasks.find(t => t.id === taskId);
-                if (pTask && !pTask.done) {
-                    document.getElementById('modalTitle').textContent = '⏰ 惩罚任务：'+pTask.title;
-                    document.getElementById('modalDesc').textContent = pTask.desc;
-                    document.getElementById('modalRewardPreview').style.display = 'none';
-                    document.getElementById('evidenceHint').classList.add('show');
-                    document.getElementById('evidenceHint').textContent = '📸 请附上完成照片/截图证据（必须）';
-                    document.getElementById('evidenceReport').value = '';
-                    document.getElementById('modal').dataset.taskId = taskId;
-                    document.getElementById('modal').dataset.taskList = 'punish';
-                    document.getElementById('modal').classList.add('active');
-                    return;
-                }
-            }
-
-            document.getElementById('modalRewardPreview').style.display = 'none';
-            document.getElementById('evidenceHint').classList.remove('show');
-            let list;
-            if (taskId.startsWith('d')) list = GameData.tasks.daily;
-            else if (taskId.startsWith('m')) list = GameData.tasks.mainQuests;
-            else if (taskId.startsWith('s')) list = GameData.tasks.sideQuests;
-            const task = list ? list.find(t => t.id === taskId) : null;
-            if (!task || task.done) return;
-            document.getElementById('modalTitle').textContent = '📋 呈递: '+task.title;
-            document.getElementById('modalDesc').textContent = task.desc || '';
-            document.getElementById('evidenceReport').value = '';
-            document.getElementById('modal').dataset.taskId = taskId;
-            document.getElementById('modal').dataset.taskList = taskId.startsWith('d') ? 'daily' : (taskId.startsWith('m') ? 'main' : 'side');
-            document.getElementById('modal').classList.add('active');
-        },
-       async submit() {
-    const id = document.getElementById('modal').dataset.taskId;
-    const key = document.getElementById('modal').dataset.taskList;
-    const report = document.getElementById('evidenceReport').value.trim();
-
-    if (report.length < 10) {
-        showNotif('❌ 报告太短（至少10个字）');
-        return;
-    }
-
-    const images = [...evidenceImages];
-    closeModal();
-
-    showNotif('📤 正在提交审核，请稍候...');
-    addChatMessage('assistant', '[正在审阅你的汇报...]', true);
-
-    try {
-        let task = null;
-        let list = null;
-        if (key === 'punish' || (id && id.startsWith('punish_'))) {
-            task = GameData.punishTasks.find(t => t.id === id);
-            list = 'punish';
-        } else if (key === 'daily') {
-            list = GameData.tasks.daily;
-            task = list.find(t => t.id === id);
-        } else if (key === 'main') {
-            list = GameData.tasks.mainQuests;
-            task = list.find(t => t.id === id);
-        } else if (key === 'side') {
-            list = GameData.tasks.sideQuests;
-            task = list.find(t => t.id === id);
+                difficulty: 1
+            });
         }
-        if (!task || task.done) {
-            showNotif('⚠️ 任务已完成或不存在');
+        return tasks;
+    },
+
+    initMain() {
+        const pool = GameData.taskPool.length > 0 ? GameData.taskPool : DEFAULT_TASK_POOL;
+        const mainPool = pool.filter(t => t.type === 'main');
+        const selected = mainPool.length > 0 ? mainPool : DEFAULT_TASK_POOL.filter(t => t.type === 'main');
+        const shuffled = [...selected].sort(() => Math.random() - 0.5);
+        const n = Date.now();
+        return shuffled.slice(0, 4).map((t, idx) => ({
+            id: 'm' + (idx + 1),
+            title: t.title,
+            desc: t.desc || '完成主线任务',
+            progress: 0,
+            max: 5 + idx * 2,
+            reward: 600 + idx * 200,
+            done: false,
+            exempted: false,
+            deadline: n + 30 * 86400000,
+            expired: false,
+            subTasks: [],
+            lastUpdate: Date.now(),
+            difficulty: t.difficulty || 2
+        }));
+    },
+
+    initSide() {
+        const pool = GameData.taskPool.length > 0 ? GameData.taskPool : DEFAULT_TASK_POOL;
+        const sidePool = pool.filter(t => t.type === 'side');
+        const selected = sidePool.length > 0 ? sidePool : DEFAULT_TASK_POOL.filter(t => t.type === 'side');
+        const shuffled = [...selected].sort(() => Math.random() - 0.5);
+        const n = Date.now();
+        return shuffled.slice(0, 2).map((t, idx) => ({
+            id: 's' + (idx + 1),
+            title: t.title,
+            desc: t.desc || '完成支线任务',
+            progress: 0,
+            max: 5,
+            reward: 200 + idx * 100,
+            done: false,
+            exempted: false,
+            deadline: n + 30 * 86400000,
+            expired: false,
+            subTasks: [],
+            lastUpdate: Date.now(),
+            difficulty: t.difficulty || 1
+        }));
+    },
+
+    _findTaskList(id) {
+        if (id.startsWith('d')) return GameData.tasks.daily;
+        if (id.startsWith('m')) return GameData.tasks.mainQuests;
+        if (id.startsWith('s')) return GameData.tasks.sideQuests;
+        return null;
+    },
+
+    triggerVerify(taskId, isPunish) {
+        evidenceImages = [];
+        updateEvidencePreview();
+        document.getElementById('uploadLabel').style.opacity = '1';
+        document.getElementById('uploadLabel').style.pointerEvents = 'auto';
+        document.getElementById('uploadArea').style.display = 'block';
+        document.getElementById('evidenceReport').style.display = 'block';
+
+        if (isPunish || (taskId && taskId.startsWith('punish_'))) {
+            const pTask = GameData.punishTasks.find(t => t.id === taskId);
+            if (pTask && !pTask.done) {
+                document.getElementById('modalTitle').textContent = '⏰ 惩罚任务：' + pTask.title;
+                document.getElementById('modalDesc').textContent = pTask.desc;
+                document.getElementById('modalRewardPreview').style.display = 'none';
+                document.getElementById('evidenceHint').classList.add('show');
+                document.getElementById('evidenceHint').textContent = '📸 请附上完成照片/截图证据（必须）';
+                document.getElementById('evidenceReport').value = '';
+                document.getElementById('modal').dataset.taskId = taskId;
+                document.getElementById('modal').dataset.taskList = 'punish';
+                document.getElementById('modal').classList.add('active');
+                return;
+            }
+        }
+
+        document.getElementById('modalRewardPreview').style.display = 'none';
+        document.getElementById('evidenceHint').classList.remove('show');
+        let list;
+        if (taskId.startsWith('d')) list = GameData.tasks.daily;
+        else if (taskId.startsWith('m')) list = GameData.tasks.mainQuests;
+        else if (taskId.startsWith('s')) list = GameData.tasks.sideQuests;
+        const task = list ? list.find(t => t.id === taskId) : null;
+        if (!task || task.done) return;
+        document.getElementById('modalTitle').textContent = '📋 呈递: ' + task.title;
+        document.getElementById('modalDesc').textContent = task.desc || '';
+        document.getElementById('evidenceReport').value = '';
+        document.getElementById('modal').dataset.taskId = taskId;
+        document.getElementById('modal').dataset.taskList = taskId.startsWith('d') ? 'daily' : (taskId.startsWith('m') ? 'main' : 'side');
+        document.getElementById('modal').classList.add('active');
+    },
+
+    async submit() {
+        const id = document.getElementById('modal').dataset.taskId;
+        const key = document.getElementById('modal').dataset.taskList;
+        const report = document.getElementById('evidenceReport').value.trim();
+
+        if (report.length < 10) {
+            showNotif('❌ 报告太短（至少10个字）');
             return;
         }
 
-        let visionResult = '';
-        if (images.length > 0) {
-            try {
-                visionResult = await callAIVision('请描述这张图片的内容，并判断它是否与任务相关。', images[0]);
-            } catch (e) {
-                visionResult = '图片识别失败，但文本审核继续运行';
-                showNotif('⚠️ 图片识别失败，文本审核继续');
+        const images = [...evidenceImages];
+        closeModal();
+
+        showNotif('📤 正在提交审核，请稍候...');
+        addChatMessage('assistant', '[正在审阅你的汇报...]', true);
+
+        try {
+            let task = null;
+            let list = null;
+            if (key === 'punish' || (id && id.startsWith('punish_'))) {
+                task = GameData.punishTasks.find(t => t.id === id);
+                list = 'punish';
+            } else if (key === 'daily') {
+                list = GameData.tasks.daily;
+                task = list.find(t => t.id === id);
+            } else if (key === 'main') {
+                list = GameData.tasks.mainQuests;
+                task = list.find(t => t.id === id);
+            } else if (key === 'side') {
+                list = GameData.tasks.sideQuests;
+                task = list.find(t => t.id === id);
             }
-        }
+            if (!task || task.done) {
+                showNotif('⚠️ 任务已完成或不存在');
+                return;
+            }
 
-        const taskTitle = task.title || '任务';
-        const taskDesc = task.desc || '';
-        const imgDesc = images.length > 0 ? `\n用户上传了 ${images.length} 张图片证据。图片分析结果：${visionResult}` : '';
+            let visionResult = '';
+            if (images.length > 0) {
+                try {
+                    visionResult = await callAIVision('请描述这张图片的内容，并判断它是否与任务相关。', images[0]);
+                } catch (e) {
+                    visionResult = '图片识别失败，但文本审核继续运行';
+                    showNotif('⚠️ 图片识别失败，文本审核继续');
+                }
+            }
 
-        const prompt = `VIP009 提交了任务「${taskTitle}」的成果汇报。
+            const taskTitle = task.title || '任务';
+            const taskDesc = task.desc || '';
+            const imgDesc = images.length > 0 ? `\n用户上传了 ${images.length} 张图片证据。图片分析结果：${visionResult}` : '';
+
+            const prompt = `VIP009 提交了任务「${taskTitle}」的成果汇报。
 【任务描述】：${taskDesc}
 【用户汇报】：${report}${imgDesc}
 
 请以欣原的口吻审核这份汇报。如果汇报内容详实、真实、有实际成果，请以「PASS」开头给予肯定；如果汇报敷衍、空洞、缺乏实质内容，请严厉拒绝并指出问题。`;
 
-        const systemPrompt = '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面，但偶尔也会傲娇地认可一下。禁止重复句式。';
-        let aiReply = await callAIChat(prompt, systemPrompt);
+            const systemPrompt = '你是欣原，高冷、毒舌、优雅的监护人。说话犀利不留情面，但偶尔也会傲娇地认可一下。禁止重复句式。';
+            let aiReply = await callAIChat(prompt, systemPrompt);
 
-        if (aiReply.includes('PASS')) {
-            const cleanReply = aiReply.replace('PASS', '').trim();
-            addChatMessage('assistant', cleanReply || '嗯，勉强算你通过了。', true);
+            if (aiReply.includes('PASS')) {
+                const cleanReply = aiReply.replace('PASS', '').trim();
+                addChatMessage('assistant', cleanReply || '嗯，勉强算你通过了。', true);
 
-            task.progress = Math.min(task.progress + 1, task.max);
-            task.lastUpdate = Date.now();
+                task.progress = Math.min(task.progress + 1, task.max);
+                task.lastUpdate = Date.now();
 
-            if (task.progress >= task.max && !task.done) {
-                task.done = true;
-                GameData.user.currency.milkTea += task.reward;
-                GameData.treasure.milkTea = GameData.user.currency.milkTea;
-                showNotif(`✅ 任务完成！+${task.reward}🍰`);
-                GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 5);
+                if (task.progress >= task.max && !task.done) {
+                    task.done = true;
+                    GameData.user.currency.milkTea += task.reward;
+                    GameData.treasure.milkTea = GameData.user.currency.milkTea;
+                    showNotif(`✅ 任务完成！+${task.reward}🍰`);
+                    GameData.ai.affection = Math.min(MAX_AF, GameData.ai.affection + 5);
 
-                if (GameData.ai.affection >= MAX_AF && !window._afTriggered) {
-                    window._afTriggered = true;
-                    triggerMax();
-                }
-
-                if (key === 'daily') {
-                    const allDone = GameData.tasks.daily.every(t => t.done || t.exempted);
-                    if (allDone) {
-                        setTimeout(() => {
-                            sendMail('🌱 今日任务全部完成！', '所有每日任务已完成。记得去"刻下印记"，记录你变强的这一天。', 0, 'guide', '欣原');
-                        }, 1000);
+                    if (GameData.ai.affection >= MAX_AF && !window._afTriggered) {
+                        window._afTriggered = true;
+                        triggerMax();
                     }
+
+                    if (key === 'daily') {
+                        const allDone = GameData.tasks.daily.every(t => t.done || t.exempted);
+                        if (allDone) {
+                            setTimeout(() => {
+                                sendMail('🌱 今日任务全部完成！', '所有每日任务已完成。记得去"刻下印记"，记录你变强的这一天。', 0, 'guide', '欣原');
+                            }, 1000);
+                        }
+                    }
+
+                    setTimeout(() => {
+                        sendMail('📌 任务完成通知', `你完成了「${taskTitle}」\n\n虽然过程磕磕绊绊，但结果勉强合格。\n继续保持，别让我失望。`, 10, 'reward', '欣原');
+                    }, 1500);
+
+                    updateTaskHistory();
+                    checkTaskSchedule();
+                } else {
+                    showNotif(`📌 任务进度更新: ${task.progress}/${task.max}`);
                 }
 
-                setTimeout(() => {
-                    sendMail('📌 任务完成通知', `你完成了「${taskTitle}」\n\n虽然过程磕磕绊绊，但结果勉强合格。\n继续保持，别让我失望。`, 10, 'reward', '欣原');
-                }, 1500);
+                saveData();
+                updateUI();
 
-                updateTaskHistory();
-                checkTaskSchedule();
             } else {
-                showNotif(`📌 任务进度更新: ${task.progress}/${task.max}`);
+                addChatMessage('assistant', aiReply || '汇报太敷衍，重写！', true);
+                showNotif('❌ 审核未通过，请完善汇报后重新提交');
+                GameData.ai.affection = Math.max(0, GameData.ai.affection - 2);
+                saveData();
+                updateUI();
             }
 
-            saveData();
-            updateUI();
-
-        } else {
-            addChatMessage('assistant', aiReply || '汇报太敷衍，重写！', true);
-            showNotif('❌ 审核未通过，请完善汇报后重新提交');
-            GameData.ai.affection = Math.max(0, GameData.ai.affection - 2);
-            saveData();
-            updateUI();
+        } catch (error) {
+            console.error('提交审核出错:', error);
+            showNotif('❌ 审核请求失败: ' + error.message);
+            addChatMessage('assistant', `⚠️ 系统错误: ${error.message}`, true);
         }
-
-    } catch (error) {
-        console.error('提交审核出错:', error);
-        showNotif('❌ 审核请求失败: ' + error.message);
-        addChatMessage('assistant', `⚠️ 系统错误: ${error.message}`, true);
     }
+
+}; // ★ TaskSystem 对象闭合 ★
+
+// ============================================================
+//  PUNISH TASKS（现在在 TaskSystem 外面）
+// ============================================================
+let punishLevel = 0;
+
+function generatePunishTask() {
+    const tasks = [
+        { title: '⏰ 忏悔之跑', desc: '跑楼梯5层，拍照为证' },
+        { title: '✍️ 深夜之检讨', desc: '写500字检讨' },
+        { title: '💪 体能赎罪', desc: '完成30个仰卧起坐，拍照为证' },
+        { title: '📝 睡眠契约', desc: '手写承诺x10遍，拍照为证' }
+    ];
+    const idx = Math.min(punishLevel, tasks.length - 1);
+    const task = tasks[idx] || tasks[0];
+    const deadline = new Date(Date.now() + 4 * 3600000);
+    const pTask = {
+        id: 'punish_' + Date.now(),
+        title: task.title,
+        desc: task.desc + '（需在 ' + TS.fmt(deadline) + ' 前完成）',
+        deadline: deadline.getTime(),
+        done: false,
+        reward: 0,
+        level: punishLevel
+    };
+    GameData.punishTasks.push(pTask);
+    saveData();
+    renderPunishTasks();
+    return pTask;
 }
 
-    // ============================================================
-    //  PUNISH TASKS
-    // ============================================================
-    let punishLevel = 0;
-
-    function generatePunishTask() {
-        const tasks = [
-            { title: '⏰ 忏悔之跑', desc: '跑楼梯5层，拍照为证' },
-            { title: '✍️ 深夜之检讨', desc: '写500字检讨' },
-            { title: '💪 体能赎罪', desc: '完成30个仰卧起坐，拍照为证' },
-            { title: '📝 睡眠契约', desc: '手写承诺x10遍，拍照为证' }
-        ];
-        const idx = Math.min(punishLevel, tasks.length - 1);
-        const task = tasks[idx] || tasks[0];
-        const deadline = new Date(Date.now() + 4 * 3600000);
-        const pTask = {
-            id: 'punish_'+Date.now(),
-            title: task.title,
-            desc: task.desc+'（需在 '+TS.fmt(deadline)+' 前完成）',
-            deadline: deadline.getTime(),
-            done: false,
-            reward: 0,
-            level: punishLevel
-        };
-        GameData.punishTasks.push(pTask);
-        saveData();
-        renderPunishTasks();
-        return pTask;
-    }
-
-    function renderPunishTasks() {
-        const container = document.getElementById('punishTaskContainer');
-        const active = GameData.punishTasks.filter(t => !t.done);
-        if (active.length === 0) { container.innerHTML = ''; return; }
-        container.innerHTML = '<div class="task-category" style="border-color:rgba(255,82,82,0.2);"><div class="category-title" style="color:var(--danger);">⏰ 惩罚任务</div>'+
-            active.map(t => {
-                const remaining = t.deadline - Date.now();
-                const hours = Math.max(0, Math.floor(remaining / 3600000));
-                const mins = Math.max(0, Math.floor((remaining % 3600000) / 60000));
-                const urgent = remaining < 3600000;
-                return '<div class="task-item punish-task"><div class="t-title">'+t.title+'</div><div class="t-desc">'+t.desc+'</div><div class="t-countdown '+(urgent?'urgent':'')+'">⏱️ 剩余 '+hours+' 小时 '+mins+' 分钟</div><button class="t-btn danger" onclick="TaskSystem.triggerVerify(\''+t.id+'\', true)">📝 提交完成证据</button></div>';
-            }).join('')+'</div>';
-        if (active.length > 0) { setTimeout(renderPunishTasks, 30000); }
-    }
+function renderPunishTasks() {
+    const container = document.getElementById('punishTaskContainer');
+    const active = GameData.punishTasks.filter(t => !t.done);
+    if (active.length === 0) { container.innerHTML = ''; return; }
+    container.innerHTML = '<div class="task-category" style="border-color:rgba(255,82,82,0.2);"><div class="category-title" style="color:var(--danger);">⏰ 惩罚任务</div>' +
+        active.map(t => {
+            const remaining = t.deadline - Date.now();
+            const hours = Math.max(0, Math.floor(remaining / 3600000));
+            const mins = Math.max(0, Math.floor((remaining % 3600000) / 60000));
+            const urgent = remaining < 3600000;
+            return '<div class="task-item punish-task"><div class="t-title">' + t.title + '</div><div class="t-desc">' + t.desc + '</div><div class="t-countdown ' + (urgent ? 'urgent' : '') + '">⏱️ 剩余 ' + hours + ' 小时 ' + mins + ' 分钟</div><button class="t-btn danger" onclick="TaskSystem.triggerVerify(\'' + t.id + '\', true)">📝 提交完成证据</button></div>';
+        }).join('') + '</div>';
+    if (active.length > 0) { setTimeout(renderPunishTasks, 30000); }
+}
 
     // ============================================================
     //  SHOP（含猫粮反馈）
