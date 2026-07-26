@@ -695,25 +695,28 @@
 
     <!-- ===== 模态框 ===== -->
     <div class="modal" id="modal">
-        <div class="content" id="modalContent" style="max-height: 80vh; display: flex; flex-direction: column; padding-bottom: 10px;">
-            <h3 id="modalTitle">📋 任务呈递</h3>
-            <div class="desc" id="modalDesc" style="flex-shrink: 0;">描述</div>
-            <div class="random-reward-preview" id="modalRewardPreview" style="display:none; flex-shrink: 0;"></div>
-            <div class="evidence-hint" id="evidenceHint" style="flex-shrink: 0;">📸 请附上实操照片/截图证据（可选）</div>
-            <div class="upload-area" id="uploadArea" style="flex-shrink: 0;">
-                <label class="upload-label" id="uploadLabel">📤 点击上传图片证据（最多3张）
-                    <input type="file" id="evidenceImages" accept="image/*" multiple onchange="handleEvidenceImages(this)">
-                </label>
-                <div class="preview-list" id="evidencePreviewList"></div>
-                <div class="count-hint" id="evidenceCountHint">已选 0 / 3 张</div>
-            </div>
-            <textarea id="evidenceReport" placeholder="输入你的成果汇报..." style="flex-shrink: 0; height: 60px;"></textarea>
-            <div class="actions" style="flex-shrink: 0; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
-                <button class="btn secondary" onclick="closeModal()">取消</button>
-                <button class="btn primary" id="modalConfirmBtn" onclick="submitReport()">✅ 提交并审核</button>
-            </div>
+    <div class="content" id="modalContent" style="max-height: 80vh; display: flex; flex-direction: column; padding-bottom: 10px;">
+        <h3 id="modalTitle">📋 任务呈递</h3>
+        <div class="desc" id="modalDesc" style="flex-shrink: 0;">描述</div>
+        <div class="random-reward-preview" id="modalRewardPreview" style="display:none; flex-shrink: 0;"></div>
+        <div class="evidence-hint" id="evidenceHint" style="flex-shrink: 0;">📸 请附上实操照片/截图证据（可选）</div>
+
+        <!-- ★ upload-area 必须放在 content 内部，且位于 evidence-hint 和 textarea 之间 ★ -->
+        <div class="upload-area" id="uploadArea" style="flex-shrink: 0;">
+            <label class="upload-label" id="uploadLabel">📤 点击上传图片证据（最多3张）
+                <input type="file" id="evidenceImages" accept="image/*" multiple onchange="handleEvidenceImages(this)">
+            </label>
+            <div class="preview-list" id="evidencePreviewList"></div>
+            <div class="count-hint" id="evidenceCountHint">已选 0 / 3 张</div>
+        </div>
+
+        <textarea id="evidenceReport" placeholder="输入你的成果汇报..." style="flex-shrink: 0; height: 60px;"></textarea>
+        <div class="actions" style="flex-shrink: 0; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+            <button class="btn secondary" onclick="closeModal()">取消</button>
+            <button class="btn primary" id="modalConfirmBtn" onclick="submitReport()">✅ 提交并审核</button>
         </div>
     </div>
+</div>
 
     <!-- ★ 傲娇确认框 -->
     <div class="modal" id="confirmModal">
