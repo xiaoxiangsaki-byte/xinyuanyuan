@@ -901,96 +901,87 @@ const DEFAULT_TASK_POOL = [
     function saveData() { localStorage.setItem('xinyuanGameData', JSON.stringify(GameData)); }
 
     function loadData() {
-        const saved = localStorage.getItem('xinyuanGameData');
-        if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                Object.keys(parsed).forEach(key => {
-                    if (GameData.hasOwnProperty(key)) GameData[key] = parsed[key];
-                });
-            } catch(_) {}
+    const saved = localStorage.getItem('xinyuanGameData');
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            Object.keys(parsed).forEach(key => {
+                if (GameData.hasOwnProperty(key)) GameData[key] = parsed[key];
+            });
+        } catch(_) {}
+    }
+
+    if (!GameData.taskHistory) GameData.taskHistory = [];
+    if (!GameData.taskPool || GameData.taskPool.length === 0) GameData.taskPool = JSON.parse(JSON.stringify(DEFAULT_TASK_POOL));
+    if (!GameData.exemptionStatus) GameData.exemptionStatus = { active: false, endDate: null, usedToday: 0, maxPerDay: 3, lastUsedDate: null };
+    if (!GameData.treasure.coupons) GameData.treasure.coupons = { act_cute: 0, meow: 0, story: 0 };
+    if (!GameData.treasure.specialStories) GameData.treasure.specialStories = [];
+    if (!GameData.treasure._storyIdCounter) GameData.treasure._storyIdCounter = 0;
+    if (!GameData.penalty) GameData.penalty = { level: 0, history: [], lastPenaltyDate: null, pendingTasks: [] };
+    if (!GameData._lastDailyReset) GameData._lastDailyReset = null;
+
+    chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
+        let c = m.content;
+        let img = null;
+        if (typeof c === 'object' && c !== null) {
+            if (c.image) { img = c.image; }
+            const txt = c.text || '';
+            c = txt;
         }
+        if (Array.isArray(c)) {
+            const txtPart = c.find(x => x.type === 'text');
+            c = txtPart ? txtPart.text : '';
+        }
+        return { role: m.role || 'assistant', content: String(c || ''), time: TS.fmt(new Date(m.time || Date.now())), img: img || null };
+    });
 
-        if (!GameData.taskHistory) GameData.taskHistory = [];
-        if (!GameData.taskPool || GameData.taskPool.length === 0) GameData.taskPool = JSON.parse(JSON.stringify(DEFAULT_TASK_POOL));
-        if (!GameData.exemptionStatus) GameData.exemptionStatus = { active: false, endDate: null, usedToday: 0, maxPerDay: 3, lastUsedDate: null };
-        if (!GameData.treasure.coupons) GameData.treasure.coupons = { act_cute: 0, meow: 0, story: 0 };
-        if (!GameData.treasure.specialStories) GameData.treasure.specialStories = [];
-        if (!GameData.treasure._storyIdCounter) GameData.treasure._storyIdCounter = 0;
-        if (!GameData.penalty) GameData.penalty = { level: 0, history: [], lastPenaltyDate: null, pendingTasks: [] };
-        if (!GameData._lastDailyReset) GameData._lastDailyReset = null;
-
-        // ★ 同步聊天历史（修复了 TS.fnt → TS.fmt）
-chatMessages = GameData.ai.dialogHistory.slice(-30).map(m => {
-    let c = m.content;
-    let img = null;
-    if (typeof c === 'object' && c !== null) {
-        if (c.image) { img = c.image; }
-        const txt = c.text || '';
-        c = txt;
+    if (TS.isNewDay(GameData._lastDailyReset)) {
+        GameData.tasks.daily = TaskSystem.genDaily();
+        GameData.tasks.daily.forEach(t => { t.done = false; t.exempted = false; t.progress = 0; });
+        GameData.tasks.sideQuests = TaskSystem.initSide();
+        GameData.tasks.sideQuests.forEach(t => { t.done = false; t.exempted = false; t.progress = 0; });
+        GameData._lastDailyReset = Date.now();
+        if (GameData.exemptionStatus) {
+            GameData.exemptionStatus.usedToday = 0;
+            GameData.exemptionStatus.active = false;
+            GameData.exemptionStatus.endDate = null;
+        }
+        showNotif('📅 新的一天，每日任务已刷新！');
+        saveData();
     }
-    if (Array.isArray(c)) {
-        const txtPart = c.find(x => x.type === 'text');
-        c = txtPart ? txtPart.text : '';
-    }
-    return { role: m.role || 'assistant', content: String(c || ''), time: TS.fmt(new Date(m.time || Date.now())), img: img || null };
-});
 
-// ★ 凌晨自动刷新每日任务（每天只刷新一次）
-if (TS.isNewDay(GameData._lastDailyReset)) {
-    // 刷新每日必做
-    GameData.tasks.daily = TaskSystem.genDaily();  // ✅ 修正：getDaily → genDaily
-    GameData.tasks.daily.forEach(t => { t.done = false; t.exempted = false; t.progress = 0; });
-    
-    // ★ 可选挑战也每天刷新（但独立于每日必做）
-    GameData.tasks.sideQuests = TaskSystem.initSide();  // ✅ 修正：initSideQuests → initSide
-    GameData.tasks.sideQuests.forEach(t => { t.done = false; t.exempted = false; t.progress = 0; });
+    if (TS.isNewDay(GameData._lastGuideDate)) { GameData._guideSentToday = false; }
 
-    GameData._lastDailyReset = Date.now();
-    if (GameData.exemptionStatus) {
-        GameData.exemptionStatus.usedToday = 0;
-        GameData.exemptionStatus.active = false;
-        GameData.exemptionStatus.endDate = null;
+    if (!GameData.tasks.daily || !GameData.tasks.daily.length) {
+        GameData.tasks.daily = TaskSystem.genDaily();
     }
-    showNotif('📅 新的一天，每日任务已刷新！');
+    if (!GameData.tasks.mainQuests || !GameData.tasks.mainQuests.length) {
+        GameData.tasks.mainQuests = TaskSystem.initMain();
+    }
+    if (!GameData.tasks.sideQuests || !GameData.tasks.sideQuests.length) {
+        GameData.tasks.sideQuests = TaskSystem.initSide();
+    }
+
+    if (GameData.settings.apiKey) document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
+    document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
+
+    const poolEditor = document.getElementById('taskPoolEditor');
+    if (poolEditor) poolEditor.value = JSON.stringify(GameData.taskPool, null, 2);
+
+    initPushPool();
     saveData();
-}
-
-// ★ 兜底逻辑：如果每日任务为空，则生成（只在首次加载时执行）
-if (!GameData.tasks.daily || !GameData.tasks.daily.length) {
-    GameData.tasks.daily = TaskSystem.genDaily();  // ✅ 修正
-}
-
-// ★ 主线任务（长期固定，不自动刷新）
-if (!GameData.tasks.mainQuests || !GameData.tasks.mainQuests.length) {
-    GameData.tasks.mainQuests = TaskSystem.initMain();  // ✅ 修正：initMainQuests → initMain
-}
-
-// ★ 可选挑战（兜底，只在首次加载时执行）
-if (!GameData.tasks.sideQuests || !GameData.tasks.sideQuests.length) {
-    GameData.tasks.sideQuests = TaskSystem.initSide();  // ✅ 修正：initSideQuests → initSide
-}
-
-// ★ 继续后面的代码（API Key、推送、UI更新等）
-if (GameData.settings.apiKey) document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
-document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
-
-const poolEditor = document.getElementById('taskPoolEditor');
-if (poolEditor) poolEditor.value = JSON.stringify(GameData.taskPool, null, 2);
-
-initPushPool();
-saveData();
-updateUI();
-updateMailUI();
-updateUnreadBadge();
-updateCatStatus();
-updateStreakDisplay();
-renderPunishTasks();
-renderTimeCapsule();
-updateHeartColor();
-document.getElementById('uploadArea').style.display = 'none';
-checkExemptionStatus();
-checkTaskSchedule();
+    updateUI();
+    updateMailUI();
+    updateUnreadBadge();
+    updateCatStatus();
+    updateStreakDisplay();
+    renderPunishTasks();
+    renderTimeCapsule();
+    updateHeartColor();
+    document.getElementById('uploadArea').style.display = 'none';
+    checkExemptionStatus();
+    checkTaskSchedule();
+}  // ← 这里确保有这个闭合 }
     // ============================================================
     //  PUSH MESSAGES
     // ============================================================
