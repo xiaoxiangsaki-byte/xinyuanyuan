@@ -936,7 +936,7 @@
         }
         if (!GameData.tasks.daily || !GameData.tasks.daily.length) GameData.tasks.daily = TaskSystem.genDaily();
         if (!GameData.tasks.mainQuests || !GameData.tasks.mainQuests.length) GameData.tasks.mainQuests = TaskSystem.initMain();
-        if (!GameData.tasks.sideQuests || !GameData.tasks.sideQuests.length) GameData.tasks.sideQuests = TaskSystem.initSide();
+if (!GameData.tasks.sideQuests || !GameData.tasks.sideQuests.length) GameData.tasks.sideQuests = TaskSystem.initSide();
 
         if (GameData.settings.apiKey) document.getElementById('apiKeyInput').value = GameData.settings.apiKey;
         document.getElementById('pushToggle').textContent = GameData.settings.autoPushEnabled ? '已开启' : '已关闭';
