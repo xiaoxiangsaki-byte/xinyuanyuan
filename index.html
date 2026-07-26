@@ -834,31 +834,24 @@
         }
     };
 
-    // ★ 默认任务池
   // ★ 默认任务池
 const DEFAULT_TASK_POOL = [
     // ========== 主线任务 (type: 'main') ==========
-    // 跨境英语类
     { title: '跨境英语: 开发信写作', desc: '写一封给海外客户的开发信，要求专业、礼貌、语法正确', type: 'main', difficulty: 2 },
     { title: '跨境英语: 产品标题优化', desc: '为3款产品撰写符合亚马逊/速卖通风格的标题', type: 'main', difficulty: 2 },
     { title: '跨境英语: 客户投诉回复', desc: '模拟回复一封海外买家的差评，提出解决方案', type: 'main', difficulty: 3 },
     { title: '跨境英语: 五点描述编写', desc: '为一款核心产品编写5条卖点描述，突出差异化', type: 'main', difficulty: 2 },
-    // 金融财务类
     { title: '金融: 读懂利润表', desc: '找一家上市公司利润表，分析其毛利率和净利率趋势', type: 'main', difficulty: 2 },
     { title: '金融: 资产负债表分析', desc: '分析一家企业的资产负债率，判断其财务风险', type: 'main', difficulty: 3 },
     { title: '金融: 现金流解读', desc: '解读一家企业的经营现金流，判断其造血能力', type: 'main', difficulty: 3 },
     { title: '金融: 宏观指标学习', desc: '学习CPI/PPI/PMI中的一个指标，写一篇200字解读', type: 'main', difficulty: 2 },
-    // 健身类（进阶）
     { title: '健身: 力量训练计划', desc: '制定一周力量训练计划，包含动作和组数', type: 'main', difficulty: 2 },
     { title: '健身: 饮食记录分析', desc: '记录3天饮食，分析蛋白质/碳水/脂肪比例', type: 'main', difficulty: 2 },
-    // 阅读与思维
     { title: '阅读: 深度书评', desc: '读完一本书，写一篇500字以上的书评', type: 'main', difficulty: 3 },
     { title: '思维: 逻辑谬误识别', desc: '在生活中找到一个逻辑谬误案例，分析并记录', type: 'main', difficulty: 2 },
-    // 综合
     { title: '项目复盘: 月度总结', desc: '写一份本月任务完成复盘，包含亮点和不足', type: 'main', difficulty: 2 },
     { title: '技能: PPT制作', desc: '制作一份关于你最近学习内容的PPT（至少10页）', type: 'main', difficulty: 3 },
     { title: '英语: TED演讲笔记', desc: '看一个TED演讲，用英语写下3个关键观点', type: 'main', difficulty: 2 },
-
     // ========== 每日必做 (type: 'daily') ==========
     { title: '英语: 动画磨耳朵', desc: '看一集英语动画（带字幕），标记3个新学到的表达', type: 'daily', difficulty: 1 },
     { title: '英语: 场景对话练习', desc: '完成一个场景对话（餐厅/购物/机场），录音或写下来', type: 'daily', difficulty: 1 },
@@ -867,7 +860,6 @@ const DEFAULT_TASK_POOL = [
     { title: '金融: 小知识学习', desc: '学习一个金融概念，写下你的理解', type: 'daily', difficulty: 1 },
     { title: '金融: 财报初体验', desc: '尝试看懂一张简易财报的利润部分', type: 'daily', difficulty: 2 },
     { title: '金融: 名词解释', desc: '解释一个金融术语，用自己的话说出来', type: 'daily', difficulty: 1 },
-
     // ========== 可选挑战 (type: 'side') ==========
     { title: '塑形瘦腿训练', desc: '完成15分钟塑形瘦腿跟练视频', type: 'side', difficulty: 1 },
     { title: '马甲线训练', desc: '完成一套马甲线训练', type: 'side', difficulty: 2 },
@@ -878,7 +870,6 @@ const DEFAULT_TASK_POOL = [
     { title: '粤语: 日常一句', desc: '学会一句粤语日常用语，录下来', type: 'side', difficulty: 1 },
     { title: '人际交往: 小技巧', desc: '学习一个人际交往小技巧，写心得', type: 'side', difficulty: 1 }
 ];
-
     // ============================================================
     //  TIME
     // ============================================================
