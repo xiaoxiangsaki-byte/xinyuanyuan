@@ -1428,6 +1428,19 @@ const DEFAULT_TASK_POOL = [
         },
         triggerVerify(taskId, isPunish) {
             evidenceImages = [];
+
+            // ★★★ 重置上传区域的所有样式（插入在这里） ★★★
+            var uploadArea = document.getElementById('uploadArea');
+            if (uploadArea) {
+                uploadArea.style.display = 'block';
+                uploadArea.style.visibility = 'visible';
+                uploadArea.style.height = '';
+                uploadArea.style.overflow = '';
+                uploadArea.style.padding = '';
+                uploadArea.style.margin = '';
+                uploadArea.style.border = '';
+        }
+            
             updateEvidencePreview();
             document.getElementById('uploadLabel').style.opacity = '1';
             document.getElementById('uploadLabel').style.pointerEvents = 'auto';
