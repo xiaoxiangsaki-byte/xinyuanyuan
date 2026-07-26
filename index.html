@@ -1305,7 +1305,7 @@
                 const exemptDone = t.exempted ? '<div class="done">✨ 已豁免</div>' : '';
                 const diffBtn = `<button class="diff-btn" onclick="changeDifficulty('${t.id}')">难度</button> <span class="difficulty-stars">${diffStars}</span>`;
 
-                return '<div class="task-item '+cls+' '+stuckClass+' '+exemptCls+'"><div class="t-title">'+t.title+'</div><div class="t-desc">'+(t.desc||'')+'</div><div class="t-progress-bar"><div class="fill" style="width:'+pct+'%"></div></div><div class="t-progress">进度: '+t.progress+'/'+t.max+'</div><div style="display:flex; gap:4px; flex-wrap:wrap; margin-top:2px;">'+diffBtn+adviceBtn+submitBtn+exemptBtn+'</div>'+exemptDone+'</div>';
+                return '<div class="task-item '+cls+' '+stuckClass+' '+exemptCls+'"><div class="t-title">'+t.title+'</div><div class="t-desc">'+(t.desc||'')+'</div><div class="t-progress-bar"><div class="fill" style="width:'+pct+'%"></div></div><div class="t-progress">进度: '+t.progress+' / '+('⭐'.repeat(t.difficulty || 1))+'</div><div style="display:flex; gap:4px; flex-wrap:wrap; margin-top:2px;">'+diffBtn+adviceBtn+submitBtn+exemptBtn+'</div>'+exemptDone+'</div>';
             }).join('');
         };
         render(GameData.tasks.daily, 'dailyTasksList', 'daily');
